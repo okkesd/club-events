@@ -13,11 +13,11 @@ const mockLoginApi = (email: string, password: string): Promise<{ user: IUser }>
     setTimeout(() => {
       if (email === "club@unievents.com" && password === "password123") {
         resolve({ 
-          user: { id: 'user-1', email: 'club@unievents.com', clubName: 'Coding Club', role: 'club_member' } 
+          user: { id: 'user-1', username: "okkes donbaloglu", email: 'club@unievents.com', clubName: 'Coding Club', clubSlug: 'coding-club', role: 'club_member' } 
         });
       } else if (email === "admin@unievents.com" && password === "admin123") {
         resolve({
-          user: { id: 'admin-1', email: 'admin@unievents.com', clubName: 'University Admin', role: 'admin' }
+          user: { id: 'admin-1', username: "admin okkes", email: 'admin@unievents.com', clubName: 'University Admin', clubSlug: null, role: 'admin' }
         });
       } else {
         reject(new Error("Invalid email or password."));
@@ -84,11 +84,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // --- Login Function ---
   const login = async (email: string, password: string) => {
-    // This will throw an error on failure, which the login page will catch
-    const { user } = await mockLoginApi(email, password);
-    setUser(user);
-    // Redirect to main page on successful login
-    router.push('/main');
+    try {
+
+        // This will throw an error on failure, which the login page will catch
+        const { user } = await mockLoginApi(email, password);
+        setUser(user);
+        // Redirect to main page on successful login
+        router.push('/main');
+    } catch (error) {
+        console.log("an error occured in authcontexrt")
+        throw error;
+    }
+    
   };
 
   // --- Logout Function ---

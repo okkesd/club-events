@@ -4,22 +4,8 @@ import React, { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { LogIn, Loader2, AlertCircle, AtSign, Lock } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '../context/AuthContext';
 
-/**
- * A mock API function to simulate a login request.
- * In a real app, this would be a fetch() call to your backend.
- */
-const mockLoginApi = (email: string, password: string): Promise<{ success: boolean; message: string }> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      if (email === "club@unievents.com" && password === "password123") {
-        resolve({ success: true, message: "Login successful!" });
-      } else {
-        resolve({ success: false, message: "Invalid email or password." });
-      }
-    }, 1500); // Simulate 1.5 second network delay
-  });
-};
 
 
 export default function LoginPage() {
@@ -28,25 +14,24 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  let auth = useAuth()
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault(); // Prevent default form submission
     setError(null);
     setIsLoading(true);
 
-    // Call the mock API
-    const response = await mockLoginApi(email, password);
 
-    setIsLoading(false);
+    try {
+        let response = await auth.login(email, password)
 
-    if (response.success) {
-      // On success, redirect to the main page (or an admin dashboard)
-      // For now, we'll just go back to the calendar
-      router.push('/main');
-    } else {
-      // On failure, show an error message
-      setError(response.message);
+        setIsLoading(false);
+    } catch (error: any) { // you may need to define a proper type for this
+        setError(error.message)
+        console.log("error")
     }
+    setIsLoading(false)
+    
   };
 
   return (

@@ -1,0 +1,44 @@
+dependencies
+
+/node_modules
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+build cache
+
+.turbo
+
+build artifacts
+
+Next.js build output
+
+/.next/
+/out/
+
+optional files
+
+/build
+
+testing
+
+/coverage
+
+misc
+
+.DS_Store
+*.pem
+
+environment variables
+
+.env
+.env*.local
+
+vercel
+
+.vercel
+
+typescript
+
+*.tsbuildinfo
+next-env.d.ts

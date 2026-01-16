@@ -1,6 +1,6 @@
 "use client"; // This is the root client component for this page.
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { IEvent } from "@/app/lib/types";
 import { fetchEventsForWeek } from "@/app/lib/api";
 import { getWeekDays, formatWeekHeader } from "@/app/lib/dateUtils";
@@ -10,17 +10,19 @@ import { DayColumn } from "@/app/main/components/DayColumn";
 export default function EventCalendar() {
     // --- State ---
     const [currentDate, setCurrentDate] = useState(new Date());
-    const [weekDays, setWeekDays] = useState<Date[]>([]);
+    //const [weekDays, setWeekDays] = useState<Date[]>([]);
     const [events, setEvents] = useState<IEvent[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+
+    const weekDays = useMemo(() => getWeekDays(currentDate), [currentDate]);
 
     // --- Effects ---
     useEffect(() => {
         setIsLoading(true);
-        const days = getWeekDays(currentDate);
-        setWeekDays(days); // Set weekdays immediately for header
+        //const days = getWeekDays(currentDate);
+        //setWeekDays(days); // Set weekdays immediately for header
 
-        fetchEventsForWeek(days[0])
+        fetchEventsForWeek(weekDays[0])
             .then((data) => {
 
                 const allEventsArray = Object.values(data).flat();
@@ -74,24 +76,31 @@ export default function EventCalendar() {
             );
     };
 
-    // --- Render ---
+    // --- Render --- bg-gray-100
     return (
-        <div className="flex flex-col flex-grow bg-gray-100 font-inter">
-            <CalendarHeader
-                weekHeader={formatWeekHeader(weekDays)}
-                onPreviousWeek={goToPreviousWeek}
-                onNextWeek={goToNextWeek}
-            />
+        <div className="flex flex-col  font-inter p-4 bg-gray-100">
+            <div className="flex flex-col w-full bg-white rounded-2xl shadow-xl border border-gray-200">
+                
+                <CalendarHeader
+                    weekHeader={formatWeekHeader(weekDays)}
+                    onPreviousWeek={goToPreviousWeek}
+                    onNextWeek={goToNextWeek}
+                />
 
-            <main className="flex-1 overflow-auto p-4">
-                {isLoading ? (
-                    <div className="flex items-center justify-center h-full">
-                        <div className="text-lg text-gray-600">
-                            Loading events...
+            <main className="p-4 relative">
+                    
+                    {/* Loading Overlay: Appears ON TOP of the grid */}
+                    {isLoading && (
+                        <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/70 backdrop-blur-[1px] rounded-b-2xl transition-all duration-300">
+                            <div className="bg-white px-6 py-3 rounded-full shadow-lg border border-gray-100 flex items-center gap-2">
+                                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                                <span className="text-sm font-semibold text-blue-600">Loading events...</span>
+                            </div>
                         </div>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-7 gap-4 h-full">
+                    )}
+
+                    {/* Grid: Always rendered, maintaining the layout height */}
+                    <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
                         {weekDays.map((day, index) => {
                             const dayEvents = getEventsForDay(day);
                             const isToday =
@@ -102,6 +111,8 @@ export default function EventCalendar() {
                                 <DayColumn
                                     key={day.toISOString()}
                                     day={day}
+                                    // Optionally pass empty events if you want the cards to vanish instantly during load
+                                    // events={isLoading ? [] : dayEvents} 
                                     events={dayEvents}
                                     isToday={isToday}
                                     isFirstDay={index === 0}
@@ -109,8 +120,8 @@ export default function EventCalendar() {
                             );
                         })}
                     </div>
-                )}
-            </main>
+                </main>
+            </div>
         </div>
     );
 }

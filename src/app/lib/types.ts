@@ -3,15 +3,29 @@
  */
 export interface IEvent {
   id: string;
-  title: string;
-  clubName: string;
-  startTime: string; // e.g., "10:00"
-  endTime: string;   // e.g., "11:00"
-  date: string;      // e.g., "2025-10-27"
+  clubName: string;    // Display name
   
-  // --- Updated Fields ---
-  description: string;
-  location: string;
+  // --- Core Info ---
+  title: string;
+  description: string; // Rich text or long string
+  
+  // --- Time ---
+  date: string;        // YYYY-MM-DD
+  startTime: string;   // HH:MM (24h)
+  endTime: string;     // HH:MM (24h)
+
+  // --- Location ---
+  location: string;    // Room number, Building, or Address
+
+  // --- New Logic Fields ---
+  locationType: 'on-campus' | 'off-campus'; // Determines if "Get Directions" is shown
+  isRegistrationOpen: boolean;              // Master toggle for the Register button
+  
+  // --- New Additions ---
+  coverImage?: string;       // URL for a poster/hero image
+  registrationLink?: string; // Link to Google Forms/Luma/Eventbrite
+  capacity?: number;         // e.g. 50 spots (Show "Limited Space" badge)
+  tags?: string[];           // e.g. ["Free Food", "Open to All"]
 }
 
 /**

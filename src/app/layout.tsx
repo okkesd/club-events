@@ -38,14 +38,14 @@ export default function RootLayout({
           
           {/* 5. The Navbar is added here, at the top */}
           
-          
+          <Navbar /> 
           {/* 6. The <main> tag holds the page content and fills the remaining space */}
-          <main className="flex-grow flex flex-col h-screen">
-            <Navbar /> 
-            {children}
-            <Footer />
-          </main>
+          <main className="flex-grow flex flex-col h-full">
             
+            {children}
+            
+          </main>
+            <Footer />
         </div>
         </AuthProvider>
       </body>

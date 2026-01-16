@@ -4,14 +4,60 @@ import { getWeekStartDate } from './dateUtils';
 // --- MOCK DATABASE ---
 // This is our mock data. In a real app, this would be in a database.
 const allEvents: IEvent[] = [
-  // Week 1 (Current Week)
-  { id: 'evt-1', title: 'Intro to React', clubName: 'Coding Club', startTime: '10:00', endTime: '11:00', date: '2025-10-27', description: 'Join us to learn the basics of React! No prior experience needed. We will cover components, props, and state.', location: 'Room 101, Tech Hall' },
-  { id: 'evt-2', title: 'Robotics Workshop', clubName: 'Robotics Club', startTime: '14:00', endTime: '16:00', date: '2025-10-27', description: 'Build and program your first robot. All parts will be provided.', location: 'Engineering Lab B' },
-  { id: 'evt-3', title: 'Debate Meetup', clubName: 'Debate Society', startTime: '17:00', endTime: '18:00', date: '2025-10-30', description: 'This week\'s topic: "Is AI beneficial for society?" Come to argue or just to listen!', location: 'Social Sciences Bldg, Room 204' },
-  
-  // Week 2 (Next Week)
-  { id: 'evt-4', title: 'Guest Speaker: Jane Doe', clubName: 'Coding Club', startTime: '18:00', endTime: '19:00', date: '2025-11-03', description: 'Hear from Jane Doe, a software engineer at Google, about her journey into tech.', location: 'Main Auditorium' },
-  { id: 'evt-5', title: 'Stargazing Night', clubName: 'Astronomy Club', startTime: '20:00', endTime: '22:00', date: '2025-11-05', description: 'Join us on the observatory hill to look at Mars and the Andromeda Galaxy.', location: 'Observatory Hill' },
+  { 
+    id: 'evt-1', 
+    title: 'Intro to React', 
+    clubName: 'Coding Club', 
+    startTime: '10:00', 
+    endTime: '11:00', 
+    date: '2025-10-27', 
+    location: 'Room 101, Tech Hall',
+    description: 'Join us to learn the basics of React...',
+    coverImage: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=1000&auto=format&fit=crop',
+    tags: ['Workshop', 'Free Food'],
+    
+    // LOGIC: On-campus (No directions), Registration Open (Show button)
+    locationType: 'on-campus',
+    isRegistrationOpen: true,
+    //registrationLink: 'https://google.com',
+    capacity: 30
+  },
+  { 
+    id: 'evt-2', 
+    title: 'Robotics Workshop', 
+    clubName: 'Robotics Club', 
+    startTime: '14:00', 
+    endTime: '16:00', 
+    date: '2026-01-16',
+    location: 'Engineering Lab B',
+    description: 'Build and program your first robot...',
+    coverImage: 'https://images.unsplash.com/photo-1561557944-6e7860d1a7eb?q=80&w=1000&auto=format&fit=crop',
+    tags: ['Hardware', 'Hands-on'],
+    
+    // LOGIC: On-campus, Registration CLOSED (Button hidden even if link exists)
+    locationType: 'on-campus',
+    isRegistrationOpen: false, 
+    registrationLink: 'https://robotics.example.com/signup',
+    capacity: 15
+  },
+  { 
+    id: 'evt-5', 
+    title: 'Stargazing Night', 
+    clubName: 'Astronomy Club', 
+    startTime: '20:00', 
+    endTime: '22:00', 
+    date: '2026-01-25', 
+    location: 'City Observatory (Downtown)',
+    description: 'Join us to look at Mars...',
+    coverImage: 'https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?q=80&w=1000&auto=format&fit=crop',
+    tags: ['Outdoors', 'Science'],
+    
+    // LOGIC: Off-campus (Show Directions), No registration needed
+    locationType: 'off-campus',
+    isRegistrationOpen: true, // true, but no link, so button still won't show
+    capacity: 50
+  }
+  // ... other events
 ];
 // --- END MOCK DATABASE ---
 
@@ -45,7 +91,7 @@ export const fetchEventsForWeek = async (weekStartDate: Date): Promise<IWeekEven
   }
 
   // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 500)); 
+  await new Promise(resolve => setTimeout(resolve, 300)); 
   
   return events;
 };

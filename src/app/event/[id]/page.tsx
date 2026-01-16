@@ -1,106 +1,209 @@
+// app/event/[id]/page.tsx
 import React from 'react';
 import { fetchEventById } from '@/app/lib/api';
-import { IEvent } from '@/app/lib/types';
 import { notFound } from 'next/navigation';
-import { Calendar, Clock, MapPin, Users, Hash, ChevronLeft } from 'lucide-react';
+import { 
+  MapPin, Users, ChevronLeft, 
+  ExternalLink, CalendarPlus, Ticket 
+} from 'lucide-react';
 import Link from 'next/link';
+import { ShareButton } from '@/app/event/[id]/ShareButton';
+import { NotifyModal } from '@/app/event/[id]/NotifyModal'; // Import the new modal
+import { EventBrochure } from '@/app/event/[id]/EventBrochure';
 
-// This is the prop type for our page component.
-// Next.js passes `params` to dynamic route pages.
 type EventPageProps = {
-  params: Promise<{
-    id: string; // `id` matches the folder name [id]
-  }>;
+  params: Promise<{ id: string }>;
 };
 
-/**
- * This is a Server Component that fetches and displays
- * data for a single event based on the URL.
- */
+function getGoogleCalendarLink(event: any) {
+  const start = new Date(`${event.date}T${event.startTime}`).toISOString().replace(/-|:|\.\d\d\d/g, "");
+  const end = new Date(`${event.date}T${event.endTime}`).toISOString().replace(/-|:|\.\d\d\d/g, "");
+  return `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${start}/${end}&details=${encodeURIComponent(event.description)}&location=${encodeURIComponent(event.location)}`;
+}
+
 export default async function EventDetailPage({ params }: EventPageProps) {
   const { id } = await params;
   const event = await fetchEventById(id);
 
-  // If no event is found, show a 404 page
-  if (!event) {
-    notFound();
-  }
+  if (!event) notFound();
 
-  // Helper to format the date
-  const eventDate = new Date(`${event.date}T00:00:00`); // Use T00:00 to avoid timezone issues
-  const formattedDate = eventDate.toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+  // Formatting
+  const eventDate = new Date(`${event.date}T00:00:00`);
+  const dateStr = eventDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const weekdayStr = eventDate.toLocaleDateString('en-US', { weekday: 'long' });
+  const googleCalLink = getGoogleCalendarLink(event);
+
+  // Layout Logic:
+  // If brochure exists: Brochure(3) | Info(6) | Sidebar(3)
+  // If NO brochure: Info(9) | Sidebar(3)
+  const hasBrochure = !!event.coverImage;
+  const infoColSpan = hasBrochure ? "lg:col-span-6" : "lg:col-span-9";
 
   return (
-    <div className="bg-gray-50 min-h-full py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
-        
-        {/* Back navigation link */}
+    <div className="bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      
+      {/* Top Nav */}
+      <div className="max-w-[1400px] mx-auto mb-6">
         <Link 
           href="/main"
-          className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-800 mb-4"
+          className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
           Back to Calendar
         </Link>
-        
-        {/* Main Event Card */}
-        <div className="bg-white shadow-xl rounded-lg overflow-hidden">
-          {/* Header with club name */}
-          <div className="bg-blue-600 p-4">
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
-              <Users className="w-5 h-5" />
-              {event.clubName}
-            </h2>
-          </div>
+      </div>
 
-          <div className="p-6 md:p-8">
-            {/* Event Title */}
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              {event.title}
-            </h1>
-
-            {/* Main Details (Date, Time, Location) */}
-            <div className="space-y-4 mb-6">
-              <div className="flex items-center gap-3">
-                <Calendar className="w-5 h-5 text-gray-500" />
-                <span className="text-lg text-gray-700">{formattedDate}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Clock className="w-5 h-5 text-gray-500" />
-                <span className="text-lg text-gray-700">
-                  {event.startTime} – {event.endTime}
-                </span>
-              </div>
-              <div className="flex items-center gap-3">
-                <MapPin className="w-5 h-5 text-gray-500" />
-                <span className="text-lg text-gray-700">{event.location}</span>
+      <div className="max-w-[1400px] mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* --- 1. BROCHURE COLUMN (Left Wall) --- */}
+          {hasBrochure && (
+            <div className="lg:col-span-3 order-1">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden sticky top-8">
+                
+                {/* Replaced static <img> with Client Component */}
+                <EventBrochure
+                  src={event.coverImage!} 
+                  alt={event.title} 
+                />
+                
               </div>
             </div>
+          )}
 
-            {/* Divider */}
-            <hr className="my-6" />
+          {/* --- 2. INFO COLUMN (Middle/Left) --- */}
+          <div className={`${infoColSpan} order-2 space-y-6`}>
+            
+            {/* Main Info Card */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+                {/* Tags */}
+                {event.tags && (
+                <div className="flex flex-wrap gap-2 mb-5">
+                    {event.tags.map(tag => (
+                    <span key={tag} className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold uppercase tracking-wider">
+                        {tag}
+                    </span>
+                    ))}
+                    {event.capacity && (
+                    <span className="px-3 py-1 rounded-full bg-orange-50 text-orange-700 text-xs font-semibold uppercase tracking-wider flex items-center gap-1">
+                        <Ticket className="w-3 h-3" />
+                        {event.capacity} Spots
+                    </span>
+                    )}
+                </div>
+                )}
 
-            {/* Description */}
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">
-              Event Details
-            </h3>
-            <p className="text-base text-gray-600 whitespace-pre-line">
-              {event.description}
-            </p>
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">
+                    {event.title}
+                </h1>
+                
+                <Link 
+                    href={`/profile?club=${encodeURIComponent(event.clubName)}`}
+                    className="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors font-medium"
+                >
+                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                        <Users className="w-4 h-4" />
+                    </div>
+                    <span>Hosted by <span className="underline decoration-dotted text-gray-900">{event.clubName}</span></span>
+                </Link>
 
-            {/* Event ID Tag (Optional) */}
-            <div className="mt-8">
-              <span className="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
-                <Hash className="w-3 h-3" />
-                Event ID: {event.id}
-              </span>
+                <hr className="my-8 border-gray-100" />
+
+                <h3 className="text-lg font-bold text-gray-900 mb-4">About Event</h3>
+                <div className="prose prose-blue prose-sm md:prose-base text-gray-600 whitespace-pre-line leading-relaxed max-w-none">
+                {event.description}
+                </div>
             </div>
           </div>
+
+          {/* --- 3. SIDEBAR COLUMN (Right Wall) --- */}
+          <div className="lg:col-span-3 order-3">
+            <div className="top-8 space-y-4">
+              
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                <div className="bg-gray-50 p-4 border-b border-gray-100 flex items-center gap-4">
+                  <div className="flex flex-col items-center justify-center bg-white border border-gray-200 rounded-lg w-14 h-14 shadow-sm shrink-0">
+                    <span className="text-[10px] font-bold text-red-500 uppercase">{dateStr.split(' ')[0]}</span>
+                    <span className="text-xl font-extrabold text-gray-900">{dateStr.split(' ')[1]}</span>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 font-medium uppercase">{weekdayStr}</p>
+                    <p className="text-sm font-bold text-gray-900">{event.startTime} - {event.endTime}</p>
+                  </div>
+                </div>
+
+                <div className="p-5 space-y-6">
+                  {/* Location */}
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-blue-50 rounded-lg text-blue-600 shrink-0">
+                      <MapPin className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-gray-500 uppercase mb-0.5">Location</p>
+                      <p className="text-sm text-gray-900 font-semibold leading-snug">{event.location}</p>
+                      {event.locationType === 'off-campus' && (
+                        <a 
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-xs text-blue-600 hover:underline mt-1 inline-block"
+                        >
+                          Get Directions
+                        </a>
+                      )}
+                      {event.locationType === 'on-campus' && (
+                        <span className="text-xs text-gray-400 mt-1 inline-block">
+                          On Campus
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* REGISTER BUTTON */}
+                  {event.registrationLink && event.isRegistrationOpen ? (
+                    <a 
+                      href={event.registrationLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center justify-center w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg gap-2"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      Register Now
+                    </a>
+                  ) : (
+                    /* Optional: Show a "Closed" state if link exists but closed */
+                    event.registrationLink && !event.isRegistrationOpen && (
+                      <button disabled className="w-full py-3 px-4 bg-gray-100 text-gray-400 font-bold rounded-xl cursor-not-allowed border border-gray-200">
+                        Registration Closed
+                      </button>
+                    )
+                  )}
+
+                  {/* Actions Grid */}
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                        <a 
+                        href={googleCalLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center justify-center gap-2 py-2 px-3 border border-gray-200 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                        >
+                        <CalendarPlus className="w-4 h-4 text-gray-500" />
+                        Add to Cal
+                        </a>
+                        
+                        <ShareButton />
+                    </div>
+                    
+                    {/* Notify Me Button (Full Width) */}
+                    <NotifyModal eventId={event.id} />
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>

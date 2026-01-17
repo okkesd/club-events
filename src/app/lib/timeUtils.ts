@@ -16,3 +16,13 @@ export const getCalendarHourSlots = () => {
   }
   return slots;
 };
+
+export function calculateEndTime(startTime: string, duration:number) {
+  const [h, m] = startTime.split(":").map(Number);
+  const totalMinutes = h * 60 + m + duration * 60;
+
+  const endH = Math.floor(totalMinutes / 60) % 24;
+  const endM = totalMinutes % 60;
+
+  return `${String(endH).padStart(2, "0")}:${String(endM).padStart(2, "0")}`;
+}

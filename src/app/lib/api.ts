@@ -1,75 +1,16 @@
-import { IWeekEventsResponse, IEvent } from './types';
+import { IWeekEventsResponse, IEvent, Club, IEventComplex } from './types';
 import { getWeekStartDate } from './dateUtils';
 
-// --- MOCK DATABASE ---
-// This is our mock data. In a real app, this would be in a database.
-const allEvents: IEvent[] = [
-  { 
-    id: 'evt-1', 
-    title: 'Intro to React', 
-    clubName: 'Coding Club', 
-    startTime: '10:00', 
-    endTime: '11:00', 
-    date: '2025-10-27', 
-    location: 'Room 101, Tech Hall',
-    description: 'Join us to learn the basics of React...',
-    coverImage: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=1000&auto=format&fit=crop',
-    tags: ['Workshop', 'Free Food'],
-    
-    // LOGIC: On-campus (No directions), Registration Open (Show button)
-    locationType: 'on-campus',
-    isRegistrationOpen: true,
-    //registrationLink: 'https://google.com',
-    capacity: 30
-  },
-  { 
-    id: 'evt-2', 
-    title: 'Robotics Workshop', 
-    clubName: 'Robotics Club', 
-    startTime: '14:00', 
-    endTime: '16:00', 
-    date: '2026-01-16',
-    location: 'Engineering Lab B',
-    description: 'Build and program your first robot...',
-    coverImage: 'https://images.unsplash.com/photo-1561557944-6e7860d1a7eb?q=80&w=1000&auto=format&fit=crop',
-    tags: ['Hardware', 'Hands-on'],
-    
-    // LOGIC: On-campus, Registration CLOSED (Button hidden even if link exists)
-    locationType: 'on-campus',
-    isRegistrationOpen: false, 
-    registrationLink: 'https://robotics.example.com/signup',
-    capacity: 15
-  },
-  { 
-    id: 'evt-5', 
-    title: 'Stargazing Night', 
-    clubName: 'Astronomy Club', 
-    startTime: '20:00', 
-    endTime: '22:00', 
-    date: '2026-01-25', 
-    location: 'City Observatory (Downtown)',
-    description: 'Join us to look at Mars...',
-    coverImage: 'https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?q=80&w=1000&auto=format&fit=crop',
-    tags: ['Outdoors', 'Science'],
-    
-    // LOGIC: Off-campus (Show Directions), No registration needed
-    locationType: 'off-campus',
-    isRegistrationOpen: true, // true, but no link, so button still won't show
-    capacity: 50
-  }
-  // ... other events
-];
-// --- END MOCK DATABASE ---
-
+const URL = "http://localhost:4444/"
 
 /**
  * Simulates an API call to fetch all events for a given week.
  * @param weekStartDate - The Date object for the Monday of the week.
  */
-export const fetchEventsForWeek = async (weekStartDate: Date): Promise<IWeekEventsResponse> => {
-  console.log(`Fetching events for week starting: ${weekStartDate.toISOString()}`);
-  
-  const events: IWeekEventsResponse = {};
+export const fetchEventsForWeek = async (currentDate: Date): Promise<any[]|null> => {
+  console.log(`Fetching events for the week`);
+  let functionURL = URL + "main"
+  /*const events: IWeekEventsResponse = {};
   
   // Create a Set of dates for the week
   const weekDates = new Set<string>();
@@ -88,12 +29,35 @@ export const fetchEventsForWeek = async (weekStartDate: Date): Promise<IWeekEven
       events[event.date] = [];
     }
     events[event.date].push(event);
+  }*/
+  let data;
+  const year = currentDate.getFullYear();
+  const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+  const day = currentDate.getDate().toString().padStart(2, '0');
+  console.log(year)
+  console.log(month)
+  console.log(day)
+  console.log(currentDate.toISOString())
+  try {
+    const response = await fetch(functionURL, {
+      method:"POST", 
+      body: JSON.stringify({"day": day, "month": month, "year": year}),
+      headers: {"Content-Type": "application/json"}
+    })
+    if (response.ok){
+      let raw_data = await response.json()
+      data = raw_data["data"]
+      console.log(data)
+      console.log(typeof(data))
+    } else {
+      throw new Error("Failed to fetch")
+    }
+  } catch (error) {
+    console.error("error", error)
+    return null
   }
 
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 300)); 
-  
-  return events;
+  return data;
 };
 
 
@@ -102,18 +66,50 @@ export const fetchEventsForWeek = async (weekStartDate: Date): Promise<IWeekEven
  * Simulates an API call to fetch a single event by its ID.
  * @param eventId - The unique ID of the event.
  */
-export const fetchEventById = async (eventId: string): Promise<IEvent | null> => {
+export const fetchEventById = async (eventId: string): Promise<IEventComplex | null> => {
   console.log(`Fetching event with ID: ${eventId}`);
+  let functionURL = URL + `events/${eventId}`
   
   // Find the event in our mock database
-  const event = allEvents.find(e => e.id === eventId);
-  
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 300));
-  
-  if (!event) {
-    return null; // Not found
+  //const event = allEvents.find(e => e.id === eventId);
+  let data
+  try {
+    const response = await fetch(functionURL)
+    if (response.ok){
+      const raw_data = await response.json()
+      data = raw_data["data"]
+    } else {
+      throw new Error(`failed to get event ${eventId}`)
+    }
+  } catch (error) {
+    console.error("error ", error)
+    return null
   }
   
-  return event;
+  // Simulate network delay
+  //await new Promise(resolve => setTimeout(resolve, 300));
+  
+  return data;
 };
+
+export const fetcClubById = async (clubId: number): Promise<Club | null> => {
+  console.log(`Fetching club wiht id ${clubId}`)
+
+  let functionURL = URL + "clubs/" + String(clubId)
+
+  let data
+  try {
+    const response = await fetch(functionURL)
+    if (response.ok){
+      const raw_data = await response.json()
+      data = raw_data["data"]
+    } else {
+      throw new Error(`Failed to fetch club, id ${clubId}`)
+    }
+  } catch (error){
+    console.error(error)
+    return null
+  }
+
+  return data
+}

@@ -1,6 +1,7 @@
 // app/event/[id]/page.tsx
 import React from 'react';
-import { fetchEventById } from '@/app/lib/api';
+import { fetcClubById, fetchEventById } from '@/app/lib/api';
+import {calculateEndTime} from '@/app/lib/timeUtils'
 import { notFound } from 'next/navigation';
 import { 
   MapPin, Users, ChevronLeft, 
@@ -15,20 +16,31 @@ type EventPageProps = {
   params: Promise<{ id: string }>;
 };
 
+
 function getGoogleCalendarLink(event: any) {
-  const start = new Date(`${event.date}T${event.startTime}`).toISOString().replace(/-|:|\.\d\d\d/g, "");
-  const end = new Date(`${event.date}T${event.endTime}`).toISOString().replace(/-|:|\.\d\d\d/g, "");
+  
+  const end_time = calculateEndTime(event.startTime, event.duration)
+
+  //console.log(`${event.year}-${event.month < 10 ? '0'+String(event.month): event.month}-${event.day < 10 ? '0'+String(event.day) : event.day}T${event.startTime}:00.000Z`)
+  const start = new Date(`${event.year}-${event.month < 10 ? '0'+String(event.month): event.month}-${event.day < 10 ? '0'+String(event.day) : event.day}T${event.startTime}:00.000Z`).toISOString().replace(/-|:|\.\d\d\d/g, "");
+  const end = new Date(`${event.year}-${event.month < 10 ? '0'+String(event.month): event.month}-${event.day < 10 ? '0'+String(event.day) : event.day}T${end_time}:00.000Z`).toISOString().replace(/-|:|\.\d\d\d/g, "");
   return `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${start}/${end}&details=${encodeURIComponent(event.description)}&location=${encodeURIComponent(event.location)}`;
 }
 
 export default async function EventDetailPage({ params }: EventPageProps) {
   const { id } = await params;
   const event = await fetchEventById(id);
-
+  console.log(event)
   if (!event) notFound();
+  //const club = await fetcClubById(event.clubID)
+  //if (!club) notFound();
+
+
+  
 
   // Formatting
-  const eventDate = new Date(`${event.date}T00:00:00`);
+  const eventDate = new Date(`${event.year}-${event.month < 10 ? '0'+String(event.month): event.month}-${event.day < 10 ? '0'+String(event.day) : event.day}T00:00:00`);
+  const eventEndTime = calculateEndTime(event.startTime, event.duration)
   const dateStr = eventDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   const weekdayStr = eventDate.toLocaleDateString('en-US', { weekday: 'long' });
   const googleCalLink = getGoogleCalendarLink(event);
@@ -98,7 +110,7 @@ export default async function EventDetailPage({ params }: EventPageProps) {
                 </h1>
                 
                 <Link 
-                    href={`/profile?club=${encodeURIComponent(event.clubName)}`}
+                    href={`/clubs/${encodeURIComponent(event.clubID)}`}
                     className="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors font-medium"
                 >
                     <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
@@ -128,7 +140,7 @@ export default async function EventDetailPage({ params }: EventPageProps) {
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 font-medium uppercase">{weekdayStr}</p>
-                    <p className="text-sm font-bold text-gray-900">{event.startTime} - {event.endTime}</p>
+                    <p className="text-sm font-bold text-gray-900">{event.startTime} - {eventEndTime}</p>
                   </div>
                 </div>
 

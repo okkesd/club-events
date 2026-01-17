@@ -4,6 +4,7 @@ import { formatTime } from "@/app/lib/dateUtils";
 import Link from 'next/link'; // Import Link
 import { Clock } from "lucide-react";
 import { CALENDAR_START_HOUR } from '@/app/lib/timeUtils';
+import {calculateEndTime} from '@/app/lib/timeUtils'
 
 /**
  * Renders a single event card.
@@ -26,8 +27,10 @@ export function EventCard({ event, showHourLabels }: { event: IEvent , showHourL
     // --- Grid Position Calculation ---
   
     const start = parseTime(event.startTime); // e.g., 10.0
-    const end = parseTime(event.endTime);     // e.g., 11.0
-    const duration = end - start;
+    const end = event.duration + start
+    const duration = event.duration
+    //const end = parseTime(event.endTime);     // e.g., 11.0
+    //const duration = end - start;
     
     // 1. Calculate the start row
     // (10:00 - 9:00) + 1 = row 2
@@ -46,6 +49,7 @@ export function EventCard({ event, showHourLabels }: { event: IEvent , showHourL
       gridRow: `${gridRowStart} / ${gridRowEnd}`,
     };
 
+    const eventEndTime = calculateEndTime(event.startTime, event.duration)
 
     return (
         <Link
@@ -79,7 +83,7 @@ export function EventCard({ event, showHourLabels }: { event: IEvent , showHourL
           <div className="flex items-center gap-1 text-xs text-blue-600">
             <Clock className="w-3 h-3" />
             <span>
-              {event.startTime} - {event.endTime}
+              {event.startTime} - {eventEndTime}
             </span>
           </div>
         )}

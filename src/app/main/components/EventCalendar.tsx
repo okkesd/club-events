@@ -22,12 +22,14 @@ export default function EventCalendar() {
         //const days = getWeekDays(currentDate);
         //setWeekDays(days); // Set weekdays immediately for header
 
-        fetchEventsForWeek(weekDays[0])
+        fetchEventsForWeek(currentDate)
             .then((data) => {
-
-                const allEventsArray = Object.values(data).flat();
-
-                setEvents(allEventsArray); // Set the correct flat array
+                console.log("data from calendar",data)
+                //const allEventsArray = Object.values(data).flat();
+                if (data){
+                    setEvents(data); // Set the correct flat array
+                }
+                
                 setIsLoading(false);
             })
             .catch((err) => {
@@ -54,23 +56,23 @@ export default function EventCalendar() {
         // 1. Get the date string in 'YYYY-MM-DD' format from the 'day' object.
         // This is the correct format to compare with event.date
         //const dayString = day.toISOString().split('T')[0];
-        const year = day.getFullYear();
-        const month = (day.getMonth() + 1).toString().padStart(2, '0'); // getMonth() is 0-indexed
+        //const year = day.getFullYear();
+        //const month = (day.getMonth() + 1).toString().padStart(2, '0'); // getMonth() is 0-indexed
         const date = day.getDate().toString().padStart(2, '0');
-        const dayString = `${year}-${month}-${date}`;
+        //const dayString = `${year}-${month}-${date}`;
 
         return events
             .filter((event) => {
                 // 2. FIX: Compare the event's 'date' string (e.g., "2025-10-27")
                 // with the 'day' string we want to render.
-                return event.date === dayString;
+                return String(event.day) === date;
             })
             .sort(
                 (a, b) => {
                     // 3. FIX: Create full, valid date-time strings to compare.
                     // This is more robust than new Date("10:00").
-                    const timeA = new Date(`${a.date}T${a.startTime}`).getTime();
-                    const timeB = new Date(`${b.date}T${b.startTime}`).getTime();
+                    const timeA = new Date(`${a.startTime}`).getTime(); // ${a.date}T
+                    const timeB = new Date(`${b.startTime}`).getTime(); // ${b.date}T
                     return timeA - timeB;
                 }
             );

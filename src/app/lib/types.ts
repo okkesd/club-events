@@ -10,9 +10,7 @@ export interface IEvent {
   
   // --- Time ---
   //date: string;        // YYYY-MM-DD
-  year: number
-  month: number
-  day: number
+  startDate: string,
   startTime: string;   // HH:MM (24h)
   endTime: string;     // HH:MM (24h)
   duration: number;
@@ -35,16 +33,14 @@ export interface IEvent {
 export interface IEventComplex {
   id: string;
   title: string;
-  clubID: number;    // Display name
+  clubID: string;    // Display name
   clubName: string;
   
   description: string; // Rich text or long string
   
   // --- Time ---
   //date: string;        // YYYY-MM-DD
-  year: number
-  month: number
-  day: number
+  startDate: string,
   startTime: string;   // HH:MM (24h)
   endTime: string;     // HH:MM (24h)
   duration: number;
@@ -63,10 +59,24 @@ export interface IEventComplex {
   tags?: string[];           // e.g. ["Free Food", "Open to All"]
 }
 
+export interface SocialLinks {
+  instagram?: string;
+  website?: string;
+  linkedin?: string;
+}
+
 export interface Club {
-  id: number
-  clubName: string
-  clubMail: string
+  id: string;
+  clubName: string;
+  clubMail: string;
+  
+  // --- New Fields ---
+  category: string;        // e.g. "Technology", "Sports"
+  description: string;     // Full bio/story
+  logo: string;            // Square logo URL
+  banner: string;          // Wide hero image URL
+  foundedYear?: number;
+  socials?: SocialLinks;
 }
   
     

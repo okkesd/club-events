@@ -1,6 +1,6 @@
 // app/event/[id]/page.tsx
 import React from 'react';
-import { fetcClubById, fetchEventById } from '@/app/lib/api';
+import { fetchClubById, fetchEventById } from '@/app/lib/api';
 import {calculateEndTime} from '@/app/lib/timeUtils'
 import { notFound } from 'next/navigation';
 import { 
@@ -22,8 +22,8 @@ function getGoogleCalendarLink(event: any) {
   const end_time = calculateEndTime(event.startTime, event.duration)
 
   //console.log(`${event.year}-${event.month < 10 ? '0'+String(event.month): event.month}-${event.day < 10 ? '0'+String(event.day) : event.day}T${event.startTime}:00.000Z`)
-  const start = new Date(`${event.year}-${event.month < 10 ? '0'+String(event.month): event.month}-${event.day < 10 ? '0'+String(event.day) : event.day}T${event.startTime}:00.000Z`).toISOString().replace(/-|:|\.\d\d\d/g, "");
-  const end = new Date(`${event.year}-${event.month < 10 ? '0'+String(event.month): event.month}-${event.day < 10 ? '0'+String(event.day) : event.day}T${end_time}:00.000Z`).toISOString().replace(/-|:|\.\d\d\d/g, "");
+  const start = new Date(`${event.startDate}T${event.startTime}:00.000Z`).toISOString().replace(/-|:|\.\d\d\d/g, "");
+  const end = new Date(`${event.startDate}T${end_time}:00.000Z`).toISOString().replace(/-|:|\.\d\d\d/g, "");
   return `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${start}/${end}&details=${encodeURIComponent(event.description)}&location=${encodeURIComponent(event.location)}`;
 }
 
@@ -36,13 +36,22 @@ export default async function EventDetailPage({ params }: EventPageProps) {
   //if (!club) notFound();
 
 
-  
+  const [year, month, day] = event.startDate.split('-');
+
+// 2. Create a Local Date object (Safe from timezone shifts)
+// Note: Month is 0-indexed in JS Date (0 = Jan), so we subtract 1
+const dateObj = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+
+// 3. Get the strings
+const monthName = dateObj.toLocaleString('en-US', { month: 'short' }); // "Jan"
+const dayNumber = day; // "18"
+const weekdayStr = dateObj.toLocaleString('en-US', { weekday: 'long' }); // "Sunday"
 
   // Formatting
-  const eventDate = new Date(`${event.year}-${event.month < 10 ? '0'+String(event.month): event.month}-${event.day < 10 ? '0'+String(event.day) : event.day}T00:00:00`);
+  const eventDate = event.startDate //new Date(`${event.year}-${event.month < 10 ? '0'+String(event.month): event.month}-${event.day < 10 ? '0'+String(event.day) : event.day}T00:00:00`);
   const eventEndTime = calculateEndTime(event.startTime, event.duration)
-  const dateStr = eventDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  const weekdayStr = eventDate.toLocaleDateString('en-US', { weekday: 'long' });
+  //const dateStr = eventDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  //const weekdayStr = new Date(event.startDate).toLocaleDateString('en-US', { weekday: 'long' });
   const googleCalLink = getGoogleCalendarLink(event);
 
   // Layout Logic:
@@ -129,20 +138,35 @@ export default async function EventDetailPage({ params }: EventPageProps) {
           </div>
 
           {/* --- 3. SIDEBAR COLUMN (Right Wall) --- */}
-          <div className="lg:col-span-3 order-3">
-            <div className="top-8 space-y-4">
-              
-              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-                <div className="bg-gray-50 p-4 border-b border-gray-100 flex items-center gap-4">
-                  <div className="flex flex-col items-center justify-center bg-white border border-gray-200 rounded-lg w-14 h-14 shadow-sm shrink-0">
-                    <span className="text-[10px] font-bold text-red-500 uppercase">{dateStr.split(' ')[0]}</span>
-                    <span className="text-xl font-extrabold text-gray-900">{dateStr.split(' ')[1]}</span>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500 font-medium uppercase">{weekdayStr}</p>
-                    <p className="text-sm font-bold text-gray-900">{event.startTime} - {eventEndTime}</p>
-                  </div>
-                </div>
+<div className="lg:col-span-3 order-3">
+  <div className="sticky top-8 space-y-4"> {/* Added 'sticky' for better UX */}
+    
+    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+      <div className="bg-gray-50 p-4 border-b border-gray-100 flex items-center gap-4">
+        
+        {/* Date Box */}
+        <div className="flex flex-col items-center justify-center bg-white border border-gray-200 rounded-lg w-14 h-14 shadow-sm shrink-0">
+          {/* FIXED: Use calculated monthName */}
+          <span className="text-[10px] font-bold text-red-500 uppercase">
+            {monthName}
+          </span>
+          {/* FIXED: Use parsed dayNumber */}
+          <span className="text-xl font-extrabold text-gray-900">
+            {dayNumber}
+          </span>
+        </div>
+
+        <div>
+          {/* Weekday */}
+          <p className="text-xs text-gray-500 font-medium uppercase">
+            {weekdayStr}
+          </p>
+          {/* Time */}
+          <p className="text-sm font-bold text-gray-900">
+            {event.startTime} - {event.endTime} {/* Make sure to use event.endTime */}
+          </p>
+        </div>
+      </div>
 
                 <div className="p-5 space-y-6">
                   {/* Location */}

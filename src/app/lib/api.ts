@@ -3,13 +3,22 @@ import { getWeekStartDate } from './dateUtils';
 
 const URL = "http://localhost:4444/"
 
+const formatDateToLocalISO = (date: Date): string => {
+  const year = date.getFullYear();
+  // Month is 0-indexed in JS, so we add 1
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 /**
  * Simulates an API call to fetch all events for a given week.
  * @param weekStartDate - The Date object for the Monday of the week.
  */
 export const fetchEventsForWeek = async (currentDate: Date): Promise<any[]|null> => {
   console.log(`Fetching events for the week`);
-  let functionURL = URL + "main"
+  const date_str = formatDateToLocalISO(currentDate)
+  let functionURL = URL + `events/weekly?date=${date_str}`
   /*const events: IWeekEventsResponse = {};
   
   // Create a Set of dates for the week
@@ -30,18 +39,18 @@ export const fetchEventsForWeek = async (currentDate: Date): Promise<any[]|null>
     }
     events[event.date].push(event);
   }*/
-  let data;
+  let data;/*
   const year = currentDate.getFullYear();
   const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
   const day = currentDate.getDate().toString().padStart(2, '0');
   console.log(year)
   console.log(month)
   console.log(day)
-  console.log(currentDate.toISOString())
+  console.log(currentDate.toISOString())*/
   try {
     const response = await fetch(functionURL, {
-      method:"POST", 
-      body: JSON.stringify({"day": day, "month": month, "year": year}),
+      method:"GET", 
+      //body: JSON.stringify({"day": day, "month": month, "year": year}),
       headers: {"Content-Type": "application/json"}
     })
     if (response.ok){
@@ -92,17 +101,18 @@ export const fetchEventById = async (eventId: string): Promise<IEventComplex | n
   return data;
 };
 
-export const fetcClubById = async (clubId: number): Promise<Club | null> => {
+export const fetchClubById = async (clubId: string): Promise<Club | null> => {
   console.log(`Fetching club wiht id ${clubId}`)
 
-  let functionURL = URL + "clubs/" + String(clubId)
+  let functionURL = URL + "clubs/" + clubId
 
   let data
   try {
-    const response = await fetch(functionURL)
+    const response = await fetch(functionURL, {"cache": "no-store"})
     if (response.ok){
       const raw_data = await response.json()
       data = raw_data["data"]
+      return data
     } else {
       throw new Error(`Failed to fetch club, id ${clubId}`)
     }
@@ -110,6 +120,46 @@ export const fetcClubById = async (clubId: number): Promise<Club | null> => {
     console.error(error)
     return null
   }
-
-  return data
 }
+
+export const fetchEventsByClubId = async (clubId: string) :Promise<IEvent[]|null> => {
+  console.log(`Fetching events by club id ${clubId}`)
+  let functionURL = URL + "clubs/" + clubId + "/events"
+
+  try {
+    const response = await fetch(functionURL, {"cache": "no-store"})
+    if (response.ok){
+      const raw_data = await response.json()
+      console.log(raw_data)
+      return raw_data.data
+    } else {
+      throw new Error(`Failed to fetch events by club, club id: ${clubId}`)
+    }
+  } catch (error){
+    console.log(error)
+    return null
+  }
+}
+
+export const uploadImage = async (file: File): Promise<string | null> => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await fetch(`${URL}upload`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (response.ok) {
+      const json = await response.json();
+      return json.url; // Returns "http://localhost:4444/static/..."
+    } else {
+      console.error("Upload failed");
+      return null;
+    }
+  } catch (error) {
+    console.error("Network error during upload:", error);
+    return null;
+  }
+};

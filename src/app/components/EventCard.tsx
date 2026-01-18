@@ -1,5 +1,5 @@
 import React from "react";
-import { IEvent } from "@/app/lib/types";
+import { IEvent, IEventComplex } from "@/app/lib/types";
 import { formatTime } from "@/app/lib/dateUtils";
 import Link from 'next/link'; // Import Link
 import { Clock } from "lucide-react";
@@ -23,7 +23,7 @@ function parseTime(time: string): number {
 /**
  * A card that calculates its own position on a calendar grid.
  */
-export function EventCard({ event, showHourLabels }: { event: IEvent , showHourLabels : boolean}) {
+export function EventCard({ event, showHourLabels }: { event: IEventComplex , showHourLabels : boolean}) {
     // --- Grid Position Calculation ---
   
     const start = parseTime(event.startTime); // e.g., 10.0

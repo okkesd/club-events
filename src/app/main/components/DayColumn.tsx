@@ -1,5 +1,5 @@
 import React from "react";
-import { IEvent } from "@/app/lib/types";
+import { IEvent, IEventComplex } from "@/app/lib/types";
 import { EventCard } from "@/app/components/EventCard"; // <-- UPDATED PATH
 import { formatDate } from '@/app/lib/dateUtils';
 import { getCalendarHourSlots, CALENDAR_START_HOUR, CALENDAR_END_HOUR } from '@/app/lib/timeUtils';
@@ -16,7 +16,7 @@ const totalGridRows = CALENDAR_END_HOUR - CALENDAR_START_HOUR;
 
 interface DayColumnProps {
     day: Date;
-    events: IEvent[];
+    events: IEventComplex[];
     isToday: boolean;
     isFirstDay: boolean
 }

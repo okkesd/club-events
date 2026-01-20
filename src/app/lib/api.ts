@@ -15,7 +15,7 @@ const formatDateToLocalISO = (date: Date): string => {
  * Simulates an API call to fetch all events for a given week.
  * @param weekStartDate - The Date object for the Monday of the week.
  */
-export const fetchEventsForWeek = async (currentDate: Date): Promise<any[]|null> => {
+export const fetchEventsForWeek = async (currentDate: Date): Promise<IEventComplex[]|null> => {
   console.log(`Fetching events for the week`);
   const date_str = formatDateToLocalISO(currentDate)
   let functionURL = URL + `events/weekly?date=${date_str}`

@@ -59,7 +59,7 @@ export default function EventCalendar() {
     };
 
     // --- Helper for Rendering ---
-    const getEventsForDay = (day: Date): IEvent[] => {
+    const getEventsForDay = (day: Date): IEventComplex[] => {
     // 1. Get the 'YYYY-MM-DD' string for the column being rendered
         const year = day.getFullYear();
         const month = (day.getMonth() + 1).toString().padStart(2, '0');

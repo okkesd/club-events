@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation'; // Import this
 import { 
   Calendar, Clock, MapPin, Upload, Image as ImageIcon, 
-  Type, Map, Users, Link as LinkIcon, Eye 
+  Type, Map, Users, Link as LinkIcon, Eye,
+  Smartphone, Monitor 
 } from 'lucide-react';
 import { uploadImage } from '@/app/lib/api'; 
 
@@ -20,6 +21,7 @@ const PREDEFINED_TAGS = ["Workshop", "Social", "Free Food", "Career", "Competiti
 
 export default function CreateEventPage() {
   const [isUploading, setIsUploading] = useState(false);
+  const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
   const searchParams = useSearchParams();
   const preselectedClubId = searchParams.get('preselect');
   
@@ -153,7 +155,7 @@ export default function CreateEventPage() {
                             placeholder="e.g. Intro to React Workshop"
                             value={formData.title}
                             onChange={e => setFormData({...formData, title: e.target.value})}
-                            className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-semibold"
+                            className="w-full p-3 rounded-xl border border-gray-200 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-semibold"
                         />
                     </div>
 
@@ -166,7 +168,7 @@ export default function CreateEventPage() {
                                     <button 
                                         type="button"
                                         onClick={() => setFormData({...formData, coverImage: ""})}
-                                        className="absolute inset-0 bg-black/50 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-xs font-bold"
+                                        className="absolute inset-0 bg-black/50 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-xs font-bold cursor-pointer"
                                     >
                                         Remove
                                     </button>
@@ -206,7 +208,7 @@ export default function CreateEventPage() {
                                 required
                                 value={formData.date}
                                 onChange={e => setFormData({...formData, date: e.target.value})}
-                                className="w-full p-2.5 rounded-xl border border-gray-200"
+                                className="w-full p-2.5 rounded-xl border text-gray-700 border-gray-200 cursor-pointer"
                             />
                         </div>
                         <div>
@@ -216,7 +218,7 @@ export default function CreateEventPage() {
                                 required
                                 value={formData.startTime}
                                 onChange={e => setFormData({...formData, startTime: e.target.value})}
-                                className="w-full p-2.5 rounded-xl border border-gray-200"
+                                className="w-full p-2.5 rounded-xl border text-gray-700 border-gray-200 cursor-pointer"
                             />
                         </div>
                     </div>
@@ -230,7 +232,7 @@ export default function CreateEventPage() {
                                     name="timeMode" 
                                     checked={formData.timeMode === 'duration'}
                                     onChange={() => setFormData({...formData, timeMode: 'duration'})}
-                                    className="text-blue-600 focus:ring-blue-500"
+                                    className="text-blue-600 focus:ring-blue-500 cursor-pointer"
                                 />
                                 <span className="text-sm font-medium text-gray-700">Set Duration</span>
                             </label>
@@ -240,7 +242,7 @@ export default function CreateEventPage() {
                                     name="timeMode" 
                                     checked={formData.timeMode === 'endTime'}
                                     onChange={() => setFormData({...formData, timeMode: 'endTime'})}
-                                    className="text-blue-600 focus:ring-blue-500"
+                                    className="text-blue-600 focus:ring-blue-500 cursor-pointer"
                                 />
                                 <span className="text-sm font-medium text-gray-700">Set End Time</span>
                             </label>
@@ -256,8 +258,8 @@ export default function CreateEventPage() {
                                         min="0.5"
                                         max="12"
                                         value={formData.duration}
-                                        onChange={e => setFormData({...formData, duration: parseFloat(e.target.value)})}
-                                        className="w-32 p-2.5 rounded-xl border border-gray-200"
+                                        onChange={e => {const val = e.target.value; setFormData({...formData, duration: val == "" ? 0 : parseFloat(e.target.value)})}}
+                                        className="w-32 p-2.5 rounded-xl text-gray-700 border border-gray-200"
                                     />
                                     <span className="text-sm text-gray-500">
                                         Ends at <span className="font-bold text-gray-900">{formData.endTime}</span>
@@ -271,7 +273,7 @@ export default function CreateEventPage() {
                                     type="time" 
                                     value={formData.endTime}
                                     onChange={e => setFormData({...formData, endTime: e.target.value})}
-                                    className="w-32 p-2.5 rounded-xl border border-gray-200"
+                                    className="w-32 p-2.5 rounded-xl text-gray-700 border border-gray-200 cursor-pointer"
                                 />
                             </div>
                         )}
@@ -283,7 +285,7 @@ export default function CreateEventPage() {
                              <button
                                 type="button"
                                 onClick={() => setFormData({...formData, locationType: 'on-campus'})}
-                                className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${
+                                className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all cursor-pointer ${
                                     formData.locationType === 'on-campus' 
                                     ? 'bg-blue-100 text-blue-700' 
                                     : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
@@ -294,7 +296,7 @@ export default function CreateEventPage() {
                              <button
                                 type="button"
                                 onClick={() => setFormData({...formData, locationType: 'off-campus'})}
-                                className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${
+                                className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all cursor-pointer ${
                                     formData.locationType === 'off-campus' 
                                     ? 'bg-blue-100 text-blue-700' 
                                     : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
@@ -313,10 +315,10 @@ export default function CreateEventPage() {
                             value={formData.location}
                             onChange={e => setFormData({...formData, location: e.target.value})}
                             placeholder={formData.locationType === 'on-campus' ? "e.g. Room 101, Tech Hall" : "e.g. 123 Main St, Downtown"}
-                            className="w-full p-3 rounded-xl border border-gray-200 mb-2"
+                            className="w-full p-3 rounded-xl text-gray-700 border border-gray-200 mb-2"
                         />
 
-                        {/* Quick Select Buttons (Only for On Campus) */}
+                        {/* Quick Select Buttons */}
                         {formData.locationType === 'on-campus' && (
                             <div className="flex flex-wrap gap-2">
                                 {CAMPUS_LOCATIONS.map(loc => (
@@ -324,7 +326,7 @@ export default function CreateEventPage() {
                                         key={loc}
                                         type="button"
                                         onClick={() => setFormData({...formData, location: loc})}
-                                        className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full transition-colors"
+                                        className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full transition-colors cursor-pointer"
                                     >
                                         {loc}
                                     </button>
@@ -348,7 +350,7 @@ export default function CreateEventPage() {
                             required
                             value={formData.description}
                             onChange={e => setFormData({...formData, description: e.target.value})}
-                            className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 min-h-[100px]"
+                            className="w-full p-3 rounded-xl text-gray-700 border border-gray-200 focus:ring-2 focus:ring-blue-500 min-h-[100px]"
                             placeholder="Tell students what makes this event awesome..."
                         />
                     </div>
@@ -363,7 +365,7 @@ export default function CreateEventPage() {
                                         key={tag}
                                         type="button"
                                         onClick={() => toggleTag(tag)}
-                                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer ${
                                             isSelected 
                                             ? 'bg-gray-900 text-white shadow-md' 
                                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -381,73 +383,125 @@ export default function CreateEventPage() {
                 <div className="pt-4">
                     <button 
                         type="submit"
-                        className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl text-lg shadow-lg hover:shadow-xl transition-all active:scale-[0.98]"
+                        className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl text-lg shadow-lg hover:shadow-xl transition-all active:scale-[0.98] cursor-pointer"
                     >
                         Publish Event
                     </button>
                 </div>
 
             </form>
-          </div>
+        </div>
 
-          {/* ================= RIGHT COLUMN: LIVE PREVIEW (5 cols) ================= */}
-          <div className="lg:col-span-5 hidden lg:block">
-            <div className="sticky top-8 space-y-4">
-                <div className="flex items-center gap-2 text-gray-500 mb-2">
+        {/* ================= RIGHT COLUMN: LIVE PREVIEW ================= */}
+        <div className="lg:col-span-5 hidden lg:block">
+          <div className="sticky top-8 space-y-4">
+            
+            {/* 1. DEVICE TOGGLE BAR */}
+            <div className="flex justify-between items-center px-2">
+                <div className="flex items-center gap-2 text-gray-500">
                     <Eye className="w-4 h-4" />
                     <span className="text-xs font-bold uppercase tracking-wider">Live Preview</span>
                 </div>
-
-                {/* --- THE PREVIEW CARD --- */}
-                {/* This mimics your main EventCard component */}
-                <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200 pointer-events-none select-none transform transition-all hover:scale-[1.02]">
+        
+                <div className="flex bg-gray-200 p-1 rounded-lg">
+                    <button 
+                        type="button" // Always specify type="button" to prevent form submission
+                        onClick={() => setPreviewMode('desktop')}
+                        className={`p-1.5 rounded-md transition-all cursor-pointer ${
+                            previewMode === 'desktop' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'
+                        }`}
+                        title="Desktop View"
+                    >
+                        <Monitor className="w-4 h-4" />
+                    </button>
+                    <button 
+                        type="button"
+                        onClick={() => setPreviewMode('mobile')}
+                        className={`p-1.5 rounded-md transition-all cursor-pointer ${
+                            previewMode === 'mobile' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'
+                        }`}
+                        title="Mobile View"
+                    >
+                        <Smartphone className="w-4 h-4" />
+                    </button>
+                </div>
+            </div>
+        
+            {/* 2. THE PREVIEW CONTAINER (Handles Width & Phone Bezel) */}
+            <div className={`transition-all duration-300 ease-in-out origin-top ${
+                previewMode === 'mobile' 
+                ? 'w-[320px] mx-auto border-[12px] border-gray-900 rounded-[2.5rem] shadow-2xl bg-gray-900 overflow-hidden' 
+                : 'w-full'
+            }`}>
+                
+                {/* 3. INNER CARD (Handles Background & Corners) */}
+                <div className={`bg-white overflow-hidden border border-gray-200 pointer-events-none select-none ${
+                    previewMode === 'mobile' ? 'rounded-[1.7rem] h-full' : 'rounded-2xl shadow-xl'
+                }`}>
                     
-                    {/* Image Area */}
-                    <div className="h-48 bg-gray-200 relative">
-                        {formData.coverImage ? (
-                            <img src={formData.coverImage} className="w-full h-full object-cover" alt="Preview" />
-                        ) : (
-                            <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                <span className="text-sm">No Image Selected</span>
-                            </div>
-                        )}
-                        <div className="absolute top-4 left-4">
+                    {/* A. IMAGE AREA */}
+                    <div className="h-48 bg-gray-200 relative group">
+                        
+                        {/* LOGIC: Use uploaded image OR fallback to default */}
+                        <img 
+                            src={formData.coverImage || "/gsu_image.jpg"} 
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                            alt="Event Preview" 
+                            onError={(e) => {
+                                // Optional: Fallback if even the default image is missing
+                                e.currentTarget.src = "https://via.placeholder.com/800x400?text=No+Image";
+                            }}
+                        />
+                    
+                        {/* Club Badge Overlay */}
+                        <div className="absolute top-4 left-4 z-10">
                             <span className="bg-white/90 backdrop-blur text-xs font-bold px-2 py-1 rounded-md shadow-sm text-gray-800">
                                 {CLUBS.find(c => c.id === formData.clubId)?.name}
                             </span>
                         </div>
+                    
+                        {/* Optional: Visual indicator that this is the default image (only visible if no custom image) */}
+                        {!formData.coverImage && (
+                            <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur text-white text-[10px] px-2 py-0.5 rounded-full">
+                                Default Image
+                            </div>
+                        )}
                     </div>
-
-                    {/* Content Area */}
+        
+                    {/* B. CONTENT AREA (With Text Wrapping Fix) */}
                     <div className="p-5">
-                        <div className="flex justify-between items-start mb-4">
-                            <div>
-                                <h3 className="text-xl font-bold text-gray-900 leading-tight mb-1">
+                        {/* Title + Date Row */}
+                        <div className="flex justify-between items-start mb-4 gap-4">
+                            
+                            {/* Text Container: flex-1 + min-w-0 forces wrapping */}
+                            <div className="flex-1 min-w-0">
+                                <h3 className="text-xl font-bold text-gray-900 leading-tight mb-1 break-words">
                                     {formData.title || "Your Event Title"}
                                 </h3>
-                                <p className="text-sm text-gray-500 line-clamp-2 h-10">
+                                <p className="text-sm text-gray-500 line-clamp-2 h-10 break-words">
                                     {formData.description || "Description will appear here..."}
                                 </p>
                             </div>
-                            {/* Date Box */}
-                            <div className="flex flex-col items-center justify-center bg-blue-50 w-14 h-14 rounded-xl border border-blue-100 shrink-0 ml-2">
+        
+                            {/* Date Box: shrink-0 prevents squishing */}
+                            <div className="flex flex-col items-center justify-center bg-blue-50 w-14 h-14 rounded-xl border border-blue-100 shrink-0">
                                 <span className="text-[10px] font-bold text-blue-600 uppercase">{previewMonth}</span>
                                 <span className="text-lg font-extrabold text-gray-900">{previewDay}</span>
                             </div>
                         </div>
-
+        
                         {/* Metadata Pills */}
                         <div className="space-y-2 mb-4">
                             <div className="flex items-center gap-2 text-sm text-gray-600">
-                                <Clock className="w-4 h-4 text-gray-400" />
-                                <span>{formData.startTime} - {formData.endTime}</span>
+                                <Clock className="w-4 h-4 text-gray-400 shrink-0" />
+                                <span className="truncate">{formData.startTime} - {formData.endTime}</span>
                             </div>
                             <div className="flex items-center gap-2 text-sm text-gray-600">
-                                <MapPin className="w-4 h-4 text-gray-400" />
-                                <span>{formData.location || "Location TBD"}</span>
+                                <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
+                                <span className="truncate">{formData.location || "Location TBD"}</span>
                             </div>
                         </div>
-
+        
                         {/* Tags */}
                         <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-100">
                             {formData.tags.length > 0 ? (
@@ -464,12 +518,15 @@ export default function CreateEventPage() {
                         </div>
                     </div>
                 </div>
-
-                <p className="text-center text-xs text-gray-400 px-8">
-                    This is how your event will appear on the main feed and weekly calendar.
-                </p>
             </div>
+        
+            <p className="text-center text-xs text-gray-400 px-8 mt-4">
+                {previewMode === 'mobile' 
+                    ? "Previewing how students see it on their phones." 
+                    : "Previewing how it looks on laptops and tablets."}
+            </p>
           </div>
+</div>
 
         </div>
       </div>

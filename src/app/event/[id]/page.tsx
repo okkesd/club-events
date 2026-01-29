@@ -22,8 +22,8 @@ function getGoogleCalendarLink(event: any) {
   const end_time = calculateEndTime(event.startTime, event.duration)
 
   //console.log(`${event.year}-${event.month < 10 ? '0'+String(event.month): event.month}-${event.day < 10 ? '0'+String(event.day) : event.day}T${event.startTime}:00.000Z`)
-  const start = new Date(`${event.startDate}T${event.startTime}:00.000Z`).toISOString().replace(/-|:|\.\d\d\d/g, "");
-  const end = new Date(`${event.startDate}T${end_time}:00.000Z`).toISOString().replace(/-|:|\.\d\d\d/g, "");
+  const start = new Date(`${event.date}T${event.startTime}:00.000Z`).toISOString().replace(/-|:|\.\d\d\d/g, "");
+  const end = new Date(`${event.date}T${end_time}:00.000Z`).toISOString().replace(/-|:|\.\d\d\d/g, "");
   return `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${start}/${end}&details=${encodeURIComponent(event.description)}&location=${encodeURIComponent(event.location)}`;
 }
 
@@ -36,7 +36,7 @@ export default async function EventDetailPage({ params }: EventPageProps) {
   //if (!club) notFound();
 
 
-  const [year, month, day] = event.startDate.split('-');
+  const [year, month, day] = event.date.split('-');
 
 // 2. Create a Local Date object (Safe from timezone shifts)
 // Note: Month is 0-indexed in JS Date (0 = Jan), so we subtract 1
@@ -48,10 +48,10 @@ const dayNumber = day; // "18"
 const weekdayStr = dateObj.toLocaleString('en-US', { weekday: 'long' }); // "Sunday"
 
   // Formatting
-  const eventDate = event.startDate //new Date(`${event.year}-${event.month < 10 ? '0'+String(event.month): event.month}-${event.day < 10 ? '0'+String(event.day) : event.day}T00:00:00`);
+  const eventDate = event.date //new Date(`${event.year}-${event.month < 10 ? '0'+String(event.month): event.month}-${event.day < 10 ? '0'+String(event.day) : event.day}T00:00:00`);
   const eventEndTime = calculateEndTime(event.startTime, event.duration)
   //const dateStr = eventDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  //const weekdayStr = new Date(event.startDate).toLocaleDateString('en-US', { weekday: 'long' });
+  //const weekdayStr = new Date(event.date).toLocaleDateString('en-US', { weekday: 'long' });
   const googleCalLink = getGoogleCalendarLink(event);
 
   // Layout Logic:
@@ -119,7 +119,7 @@ const weekdayStr = dateObj.toLocaleString('en-US', { weekday: 'long' }); // "Sun
                 </h1>
                 
                 <Link 
-                    href={`/clubs/${encodeURIComponent(event.clubID)}`}
+                    href={`/club/${encodeURIComponent(event.clubID)}`}
                     className="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors font-medium"
                 >
                     <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">

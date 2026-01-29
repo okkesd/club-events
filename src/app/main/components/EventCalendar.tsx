@@ -69,13 +69,13 @@ export default function EventCalendar() {
         return events
             .filter((event) => {
                 // Backend sends 'date' as "YYYY-MM-DD"
-                return event.startDate === currentDayString;
+                return event.date === currentDayString;
             })
             .sort((a, b) => {
                 // 3. FIX: Construct a full ISO timestamp so Date() doesn't crash
                 // Format: "2026-01-18T14:00"
-                const dateTimeA = `${a.startDate}T${a.startTime}`;
-                const dateTimeB = `${b.startDate}T${b.startTime}`;
+                const dateTimeA = `${a.date}T${a.startTime}`;
+                const dateTimeB = `${b.date}T${b.startTime}`;
                 
                 return new Date(dateTimeA).getTime() - new Date(dateTimeB).getTime();
             });
@@ -121,7 +121,6 @@ export default function EventCalendar() {
                                     // Optionally pass empty events if you want the cards to vanish instantly during load
                                     // events={isLoading ? [] : dayEvents} 
                                     events={dayEvents}
-                                    isToday={isToday}
                                     isFirstDay={index === 0}
                                 />
                             );

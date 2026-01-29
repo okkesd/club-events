@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/app/components/layout/Navbar"; // 1. Import the Navbar
 import Footer from "@/app/components/layout/Footer";
 import { AuthProvider } from "@/app/context/AuthContext";
+import DevAuthToolbar from "@/app/components/DevAuthToolbar";
 
 // --- Your existing font setup ---
 const geistSans = Geist({
@@ -45,6 +46,7 @@ export default function RootLayout({
             {children}
             
           </main>
+          <DevAuthToolbar />
             <Footer />
         </div>
         </AuthProvider>

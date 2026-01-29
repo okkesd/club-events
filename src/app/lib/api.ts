@@ -1,4 +1,4 @@
-import { IWeekEventsResponse, IEvent, Club, IEventComplex } from './types';
+import { IWeekEventsResponse, IEvent, Club, IEventComplex, IApiResponse, IClubUpdate } from './types';
 import { getWeekStartDate } from './dateUtils';
 
 const URL = "http://localhost:4444/"
@@ -87,6 +87,7 @@ export const fetchEventById = async (eventId: string): Promise<IEventComplex | n
     if (response.ok){
       const raw_data = await response.json()
       data = raw_data["data"]
+      
     } else {
       throw new Error(`failed to get event ${eventId}`)
     }
@@ -112,6 +113,7 @@ export const fetchClubById = async (clubId: string): Promise<Club | null> => {
     if (response.ok){
       const raw_data = await response.json()
       data = raw_data["data"]
+      console.log(data)
       return data
     } else {
       throw new Error(`Failed to fetch club, id ${clubId}`)
@@ -122,7 +124,7 @@ export const fetchClubById = async (clubId: string): Promise<Club | null> => {
   }
 }
 
-export const fetchEventsByClubId = async (clubId: string) :Promise<IEvent[]|null> => {
+export const fetchEventsByClubId = async (clubId: string) :Promise<IEventComplex[]|null> => {
   console.log(`Fetching events by club id ${clubId}`)
   let functionURL = URL + "clubs/" + clubId + "/events"
 
@@ -130,7 +132,6 @@ export const fetchEventsByClubId = async (clubId: string) :Promise<IEvent[]|null
     const response = await fetch(functionURL, {"cache": "no-store"})
     if (response.ok){
       const raw_data = await response.json()
-      console.log(raw_data)
       return raw_data.data
     } else {
       throw new Error(`Failed to fetch events by club, club id: ${clubId}`)
@@ -163,3 +164,79 @@ export const uploadImage = async (file: File): Promise<string | null> => {
     return null;
   }
 };
+
+export async function createEvent(eventData: any): Promise<IApiResponse<IEventComplex>> {
+    const response = await fetch(`${URL}events`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json",},
+        body: JSON.stringify(eventData),
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || "Failed to create event");
+    }
+
+    return response.json();
+}
+
+export async function getAllClubs(): Promise<Club[] | null> {
+
+  try {
+    const response = await fetch(`${URL}all_clubs`, {"cache": "no-cache"})
+  
+    if (response.ok) {
+      const raw_data = await response.json()
+      return raw_data.data
+    } else {
+      throw new Error(`Failed to fetch all clubs`)
+    }
+  }
+  catch (error) {
+    console.error(error)
+    return null
+  }
+}
+
+export async function updateClub(clubId: string, updateData: IClubUpdate): Promise<IApiResponse<Club>> {
+    const response = await fetch(`${URL}clubs/${clubId}`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateData),
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || "Failed to update club profile");
+    }
+
+    return response.json();
+}
+
+
+// 1. Fetch all clubs for admin
+export async function getAdminClubs(status?: 'verified' | 'pending'): Promise<Club[]> {
+    // Build URL with query param if status exists
+    const query = status ? `?status=${status}` : '';
+    const res = await fetch(`${URL}admin/clubs${query}`, { cache: 'no-store' });
+    
+    if (!res.ok) throw new Error("Failed to fetch clubs");
+    return res.json();
+}
+
+// 2. Verify or Reject a club
+export async function setClubVerification(clubId: string, isVerified: boolean, reason?: string) {
+    const res = await fetch(`${URL}admin/clubs/${clubId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+            is_verified: isVerified,
+            rejection_reason: reason 
+        }),
+    });
+
+    if (!res.ok) throw new Error("Failed to update verification status");
+    return res.json();
+}

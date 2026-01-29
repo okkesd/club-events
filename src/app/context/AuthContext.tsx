@@ -1,132 +1,118 @@
-"use client"; // Context providers are client components
+"use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { IUser } from '@/app/lib/types';
-import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
-// --- Mock API Functions (to be replaced later) ---
+// --- TYPES ---
+export type UserRole = "club" | "admin" | "guest";
 
-/** Mocks a login API call */
-const mockLoginApi = (email: string, password: string): Promise<{ user: IUser }> => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (email === "club@unievents.com" && password === "password123") {
-        resolve({ 
-          user: { id: 'user-1', email: 'club@unievents.com', clubName: 'Coding Club', role: 'club_member' } 
-        });
-      } else if (email === "admin@unievents.com" && password === "admin123") {
-        resolve({
-          user: { id: 'admin-1', email: 'admin@unievents.com', clubName: 'University Admin', role: 'admin' }
-        });
-      } else {
-        reject(new Error("Invalid email or password."));
-      }
-    }, 1000);
-  });
-};
-
-/** Mocks checking for an existing session (e.g., via a cookie) */
-const mockCheckSessionApi = (): Promise<{ user: IUser }> => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      // Set to reject() to simulate "not logged in"
-      // Set to resolve(...) to simulate "session found"
-      reject(new Error("No active session."));
-    }, 1500);
-  });
-};
-
-/** Mocks a logout API call */
-const mockLogoutApi = (): Promise<void> => {
-  return new Promise(resolve => setTimeout(resolve, 500));
-};
-
-// --- End Mock API ---
-
-
-// 1. Define the shape of your context
-interface IAuthContext {
-  user: IUser | null;
-  isLoggedIn: boolean;
-  isLoading: boolean; // For session checking
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  isVerified: boolean;
+  avatarUrl?: string; // Optional helper for UI
 }
 
-// 2. Create the context
-const AuthContext = createContext<IAuthContext | undefined>(undefined);
+interface AuthContextType {
+  user: User | null;
+  isLoading: boolean;
+  // Helper functions to instantly switch roles for testing
+  loginAsClub: () => void;
+  loginAsAdmin: () => void;
+  loginAsUnverified: () => void
+  logout: () => void;
+}
 
-// 3. Create the Provider component
+// --- MOCK DATA ---
+// These match your seed_db.py IDs so the app works seamlessly
+const MOCK_CLUB_USER: User = {
+  id: "club-1",
+  name: "Tech & Coding Society",
+  email: "tech@university.edu",
+  role: "club",
+  isVerified: true,
+  avatarUrl: "https://ui-avatars.com/api/?name=Tech+Club&background=0D8ABC&color=fff"
+};
+
+const MOCK_UNVERIFIED_CLUB: User = { // ✅ NEW TEST USER
+  id: "club-3",
+  name: "Chess Club (Pending)",
+  email: "chess@university.edu",
+  role: "club",
+  isVerified: false, // ❌ Unverified
+  avatarUrl: "https://ui-avatars.com/api/?name=Chess&background=777&color=fff"
+};
+
+const MOCK_ADMIN_USER: User = {
+  id: "admin-1",
+  name: "System Administrator",
+  email: "admin@university.edu",
+  role: "admin",
+  isVerified: true,
+  avatarUrl: "https://ui-avatars.com/api/?name=Admin&background=333&color=fff"
+};
+
+// --- CONTEXT CREATION ---
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// --- PROVIDER COMPONENT ---
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<IUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true); // Start true for session check
-  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // --- Session Re-hydration Effect ---
-  // This runs ONCE when the app loads
+  // 1. Load from localStorage on mount (Persistence)
   useEffect(() => {
-    const checkUserSession = async () => {
-      try {
-        // Try to get user from session cookie
-        const { user } = await mockCheckSessionApi();
-        setUser(user);
-      } catch (error) {
-        // No session found, user is not logged in
-        setUser(null);
-      } finally {
-        // We're done checking
-        setIsLoading(false);
-      }
-    };
-    checkUserSession();
-  }, []); // Empty array means run once on mount
+    const storedUser = localStorage.getItem("mock_auth_user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+    setIsLoading(false);
+  }, []);
 
-  // --- Login Function ---
-  const login = async (email: string, password: string) => {
-    // This will throw an error on failure, which the login page will catch
-    const { user } = await mockLoginApi(email, password);
-    setUser(user);
-    // Redirect to main page on successful login
-    router.push('/main');
+  // 2. Helper to save state
+  const setAndPersistUser = (newUser: User | null) => {
+    setUser(newUser);
+    if (newUser) {
+      localStorage.setItem("mock_auth_user", JSON.stringify(newUser));
+    } else {
+      localStorage.removeItem("mock_auth_user");
+    }
   };
 
-  // --- Logout Function ---
-  const logout = async () => {
-    await mockLogoutApi();
-    setUser(null);
-    // Redirect to login page on logout
-    router.push('/login');
+  // 3. Mock Actions
+  const loginAsClub = () => {
+    console.log("🔓 Mock Login: Club Mode");
+    setAndPersistUser(MOCK_CLUB_USER);
   };
 
-  // Show a full-page loader while we check the session
-  if (isLoading) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-gray-100">
-        <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
-      </div>
-    );
-  }
+  const loginAsAdmin = () => {
+    console.log("🛡️ Mock Login: Admin Mode");
+    setAndPersistUser(MOCK_ADMIN_USER);
+  };
 
-  // Provide the context value to children
+  const loginAsUnverified = () => {
+    console.log("🔓 Mock Login: Unverified Club");
+    setAndPersistUser(MOCK_UNVERIFIED_CLUB);
+  };
+
+  const logout = () => {
+    console.log("🔒 Logout");
+    setAndPersistUser(null);
+  };
+
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      isLoggedIn: !!user, // True if user is not null
-      isLoading, 
-      login, 
-      logout 
-    }}>
+    <AuthContext.Provider value={{ user, isLoading, loginAsClub, loginAsAdmin, loginAsUnverified, logout }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-// 4. Create a custom hook for easy access
+// --- CUSTOM HOOK ---
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

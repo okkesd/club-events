@@ -40,7 +40,7 @@ export interface IEventComplex {
   
   // --- Time ---
   //date: string;        // YYYY-MM-DD
-  startDate: string,
+  date: string,
   startTime: string;   // HH:MM (24h)
   endTime: string;     // HH:MM (24h)
   duration: number;
@@ -68,15 +68,19 @@ export interface SocialLinks {
 export interface Club {
   id: string;
   clubName: string;
-  clubMail: string;
+  email: string;
   
   // --- New Fields ---
   category: string;        // e.g. "Technology", "Sports"
   description: string;     // Full bio/story
-  logo: string;            // Square logo URL
-  banner: string;          // Wide hero image URL
+  logoUrl: string;            // Square logo URL
+  bannerUrl: string;          // Wide hero image URL
   foundedYear?: number;
   socials?: SocialLinks;
+
+  is_verified: boolean;
+  role: string
+  rejectionReason: string | null;
 }
   
     
@@ -93,4 +97,20 @@ export interface IUser {
   email: string;
   clubName: string;
   role: 'admin' | 'club_member'; // Define the roles
+}
+
+export interface IApiResponse<T> {
+    success: boolean;
+    data: T;
+    error_msg?: string;
+}
+
+export interface IClubUpdate {
+    clubName?: string;
+    email?: string;
+    description?: string;
+    logo_url?: string;
+    banner_url?: string;
+    // website?: string; // Future proofing
+    // tags?: string[];  // Future proofing
 }

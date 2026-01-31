@@ -114,3 +114,15 @@ export interface IClubUpdate {
     // website?: string; // Future proofing
     // tags?: string[];  // Future proofing
 }
+
+export interface IEventUpdate {
+    title?: string;
+    description?: string;
+    date?: string;
+    startTime?: string;
+    endTime?: string;
+    duration?: number;
+    locationType?: 'on-campus' | 'off-campus';
+    location?: string;
+    coverImage?: string;
+}

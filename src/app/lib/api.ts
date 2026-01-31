@@ -1,7 +1,7 @@
-import { IWeekEventsResponse, IEvent, Club, IEventComplex, IApiResponse, IClubUpdate } from './types';
+import { IWeekEventsResponse, IEvent, Club, IEventComplex, IApiResponse, IClubUpdate, IEventUpdate } from './types';
 import { getWeekStartDate } from './dateUtils';
 
-const URL = "http://localhost:4444/"
+const URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4444";
 
 const formatDateToLocalISO = (date: Date): string => {
   const year = date.getFullYear();
@@ -238,5 +238,20 @@ export async function setClubVerification(clubId: string, isVerified: boolean, r
     });
 
     if (!res.ok) throw new Error("Failed to update verification status");
+    return res.json();
+}
+
+// to update an event by its owner
+export async function updateEvent(eventId: string, data: IEventUpdate) {
+    const res = await fetch(`${URL}events/${eventId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail || "Failed to update event");
+    }
     return res.json();
 }

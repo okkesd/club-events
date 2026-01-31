@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { 
   Calendar, Clock, MapPin, Upload, Image as ImageIcon, 
@@ -13,7 +13,7 @@ import { Club } from '@/app/lib/types';
 const CAMPUS_LOCATIONS = ["Tech Hall", "Student Center", "Library 304", "Engineering Lab"];
 const PREDEFINED_TAGS = ["Workshop", "Social", "Free Food", "Career", "Competition", "Lecture"];
 
-export default function CreateEventPage() {
+function CreateEventSuspended() {
   const router = useRouter(); // Initialize router
   const searchParams = useSearchParams();
   const preselectedClubId = searchParams.get('preselect');
@@ -629,5 +629,15 @@ export default function CreateEventPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CreateEventPage() {
+  return (
+    // This tells Next.js: "Don't try to pre-render the inside part on the server.
+    // Wait until we hit the browser to load the search params."
+    <Suspense fallback={<div className="p-10 text-center">Loading event form...</div>}>
+      <CreateEventSuspended />
+    </Suspense>
   );
 }

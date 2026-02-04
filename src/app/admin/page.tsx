@@ -9,13 +9,13 @@ import {
     Ban
 } from 'lucide-react';
 import { getAdminClubs, setClubVerification } from '@/app/lib/api';
-import { Club } from '@/app/lib/types';
+import { ClubData } from '@/app/lib/types';
 import { useAuth } from '../context/AuthContext';
 import { useRouter, notFound } from 'next/navigation';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'pending' | 'verified' | 'blocked'>('pending');
-  const [clubs, setClubs] = useState<Club[]>([]);
+  const [clubs, setClubs] = useState<ClubData[]>([]);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoadingPage, setIsLoadingPage] = useState(true);
 
@@ -218,7 +218,7 @@ export default function AdminDashboard() {
                                 
                                 {/* Status Badge */}
                                 <td className="p-5">
-                                    {club.is_verified ? (
+                                    {club.isVerified ? (
                                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">
                                             <CheckCircle2 className="w-3 h-3" /> Active
                                         </span>

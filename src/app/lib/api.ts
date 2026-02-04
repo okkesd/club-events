@@ -1,7 +1,8 @@
-import { IWeekEventsResponse, IEvent, Club, IEventComplex, IApiResponse, IClubUpdate, IEventUpdate } from './types';
+import { IEvent, ClubData, IApiResponse, IClubUpdate, IEventUpdate } from './types';
 import { getWeekStartDate } from './dateUtils';
 
 const URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4444";
+const PROXY_URL = process.env.PROXY_URL || "/api/proxy";
 
 const formatDateToLocalISO = (date: Date): string => {
   const year = date.getFullYear();
@@ -11,53 +12,42 @@ const formatDateToLocalISO = (date: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
+const getBaseUrl = () => {
+  if (typeof window !== "undefined") {
+    // We are in the Browser -> Relative URL is fine
+    return "";
+  }
+  // We are on the Server -> Need absolute URL
+  // Use a widely available env var or default to localhost:3000
+  return process.env.NEXTJS_APP_URL || "http://localhost:3000";
+};
+
 /**
  * Simulates an API call to fetch all events for a given week.
  * @param weekStartDate - The Date object for the Monday of the week.
  */
-export const fetchEventsForWeek = async (currentDate: Date): Promise<IEventComplex[]|null> => {
+export const fetchEventsForWeek = async (currentDate: Date): Promise<IEvent[]|null> => {
   console.log(`Fetching events for the week`);
   const date_str = formatDateToLocalISO(currentDate)
-  let functionURL = URL + `events/weekly?date=${date_str}`
-  /*const events: IWeekEventsResponse = {};
+  let BASE_URL = getBaseUrl()
+  let functionURL = `${BASE_URL}/api/proxy/events/weekly?date=${date_str}`;
+  //let functionURL = URL + `events/weekly?date=${date_str}`
   
-  // Create a Set of dates for the week
-  const weekDates = new Set<string>();
-  for (let i = 0; i < 7; i++) {
-    const day = new Date(weekStartDate);
-    day.setDate(day.getDate() + i);
-    weekDates.add(day.toISOString().split('T')[0]);
-  }
-
-  // Filter allEvents to find ones that fall in this week
-  const weekEvents = allEvents.filter(event => weekDates.has(event.date));
-
-  // Group events by their date
-  for (const event of weekEvents) {
-    if (!events[event.date]) {
-      events[event.date] = [];
-    }
-    events[event.date].push(event);
-  }*/
-  let data;/*
-  const year = currentDate.getFullYear();
-  const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
-  const day = currentDate.getDate().toString().padStart(2, '0');
-  console.log(year)
-  console.log(month)
-  console.log(day)
-  console.log(currentDate.toISOString())*/
+  let data;
   try {
     const response = await fetch(functionURL, {
       method:"GET", 
       //body: JSON.stringify({"day": day, "month": month, "year": year}),
-      headers: {"Content-Type": "application/json"}
+      headers: {"Content-Type": "application/json"},
+      next: { revalidate: 60 }
     })
     if (response.ok){
       let raw_data = await response.json()
       data = raw_data["data"]
       console.log(data)
       console.log(typeof(data))
+      return data;
+
     } else {
       throw new Error("Failed to fetch")
     }
@@ -65,8 +55,6 @@ export const fetchEventsForWeek = async (currentDate: Date): Promise<IEventCompl
     console.error("error", error)
     return null
   }
-
-  return data;
 };
 
 
@@ -75,20 +63,29 @@ export const fetchEventsForWeek = async (currentDate: Date): Promise<IEventCompl
  * Simulates an API call to fetch a single event by its ID.
  * @param eventId - The unique ID of the event.
  */
-export const fetchEventById = async (eventId: string): Promise<IEventComplex | null> => {
+export const fetchEventById = async (eventId: string): Promise<IEvent | null> => {
+  if (!eventId) return null;
   console.log(`Fetching event with ID: ${eventId}`);
-  let functionURL = URL + `events/${eventId}`
+  const BASE_URL = getBaseUrl();
+  //let functionURL = URL + `events/${eventId}`
+  let functionURL = `${BASE_URL}/api/proxy/events/${eventId}`;
+  console.log(`Fetching from: ${functionURL}`); // Debugging
   
-  // Find the event in our mock database
-  //const event = allEvents.find(e => e.id === eventId);
+
   let data
   try {
     const response = await fetch(functionURL)
     if (response.ok){
       const raw_data = await response.json()
       data = raw_data["data"]
+      return data as IEvent;
       
     } else {
+      if (!response.ok) {
+        // Handle 404 specifically if you want to show "Event not found" vs "Server Error"
+        if (response.status === 404) console.warn(`Event ${eventId} not found`);
+        throw new Error(`Failed to get event`);
+      }
       throw new Error(`failed to get event ${eventId}`)
     }
   } catch (error) {
@@ -96,20 +93,19 @@ export const fetchEventById = async (eventId: string): Promise<IEventComplex | n
     return null
   }
   
-  // Simulate network delay
-  //await new Promise(resolve => setTimeout(resolve, 300));
-  
-  return data;
 };
 
-export const fetchClubById = async (clubId: string): Promise<Club | null> => {
+export const fetchClubById = async (clubId: string): Promise<ClubData | null> => {
   console.log(`Fetching club wiht id ${clubId}`)
 
-  let functionURL = URL + "clubs/" + clubId
+  //let functionURL = URL + "/clubs/" + clubId
+  const BASE_URL = getBaseUrl()
+
+  let proxyUrl = BASE_URL + "/api/proxy/clubs/" + clubId
 
   let data
   try {
-    const response = await fetch(functionURL, {"cache": "no-store"})
+    const response = await fetch(proxyUrl, {"cache": "no-store"})
     if (response.ok){
       const raw_data = await response.json()
       data = raw_data["data"]
@@ -124,9 +120,10 @@ export const fetchClubById = async (clubId: string): Promise<Club | null> => {
   }
 }
 
-export const fetchEventsByClubId = async (clubId: string) :Promise<IEventComplex[]|null> => {
+export const fetchEventsByClubId = async (clubId: string) :Promise<IEvent[]|null> => {
   console.log(`Fetching events by club id ${clubId}`)
-  let functionURL = URL + "clubs/" + clubId + "/events"
+  const BASE_URL = getBaseUrl();
+  let functionURL = `${BASE_URL}/api/proxy/clubs/` + clubId + "/events"
 
   try {
     const response = await fetch(functionURL, {"cache": "no-store"})
@@ -145,9 +142,10 @@ export const fetchEventsByClubId = async (clubId: string) :Promise<IEventComplex
 export const uploadImage = async (file: File): Promise<string | null> => {
   const formData = new FormData();
   formData.append("file", file);
+  const BASE_URL = getBaseUrl();
 
   try {
-    const response = await fetch(`${URL}upload`, {
+    const response = await fetch(`${BASE_URL}/api/proxy/upload`, {
       method: "POST",
       body: formData,
     });
@@ -165,8 +163,10 @@ export const uploadImage = async (file: File): Promise<string | null> => {
   }
 };
 
-export async function createEvent(eventData: any): Promise<IApiResponse<IEventComplex>> {
-    const response = await fetch(`${URL}events`, {
+export async function createEvent(eventData: any): Promise<IApiResponse<IEvent>> {
+  const BASE_URL = getBaseUrl();
+
+    const response = await fetch(`${BASE_URL}/api/proxy/events`, {
         method: "POST",
         headers: { "Content-Type": "application/json",},
         body: JSON.stringify(eventData),
@@ -180,10 +180,12 @@ export async function createEvent(eventData: any): Promise<IApiResponse<IEventCo
     return response.json();
 }
 
-export async function getAllClubs(): Promise<Club[] | null> {
+export async function getAllClubs(): Promise<ClubData[] | null> {
+
+  const BASE_URL = getBaseUrl()
 
   try {
-    const response = await fetch(`${URL}all_clubs`, {"cache": "no-cache"})
+    const response = await fetch(`${BASE_URL}/api/proxy/all_clubs`, {"cache": "no-cache"})
   
     if (response.ok) {
       const raw_data = await response.json()
@@ -198,8 +200,11 @@ export async function getAllClubs(): Promise<Club[] | null> {
   }
 }
 
-export async function updateClub(clubId: string, updateData: IClubUpdate): Promise<IApiResponse<Club>> {
-    const response = await fetch(`${URL}clubs/${clubId}`, {
+export async function updateClub(clubId: string, updateData: IClubUpdate): Promise<IApiResponse<ClubData>> {
+
+    const BASE_URL = getBaseUrl()
+
+    const response = await fetch(`${BASE_URL}/api/proxy/clubs/${clubId}`, {
         method: "PATCH",
         headers: {
             "Content-Type": "application/json",
@@ -217,10 +222,12 @@ export async function updateClub(clubId: string, updateData: IClubUpdate): Promi
 
 
 // 1. Fetch all clubs for admin
-export async function getAdminClubs(status?: 'verified' | 'pending'): Promise<Club[]> {
+export async function getAdminClubs(status?: 'verified' | 'pending'): Promise<ClubData[]> {
     // Build URL with query param if status exists
     const query = status ? `?status=${status}` : '';
-    const res = await fetch(`${URL}admin/clubs${query}`, { cache: 'no-store' });
+    let BASE_URL = getBaseUrl()
+
+    const res = await fetch(`${BASE_URL}/api/proxy/admin/clubs${query}`, { cache: 'no-store' });
     
     if (!res.ok) throw new Error("Failed to fetch clubs");
     return res.json();
@@ -228,7 +235,9 @@ export async function getAdminClubs(status?: 'verified' | 'pending'): Promise<Cl
 
 // 2. Verify or Reject a club
 export async function setClubVerification(clubId: string, isVerified: boolean, reason?: string) {
-    const res = await fetch(`${URL}admin/clubs/${clubId}/status`, {
+  const BASE_URL = getBaseUrl();
+
+    const res = await fetch(`${BASE_URL}/api/proxy/admin/clubs/${clubId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -243,7 +252,9 @@ export async function setClubVerification(clubId: string, isVerified: boolean, r
 
 // to update an event by its owner
 export async function updateEvent(eventId: string, data: IEventUpdate) {
-    const res = await fetch(`${URL}events/${eventId}`, {
+  const BASE_URL = getBaseUrl();
+
+    const res = await fetch(`${BASE_URL}/api/proxy/events/${eventId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -254,4 +265,17 @@ export async function updateEvent(eventId: string, data: IEventUpdate) {
         throw new Error(err.detail || "Failed to update event");
     }
     return res.json();
+}
+
+export async function getAllClubsUser(search?: string): Promise<ClubData[]> {
+    const query = search ? `?search=${encodeURIComponent(search)}` : '';
+    let BASE_URL = getBaseUrl()
+
+
+    const res = await fetch(`${BASE_URL}/api/proxy/clubs${query}`, { cache: 'no-store' });
+    
+    if (!res.ok) throw new Error("Failed to fetch clubs");
+    
+    const json = await res.json();
+    return json.data;
 }

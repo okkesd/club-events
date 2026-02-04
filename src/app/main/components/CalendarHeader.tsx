@@ -15,9 +15,9 @@ export function CalendarHeader({
     onNextWeek,
 }: CalendarHeaderProps) {
     return (
-        <header className="flex items-center justify-between p-4 bg-white shadow-md">
+        <header className="flex items-center justify-between p-4 bg-white shadow-md border-b-1 border-gray-300">
             <h1 className="text-xl font-bold text-gray-800 md:text-2xl">
-                Club Events
+                
             </h1>
             <div className="flex items-center space-x-2">
                 <button

@@ -7,7 +7,7 @@ import {
   Type, Map, Eye, Smartphone, Monitor 
 } from 'lucide-react';
 import { createEvent, uploadImage, getAllClubs } from '@/app/lib/api'; 
-import { Club } from '@/app/lib/types';
+import { ClubData } from '@/app/lib/types';
 
 
 const CAMPUS_LOCATIONS = ["Tech Hall", "Student Center", "Library 304", "Engineering Lab"];
@@ -20,7 +20,7 @@ function CreateEventSuspended() {
   
   const [isUploading, setIsUploading] = useState(false);
   const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
-  const [clubs, setClubs] = useState<Club[]|null>(null);
+  const [clubs, setClubs] = useState<ClubData[]|null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -155,7 +155,7 @@ function CreateEventSuspended() {
             alert("Event Created Successfully!");
             router.push("/main"); 
         } else {
-            alert(`Failed: ${response.error_msg || "Unknown error"}`);
+            alert(`Failed: ${response.errorMsg || "Unknown error"}`);
         }
         
     } catch (error: any) {

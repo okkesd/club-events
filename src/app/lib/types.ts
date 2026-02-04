@@ -1,128 +1,96 @@
 /**
- * Represents a single club event.
+ * Generic API Response wrapper
+ */
+export interface IApiResponse<T> {
+  success: boolean;
+  data?: T;
+  errorMsg?: string; // Mapped from error_msg
+}
+
+/**
+ * --- CLUBS ---
+ */
+export interface ClubData {
+  id: string;
+  slug: string;
+  email: string;
+  clubName: string;
+  description?: string;
+  
+  // Visuals
+  logoUrl?: string;
+  bannerUrl?: string;
+  
+  // Status
+  role: 'admin' | 'club';
+  isVerified: boolean;
+  rejectionReason?: string;
+}
+
+// For updating a club profile
+export interface IClubUpdate {
+  clubName?: string;
+  email?: string;
+  description?: string;
+  logoUrl?: string;
+  bannerUrl?: string;
+}
+
+/**
+ * --- EVENTS ---
  */
 export interface IEvent {
   id: string;
+  clubId: string;
+  clubName: string; // Flattened for display
+  
   title: string;
-  clubID: number;    // Display name
+  description: string;
   
-  description: string; // Rich text or long string
+  // Time
+  date: string;       // "YYYY-MM-DD"
+  startTime: string;  // "HH:MM"
+  endTime: string;    // "HH:MM"
+  duration: number;   // e.g. 1.5
   
-  // --- Time ---
-  //date: string;        // YYYY-MM-DD
-  startDate: string,
-  startTime: string;   // HH:MM (24h)
-  endTime: string;     // HH:MM (24h)
-  duration: number;
-
-  // --- Location ---
-  location: string;    // Room number, Building, or Address
-
-  // --- New Logic Fields ---
-  locationType: 'on-campus' | 'off-campus'; // Determines if "Get Directions" is shown
-  isRegistrationOpen: boolean;              // Master toggle for the Register button
+  // Location
+  locationType: 'on-campus' | 'off-campus';
+  location: string;
   
-  // --- New Additions ---
-  coverImage?: string;       // URL for a poster/hero image
-  registrationLink?: string; // Link to Google Forms/Luma/Eventbrite
-  capacity?: number;         // e.g. 50 spots (Show "Limited Space" badge)
-  tags?: string[];           // e.g. ["Free Food", "Open to All"]
+  // Visuals & Meta
+  coverImage?: string;
+  tags?: string[];
+  
+  // Registration
+  isRegistrationOpen: boolean;
+  registrationLink?: string;
+  capacity?: number;
 }
 
-
-export interface IEventComplex {
-  id: string;
-  title: string;
-  clubID: string;    // Display name
-  clubName: string;
-  
-  description: string; // Rich text or long string
-  
-  // --- Time ---
-  //date: string;        // YYYY-MM-DD
-  date: string,
-  startTime: string;   // HH:MM (24h)
-  endTime: string;     // HH:MM (24h)
-  duration: number;
-
-  // --- Location ---
-  location: string;    // Room number, Building, or Address
-
-  // --- New Logic Fields ---
-  locationType: 'on-campus' | 'off-campus'; // Determines if "Get Directions" is shown
-  isRegistrationOpen: boolean;              // Master toggle for the Register button
-  
-  // --- New Additions ---
-  coverImage?: string;       // URL for a poster/hero image
-  registrationLink?: string; // Link to Google Forms/Luma/Eventbrite
-  capacity?: number;         // e.g. 50 spots (Show "Limited Space" badge)
-  tags?: string[];           // e.g. ["Free Food", "Open to All"]
+// For creating/updating an event (everything optional for update)
+export interface IEventUpdate {
+  title?: string;
+  description?: string;
+  date?: string;
+  startTime?: string;
+  endTime?: string;
+  duration?: number;
+  locationType?: 'on-campus' | 'off-campus';
+  location?: string;
+  coverImage?: string;
+  isRegistrationOpen?: boolean;
+  registrationLink?: string;
+  capacity?: number;
 }
 
-export interface SocialLinks {
-  instagram?: string;
-  website?: string;
-  linkedin?: string;
-}
-
-export interface Club {
-  id: string;
-  clubName: string;
-  email: string;
-  
-  // --- New Fields ---
-  category: string;        // e.g. "Technology", "Sports"
-  description: string;     // Full bio/story
-  logoUrl: string;            // Square logo URL
-  bannerUrl: string;          // Wide hero image URL
-  foundedYear?: number;
-  socials?: SocialLinks;
-
-  is_verified: boolean;
-  role: string
-  rejectionReason: string | null;
-}
-  
-    
 /**
- * Represents the API response for a week's worth of events,
- * grouped by date (YYYY-MM-DD string).
+ * --- USERS (Auth) ---
  */
-export interface IWeekEventsResponse {
-  [date: string]: IEvent[];
-}
-
 export interface IUser {
   id: string;
   email: string;
   clubName: string;
-  role: 'admin' | 'club_member'; // Define the roles
-}
-
-export interface IApiResponse<T> {
-    success: boolean;
-    data: T;
-    error_msg?: string;
-}
-
-export interface IClubUpdate {
-    clubName?: string;
-    email?: string;
-    description?: string;
-    logo_url?: string;
-    banner_url?: string;
-    // website?: string; // Future proofing
-    // tags?: string[];  // Future proofing
-}
-
-export interface IEventUpdate {
-    title?: string;
-    description?: string;
-    date?: string;
-    startTime?: string;
-    endTime?: string;
-    duration?: number;
-    locationType?: 'on-campus' | 'off-campus';
-    location?: string;
-    coverImage?: string;
+  role: 'admin' | 'club';
+  isVerified: boolean;
+  avatarUrl?: string; // Helper for UI (usually mapped from logoUrl)
 }

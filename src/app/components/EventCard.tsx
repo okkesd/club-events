@@ -1,93 +1,67 @@
-import React from "react";
-import { IEvent, IEventComplex } from "@/app/lib/types";
-import { formatTime } from "@/app/lib/dateUtils";
-import Link from 'next/link'; // Import Link
+import React from 'react';
+import { IEvent } from "@/app/lib/types";
+import Link from 'next/link';
 import { Clock } from "lucide-react";
-import { CALENDAR_START_HOUR } from '@/app/lib/timeUtils';
-import {calculateEndTime} from '@/app/lib/timeUtils'
+import { CALENDAR_START_HOUR, calculateEndTime } from '@/app/lib/timeUtils';
 
-/**
- * Renders a single event card.
- */
-
-/**
- * Parses a "HH:MM" string and returns total hours from midnight.
- * e.g., "10:30" -> 10.5
- * e.g., "14:00" -> 14
- */
+// Helper to parse time
 function parseTime(time: string): number {
-  const [hours, minutes] = time.split(':').map(Number);
-  return hours + (minutes / 60);
+    const [hours, minutes] = time.split(':').map(Number);
+    return hours + (minutes / 60);
 }
 
-/**
- * A card that calculates its own position on a calendar grid.
- */
-export function EventCard({ event, showHourLabels }: { event: IEventComplex , showHourLabels : boolean}) {
-    // --- Grid Position Calculation ---
-  
-    const start = parseTime(event.startTime); // e.g., 10.0
-    const end = event.duration + start
-    const duration = event.duration
-    //const end = parseTime(event.endTime);     // e.g., 11.0
-    //const duration = end - start;
+export function EventCard({ event, showHourLabels }: { event: IEvent, showHourLabels: boolean }) {
     
-    // 1. Calculate the start row
-    // (10:00 - 9:00) + 1 = row 2
-    // (14:00 - 9:00) + 1 = row 6
+    // Grid Position Calculation
+    const start = parseTime(event.startTime); 
+    const end = start + event.duration; 
+
+    // Convert time to Grid Row Index
+    // +1 is needed because CSS Grid lines are 1-indexed
     const gridRowStart = (start - CALENDAR_START_HOUR) + 1;
-    
-    // 2. Calculate the end row
-    // (11:00 - 9:00) + 1 = row 3
-    // (16:00 - 9:00) + 1 = row 8
     const gridRowEnd = (end - CALENDAR_START_HOUR) + 1;
-  
-    // 3. Create the grid-row style string
-    // e.g., "2 / 3" (spans row 2)
-    // e.g., "6 / 8" (spans rows 6 and 7)
-    const gridStyle = {
-      gridRow: `${gridRowStart} / ${gridRowEnd}`,
+
+    // We can support partial hours (e.g. 10:30) via decimals if the parent grid supports it,
+    // otherwise this snaps to the hour.
+    // Given the previous setup (repeat rows), this allows decimal mapping if we used calc() or standard grid lines.
+    // However, standard CSS grid-row integer syntax requires whole numbers usually unless we use top/height %.
+    // To keep it simple based on your prompt's logic:
+    const gridStyle: React.CSSProperties = {
+        gridRowStart: gridRowStart, 
+        gridRowEnd: gridRowEnd,
+        gridColumn: '1 / -1', // Span full width of the day column
     };
 
-    const eventEndTime = calculateEndTime(event.startTime, event.duration)
+    const eventEndTime = calculateEndTime(event.startTime, event.duration);
 
     return (
         <Link
-      href={`/event/${event.id}`}
-      style={gridStyle}
-      //className="relative block p-3 rounded-lg bg-blue-100 border border-blue-300 hover:shadow-lg hover:border-blue-500 transition-all duration-200 ease-in-out cursor-pointer ml-10 mr-1 my-px z-20"    
-      className={`relative block p-2 rounded-lg bg-blue-100 border border-blue-300 hover:shadow-lg hover:border-blue-500 transition-all duration-200 ease-in-out cursor-pointer mr-1 my-px z-20 ${
-        showHourLabels ? 'ml-10' : 'ml-1' 
-      }`}
-      >
-        {/*<div className="bg-blue-50 border border-blue-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
-            <h5 className="font-bold text-sm text-blue-800">{event.title}</h5>
-            <p className="text-xs text-blue-700 mt-1">{event.clubName}</p>
-            <p className="text-xs text-blue-600 mt-2">
-                {formatTime(startTime)} – {formatTime(endTime)}
-            </p>
-        </div>*/}
-        <div className="flex flex-col">
-          {/* Club Name */}
-          <span className="text-xs font-semibold text-blue-600 mb-1">
-            {event.clubName}
-          </span>
-          
-          {/* Event Title */}
-          <span className="text-sm font-bold text-gray-800 mb-2">
-            {event.title}
-          </span>
-          
-          {/* Time */}
-          {duration > 1 && (
-          <div className="flex items-center gap-1 text-xs text-blue-600">
-            <Clock className="w-3 h-3" />
-            <span>
-              {event.startTime} - {eventEndTime}
-            </span>
-          </div>
-        )}
-        </div>
+            href={`/event/${event.id}`} // Assuming you have a route for details
+            className="m-1 relative group block hover:z-10 transition-all duration-200"
+            style={gridStyle}
+        >
+            <div className={`
+                h-full w-full rounded-md border-l-4 p-2 shadow-sm text-xs overflow-hidden flex flex-col gap-1
+                bg-blue-50 border-blue-500 hover:bg-blue-100 hover:shadow-md
+            `}>
+                <div className="font-bold text-blue-900 truncate leading-tight">
+                    {event.title}
+                </div>
+                
+                <div className="flex items-center text-blue-700 gap-1 opacity-90">
+                    <Clock size={12} />
+                    <span className="truncate">
+                        {event.startTime} - {eventEndTime}
+                    </span>
+                </div>
+
+                {/* Description (Only visible if event is long enough) */}
+                {event.duration >= 1 && (
+                    <p className="text-blue-800/70 line-clamp-2 mt-1">
+                        {event.description || "No description"}
+                    </p>
+                )}
+            </div>
         </Link>
     );
 }

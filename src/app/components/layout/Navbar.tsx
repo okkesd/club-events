@@ -46,6 +46,9 @@ export default function Navbar() {
               // --- MAIN APP LOGIC ---
               <div className="flex items-center gap-4">
                 
+                <Link href="/clubs" className="text-gray-600 hover:text-blue-600 font-medium">
+                  Clubs
+                </Link>
                 {user ? (
                   /* 1. LOGGED IN VIEW */
                   <>

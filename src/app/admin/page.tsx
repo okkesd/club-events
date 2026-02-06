@@ -46,29 +46,33 @@ export default function AdminDashboard() {
   const fetchClubs = async () => {
     setIsLoadingPage(true);
     try {
-        // LOGIC: 'Blocked' users are technically 'pending' (is_verified=False) in the DB.
-        // We fetch 'pending' for both tabs, then filter locally.
         const apiStatus = activeTab === 'verified' ? 'verified' : 'pending';
-        const data = await getAdminClubs(apiStatus);
+        const rawData = await getAdminClubs(apiStatus);
+
+        // 🛡️ SECURITY FIX: Ensure 'data' is always an array before touching it.
+        // If API returns null/undefined, we default to empty array []
+        const data = Array.isArray(rawData) ? rawData : [];
         
-        // ✅ FILTERING LOGIC
+        // ✅ FILTERING LOGIC (Now safe because data is guaranteed to be an array)
         let filteredData = data;
         
         if (activeTab === 'pending') {
             // Pending = Unverified AND No Rejection Reason
-            filteredData = data.filter(c => c.rejectionReason === "");
+            // Safety check: ensure rejectionReason exists or default to ""
+            filteredData = data.filter(c => (c.rejectionReason || "") === "");
         } else if (activeTab === 'blocked') {
             // Blocked = Unverified AND Has Rejection Reason
-            filteredData = data.filter(c => c.rejectionReason !== "");
+            filteredData = data.filter(c => (c.rejectionReason || "") !== "");
         }
             
         setClubs(filteredData);
     } catch (err) {
-        console.error(err);
+        console.error("Failed to fetch clubs:", err);
+        setClubs([]); // Fallback to empty list on error
     } finally {
         setIsLoadingPage(false);
     }
-  };
+};
 
   // Re-fetch when tab changes
   useEffect(() => {
@@ -191,12 +195,14 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
             {isLoadingPage ? (
                 <div className="p-12 text-center text-gray-400">Loading clubs...</div>
-            ) : clubs.length === 0 ? (
-                <div className="p-12 text-center text-gray-400">
-                    <CheckCircle2 className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                    <p>No clubs found in this tab.</p>
-                </div>
             ) : (
+        // ✅ DEFENSIVE CHECK: Ensure clubs is an array AND has length
+        !Array.isArray(clubs) || clubs.length === 0 ? (
+            <div className="p-12 text-center text-gray-400">
+                <CheckCircle2 className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                <p>No clubs found in this tab.</p>
+            </div>
+        ) : (
                 <table className="w-full text-left">
                     <thead className="bg-gray-50 border-b border-gray-100">
                         <tr>
@@ -298,6 +304,7 @@ export default function AdminDashboard() {
                         ))}
                     </tbody>
                 </table>
+                )
             )}
         </div>
       </div>

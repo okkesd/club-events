@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getProcessor } from "../processors";
 
-const PYTHON_API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+const PYTHON_API = process.env.BACKEND_URL || "http://127.0.0.1:8000";
 const API_SECRET = process.env.API_SECRET_KEY;
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {

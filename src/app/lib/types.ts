@@ -88,6 +88,7 @@ export interface IEventUpdate {
  */
 export interface IUser {
   id: string;
+  username: string
   email: string;
   clubName: string;
   role: 'admin' | 'club';

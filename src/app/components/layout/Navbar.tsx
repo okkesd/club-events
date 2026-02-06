@@ -1,3 +1,4 @@
+
 // app/components/Navbar.tsx
 "use client";
 
@@ -7,21 +8,55 @@ import { usePathname } from 'next/navigation';
 import { LogIn, CalendarDays, User, Plus, Shield } from 'lucide-react';
 import { useAuth } from "@/app/context/AuthContext";
 
+
 /**
  * A global navigation bar for the entire application.
  * It's displayed by the root layout.
  */
 export default function Navbar() {
+
   const pathname = usePathname();
   const { user } = useAuth();
   const isLoginPage = pathname === "/login";
   const isSignupPage = pathname === "/signup";
+
   
 
   return (
     <nav className="w-full bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
+        {/* Left side of Navbar */}
+  <div className="flex items-center gap-6">
+    {/* Brand/Logo */}
+    <Link 
+      href="/main" 
+      className="flex items-center gap-2 text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
+    >
+      <CalendarDays className="w-6 h-6 text-blue-600" />
+      UniEvents
+    </Link>
+    
+    <nav className="flex items-center">
+      <Link 
+        href="/main"
+        className="text-sm font-semibold text-gray-600 hover:text-blue-600"
+      >
+        Calendar
+      </Link>
+    </nav>
+
+    {/* --- ADD THIS NEW CLUBS LINK --- */}
+    <nav className="flex items-center">
+      <Link 
+        href="/club"
+        className="text-sm font-semibold text-gray-600 hover:text-blue-600"
+      >
+        All Clubs
+      </Link>
+    </nav>
+    {/* --- END OF CHANGE --- */}
+  </div>
           
           {/* Brand/Logo */}
           <Link 

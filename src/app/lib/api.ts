@@ -23,6 +23,56 @@ const getBaseUrl = () => {
 };
 
 /**
+ * * NEW FUNCTION *
+ * Simulates an API call to update an existing event.
+ * @param eventId The ID of the event to update.
+ * @param data The new data for the event.
+ */
+export const mockUpdateEventApi = async (
+  eventId: string, 
+  data: UpdateEventData
+): Promise<IEvent> => {
+  console.log(`Mock API: Updating event ${eventId}...`, data);
+
+  // --- 
+  // NOTE FOR AUTH: In a real backend, this is where you
+  // would check the user's auth token *before* doing anything.
+  // 1. const user = await getUserByToken(token);
+  // 2. const event = await db.findEvent(eventId);
+  // 3. if (user.clubName !== event.clubName) {
+  // 4.   throw new Error("403 Forbidden: You do not own this event.");
+  // 5. }
+  // ---
+
+  // Find the event in our mock DB
+  const eventIndex = allEvents.findIndex(e => e.id === eventId);
+  
+  if (eventIndex === -1) {
+    throw new Error("Event not found.");
+  }
+
+  // Get the original clubName, which cannot be changed
+  const originalClubName = allEvents[eventIndex].clubName;
+  const originalClubSlug = allEvents[eventIndex].clubSlug;
+
+  // Update the event
+  const updatedEvent: IEvent = {
+    ...data,       // The new data from the form
+    id: eventId,   // The original ID
+    clubName: originalClubName, // The original club name
+    clubSlug: originalClubSlug,
+  };
+  
+  allEvents[eventIndex] = updatedEvent;
+  
+  // Simulate network delay
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  return updatedEvent;
+};
+
+
+/**
  * Simulates an API call to fetch all events for a given week.
  * @param weekStartDate - The Date object for the Monday of the week.
  */

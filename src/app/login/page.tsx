@@ -5,6 +5,7 @@ import React, { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { LogIn, Loader2, AlertCircle, AtSign, Lock, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '../context/AuthContext';
 
 // --- Mock API (Unchanged) ---
 const mockLoginApi = (email: string, password: string): Promise<{ success: boolean; message: string }> => {
@@ -25,6 +26,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  let auth = useAuth()
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -39,6 +41,8 @@ export default function LoginPage() {
     } else {
       setError(response.message);
     }
+    setIsLoading(false)
+    
   };
 
   return (

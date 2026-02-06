@@ -12,7 +12,7 @@ import { ClubData } from '@/app/lib/types';
 
 const CAMPUS_LOCATIONS = ["Tech Hall", "Student Center", "Library 304", "Engineering Lab"];
 const PREDEFINED_TAGS = ["Workshop", "Social", "Free Food", "Career", "Competition", "Lecture"];
-
+// little change 
 function CreateEventSuspended() {
   const router = useRouter(); // Initialize router
   const searchParams = useSearchParams();

@@ -29,6 +29,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   // Covers: /events/weekly, /events/{id}
   else if (section === "events") {
     tags = ["events"];
+    if (path.length === 2 && path[1]) {
+      revalidateTime = 0; // Don't cache single event fetches
+    }
   }
   // Rule C: Club routes = Tag "clubs"
   // Covers: /clubs/{id}, /all_clubs, /clubs
@@ -39,7 +42,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     if (path.includes("events")) {
       tags = ["events"]; 
     }
-  }
+  } 
   
   // 2. Get Query Params (e.g., ?date=2026-02-04)
   const queryString = request.nextUrl.search; // includes the '?'

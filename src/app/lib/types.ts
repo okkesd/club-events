@@ -65,6 +65,7 @@ export interface IEvent {
   isRegistrationOpen: boolean;
   registrationLink?: string;
   capacity?: number;
+  likes: number;
 }
 
 // For creating/updating an event (everything optional for update)

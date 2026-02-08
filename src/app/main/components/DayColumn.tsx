@@ -31,31 +31,33 @@ export function DayColumn({ day, events, isFirstDay }: DayColumnProps) {
     });
 
     return (
-        <div className="flex flex-col flex-1 h-full min-w-0 bg-white border-r border-slate-200 last:border-r-0">
+        <div className="flex flex-col flex-1 h-full min-w-0 bg-white dark:bg-gray-950 border-r border-slate-200 dark:border-gray-800 last:border-r-0 transition-colors">
             {/* --- UPDATED HEADER SECTION --- */}
             <div className="p-2">
-            <div className="flex flex-col items-center justify-center py-4 border-b border-slate-200 mb-5 bg-white-400 shadow-lg">
-                {/* Day Name (e.g., MON) */}
-                <span className="text-xs font-medium uppercase text-slate-500 mb-1">
-                    {dayName}
-                </span>
-                
-                {/* Date Number (e.g., 26) */}
-                <div className={`
-                    flex items-center justify-center w-10 h-10 rounded-full text-2xl font-bold
-                    ${isToday ? 'bg-blue-600 text-white' : 'text-slate-900'}
-                `}>
-                    {dayOfMonth}
+                <div className="flex flex-col items-center justify-center py-4 border-b border-slate-200 dark:border-gray-800 mb-5 bg-white dark:bg-gray-900 shadow-lg rounded-md">
+                    {/* Day Name (e.g., MON) */}
+                    <span className="text-xs font-medium uppercase text-slate-500 dark:text-gray-400 mb-1">
+                        {dayName}
+                    </span>
+                    
+                    {/* Date Number (e.g., 26) */}
+                    <div className={`
+                        flex items-center justify-center w-10 h-10 rounded-full text-2xl font-bold transition-colors
+                        ${isToday 
+                            ? 'bg-blue-600 text-white' 
+                            : 'text-slate-900 dark:text-white'
+                        }
+                    `}>
+                        {dayOfMonth}
+                    </div>
                 </div>
             </div>
-            </div>
             {/* ------------------------------ */}
-
+    
             {/* The Grid Area */}
             <div 
                 className="grid w-full relative flex-1"
                 style={{
-                    // Creates N rows of fixed height
                     gridTemplateRows: `repeat(${totalGridRows}, ${ROW_HEIGHT_REM}rem)`,
                     gridTemplateColumns: "1fr" 
                 }}
@@ -64,18 +66,18 @@ export function DayColumn({ day, events, isFirstDay }: DayColumnProps) {
                 {hourSlots.map((timeLabel, index) => (
                     <div 
                         key={timeLabel} 
-                        className="border-b border-slate-100 relative"
+                        className="border-b border-slate-100 dark:border-gray-800/60 relative"
                         style={{ gridRow: index + 1, gridColumn: "1 / -1" }}
                     >
                         {/* Only show time labels on the first column (Left Axis) */}
                         {isFirstDay && (
-                            <span className="absolute -left-2 -top-3 w-12 text-right text-xs text-slate-600 font-medium pr-2 bg-white/0">
+                            <span className="absolute -left-2 -top-3 w-12 text-right text-xs text-slate-600 dark:text-gray-500 font-medium pr-2 bg-white/0">
                                 {timeLabel}
                             </span>
                         )}
                     </div>
                 ))}
-
+    
                 {/* Layer 2: The Events */}
                 {validEvents.map((event) => (
                     <EventCard 

@@ -36,28 +36,31 @@ export function EventCard({ event, showHourLabels }: { event: IEvent, showHourLa
 
     return (
         <Link
-            href={`/event/${event.id}`} // Assuming you have a route for details
+            href={`/event/${event.id}`}
             className="m-1 relative group block hover:z-10 transition-all duration-200"
             style={gridStyle}
         >
             <div className={`
-                h-full w-full rounded-md border-l-4 p-2 shadow-sm text-xs overflow-hidden flex flex-col gap-1
+                h-full w-full rounded-md border-l-4 p-2 shadow-sm text-xs overflow-hidden flex flex-col gap-1 transition-colors
                 bg-blue-50 border-blue-500 hover:bg-blue-100 hover:shadow-md
+                dark:bg-blue-900/20 dark:border-blue-500 dark:hover:bg-blue-900/40
             `}>
-                <div className="font-bold text-blue-900 truncate leading-tight">
+                {/* Title: Blue-900 (Light) -> Blue-100 (Dark) */}
+                <div className="font-bold text-blue-900 dark:text-blue-100 truncate leading-tight">
                     {event.title}
                 </div>
                 
-                <div className="flex items-center text-blue-700 gap-1 opacity-90">
+                {/* Time: Blue-700 (Light) -> Blue-300 (Dark) */}
+                <div className="flex items-center text-blue-700 dark:text-blue-300 gap-1 opacity-90">
                     <Clock size={12} />
                     <span className="truncate">
                         {event.startTime} - {eventEndTime}
                     </span>
                 </div>
-
-                {/* Description (Only visible if event is long enough) */}
+    
+                {/* Description */}
                 {event.duration >= 1 && (
-                    <p className="text-blue-800/70 line-clamp-2 mt-1">
+                    <p className="text-blue-800/70 dark:text-blue-200/60 line-clamp-2 mt-1">
                         {event.description || "No description"}
                     </p>
                 )}

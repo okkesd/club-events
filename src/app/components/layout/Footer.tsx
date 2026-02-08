@@ -37,7 +37,7 @@ export default function Footer() {
             
             {/* Links - Now includes the contracts you asked for */}
             <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm font-medium text-gray-600 dark:text-gray-400">
-              <Link href="/about" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              <Link href="/about-us" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 About
               </Link>
               <Link href="/contact" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">

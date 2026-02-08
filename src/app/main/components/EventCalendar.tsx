@@ -73,25 +73,23 @@ export default function EventCalendar() {
     if (error) return <ErrorState message={error} retry={() => setCurrentDate(new Date(currentDate))} />;
 
     return (
-        <div className="flex flex-col h-full w-full bg-white text-slate-800">
+        <div className="flex flex-col h-full w-full bg-white dark:bg-gray-950 text-slate-800 dark:text-gray-100 transition-colors duration-300">
             {/* Header Section */}
-            {/* Header Section <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">*/}
                 <CalendarHeader
                 weekHeader={formatWeekHeader(weekDays)}
                 onPreviousWeek={goToPreviousWeek}
                 onNextWeek={goToNextWeek}
             />
-           {/* </div> */}
            
             {/* Calendar Grid Container */}
-            <main className="flex-1 overflow-y-auto">
+            <main className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
                 {isLoading ? (
                     <div className="flex h-96 w-full items-center justify-center">
                         <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
                     </div>
                 ) : (
                     // The Day Columns
-                    <div className="grid grid-cols-7 min-w-[1000px] h-full divide-x divide-slate-200">
+                    <div className="grid grid-cols-7 min-w-[1000px] h-full divide-x divide-slate-200 dark:divide-gray-800">
                         {weekDays.map((day, index) => (
                             <DayColumn
                                 key={day.toISOString()}

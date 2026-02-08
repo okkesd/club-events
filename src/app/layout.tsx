@@ -5,6 +5,8 @@ import Navbar from "@/app/components/layout/Navbar"; // 1. Import the Navbar
 import Footer from "@/app/components/layout/Footer";
 import { AuthProvider } from "@/app/context/AuthContext";
 import DevAuthToolbar from "@/app/components/DevAuthToolbar";
+import { ThemeProvider } from "@/app/providers/ThemeProvider"; 
+import CookieBanner from "@/app/components/layout/CookieBanner";
 
 // --- Your existing font setup ---
 const geistSans = Geist({
@@ -30,12 +32,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       {/* 3. Keep your font variables on the body tag */}
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <AuthProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem={false}
+            
+          >
         {/* 4. This div wrapper creates the full-height layout */}
-        <div className="min-h-screen flex flex-col bg-gray-50 antialiased">
+        <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased transition-colors duration-300">
           
           {/* 5. The Navbar is added here, at the top */}
           
@@ -48,7 +56,9 @@ export default function RootLayout({
           </main>
           <DevAuthToolbar />
             <Footer />
+            <CookieBanner />
         </div>
+        </ThemeProvider>
         </AuthProvider>
       </body>
     </html>

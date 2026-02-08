@@ -19,16 +19,16 @@ export function ShareButton() {
   return (
     <button 
       onClick={handleShare}
-      className="flex items-center justify-center gap-2 py-2 px-3 border border-gray-200 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-all active:scale-95 cursor-pointer"
+      className="flex items-center justify-center gap-2 py-2 px-3 border rounded-lg text-sm font-semibold transition-all active:scale-95 cursor-pointer border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
     >
       {copied ? (
         <>
-          <Check className="w-4 h-4 text-green-600" />
-          <span className="text-green-600">Clipped!</span>
+          <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
+          <span className="text-green-600 dark:text-green-400">Clipped!</span>
         </>
       ) : (
         <>
-          <Share2 className="w-4 h-4 text-gray-500" />
+          <Share2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
           <span>Share</span>
         </>
       )}

@@ -12,9 +12,10 @@ import { ClubData } from '@/app/lib/types';
 
 const CAMPUS_LOCATIONS = ["Tech Hall", "Student Center", "Library 304", "Engineering Lab"];
 const PREDEFINED_TAGS = ["Workshop", "Social", "Free Food", "Career", "Competition", "Lecture"];
+
 // action trigger
 function CreateEventSuspended() {
-  const router = useRouter(); // Initialize router
+  const router = useRouter(); 
   const searchParams = useSearchParams();
   const preselectedClubId = searchParams.get('preselect');
   
@@ -117,7 +118,7 @@ function CreateEventSuspended() {
     const startTotal = startH * 60 + startM;
     const endTotal = endH * 60 + endM;
 
-    // Check if end time is effectively before start time (simple check, doesn't account for overnight events yet)
+    // Check if end time is effectively before start time
     if (endTotal <= startTotal) {
         newErrors.endTime = "End time must be after start time";
         isValid = false;
@@ -137,9 +138,7 @@ function CreateEventSuspended() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // 1. Run Validation
     if (!validateForm()) {
-        // Simple alert to notify user to look for red fields
         alert("Please fix the highlighted errors.");
         return; 
     }
@@ -147,10 +146,8 @@ function CreateEventSuspended() {
     setIsSubmitting(true);
     
     try {
-        // 2. Call API
         const response = await createEvent(formData);
 
-        // 3. Check Success Flag
         if (response.success && response.data) {
             alert("Event Created Successfully!");
             router.push("/main"); 
@@ -166,10 +163,8 @@ function CreateEventSuspended() {
     }
   };
 
-  // Helper to clear errors when user types
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error for this field if it exists
     if (errors[field]) {
         setErrors(prev => ({ ...prev, [field]: '' }));
     }
@@ -189,20 +184,21 @@ function CreateEventSuspended() {
   const { month: previewMonth, day: previewDay } = getPreviewDateParts();
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-8 pb-20">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pt-8 pb-20 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
+        {/* HEADER */}
         <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Create Event</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-colors">Create Event</h1>
             
-            <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm">
-                <span className="text-sm text-gray-500 font-medium">Posting as:</span>
+            <div className="flex items-center gap-3 bg-white dark:bg-gray-900 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm transition-colors">
+                <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">Posting as:</span>
                 <select 
                     value={formData.clubId}
                     onChange={(e) => setFormData({...formData, clubId: e.target.value})}
-                    className="bg-transparent font-bold text-gray-900 border-none focus:ring-0 p-0 cursor-pointer"
+                    className="bg-transparent font-bold text-gray-900 dark:text-white border-none focus:ring-0 p-0 cursor-pointer"
                 >
-                    {clubs && clubs.map(c => <option key={c.id} value={c.id}>{c.clubName}</option>)}
+                    {clubs && clubs.map(c => <option key={c.id} value={c.id} className="dark:bg-gray-900">{c.clubName}</option>)}
                 </select>
             </div>
         </div>
@@ -214,36 +210,35 @@ function CreateEventSuspended() {
             <form onSubmit={handleSubmit} className="space-y-6">
                 
                 {/* SECTION 1: BASICS */}
-                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-6">
-                    <h2 className="font-bold text-gray-900 flex items-center gap-2">
-                        <Type className="w-5 h-5 text-blue-600" />
+                <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-6 transition-colors">
+                    <h2 className="font-bold text-gray-900 dark:text-white flex items-center gap-2 transition-colors">
+                        <Type className="w-5 h-5 text-blue-600 dark:text-blue-500" />
                         Basic Info
                     </h2>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Event Title</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Event Title</label>
                         <input 
                             type="text" 
                             required
                             placeholder="e.g. Intro to React Workshop"
                             value={formData.title}
                             onChange={e => handleInputChange('title', e.target.value)}
-                            // ✅ ADDED: Conditional Error Styling
-                            className={`w-full p-3 rounded-xl border transition-all font-semibold text-gray-900 ${
-                                errors.title 
-                                ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500' 
-                                : 'border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                            className={`w-full p-3 rounded-xl border transition-all font-semibold 
+                                bg-white dark:bg-gray-800 text-gray-900 dark:text-white dark:placeholder-gray-500
+                                ${errors.title 
+                                ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:border-red-500/50' 
+                                : 'border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
                             }`}
                         />
-                        {/* ✅ ADDED: Error Message */}
                         {errors.title && <p className="text-red-500 text-xs mt-1 font-medium">{errors.title}</p>}
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Cover Image</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Cover Image</label>
                         <div className="flex items-center gap-4">
                             {formData.coverImage ? (
-                                <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-gray-200 group">
+                                <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 group transition-colors">
                                     <img src={formData.coverImage} alt="Cover" className="w-full h-full object-cover" />
                                     <button 
                                         type="button"
@@ -254,18 +249,20 @@ function CreateEventSuspended() {
                                     </button>
                                 </div>
                             ) : (
-                                <div className="w-24 h-24 rounded-xl bg-gray-50 border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400">
+                                <div className="w-24 h-24 rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-700 flex items-center justify-center text-gray-400 dark:text-gray-600 transition-colors">
                                     <ImageIcon className="w-8 h-8" />
                                 </div>
                             )}
                             
                             <div className="flex-1">
-                                <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
+                                <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 border rounded-lg font-medium transition-colors shadow-sm
+                                                bg-white text-gray-700 border-gray-300 hover:bg-gray-50
+                                                dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-700">
                                     <Upload className="w-4 h-4" />
                                     {isUploading ? "Uploading..." : "Upload Image"}
                                     <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} disabled={isUploading} />
                                 </label>
-                                <p className="text-xs text-gray-500 mt-2">
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 transition-colors">
                                     Recommended: 1200x600px. Max 5MB.
                                 </p>
                             </div>
@@ -274,40 +271,40 @@ function CreateEventSuspended() {
                 </div>
 
                 {/* SECTION 2: TIME & PLACE */}
-                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-6">
-                    <h2 className="font-bold text-gray-900 flex items-center gap-2">
-                        <Clock className="w-5 h-5 text-orange-600" />
+                <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-6 transition-colors">
+                    <h2 className="font-bold text-gray-900 dark:text-white flex items-center gap-2 transition-colors">
+                        <Clock className="w-5 h-5 text-orange-600 dark:text-orange-500" />
                         Time & Place
                     </h2>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Date</label>
                             <input 
                                 type="date"
                                 required
                                 value={formData.date}
                                 onChange={e => handleInputChange('date', e.target.value)}
-                                className={`w-full p-2.5 rounded-xl border cursor-pointer text-gray-700 ${
-                                    errors.date ? 'border-red-500' : 'border-gray-200'
-                                }`}
+                                className={`w-full p-2.5 rounded-xl border cursor-pointer 
+                                           bg-white dark:bg-gray-800 text-gray-700 dark:text-white dark:border-gray-700 
+                                           ${errors.date ? 'border-red-500 dark:border-red-500/50' : 'border-gray-200'}`}
                             />
                             {errors.date && <p className="text-red-500 text-xs mt-1">{errors.date}</p>}
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Start Time</label>
                             <input 
                                 type="time"
                                 required
                                 value={formData.startTime}
                                 onChange={e => handleInputChange('startTime', e.target.value)}
-                                className="w-full p-2.5 rounded-xl border border-gray-200 text-gray-700 cursor-pointer"
+                                className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-white cursor-pointer transition-colors"
                             />
                         </div>
                     </div>
 
                     {/* DURATION vs END TIME TOGGLE */}
-                    <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                    <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800 transition-colors">
                         <div className="flex gap-4 mb-4">
                             <label className="flex items-center gap-2 cursor-pointer">
                                 <input 
@@ -315,9 +312,9 @@ function CreateEventSuspended() {
                                     name="timeMode" 
                                     checked={formData.timeMode === 'duration'}
                                     onChange={() => setFormData({...formData, timeMode: 'duration'})}
-                                    className="text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                    className="text-blue-600 focus:ring-blue-500 cursor-pointer dark:bg-gray-700 dark:border-gray-600"
                                 />
-                                <span className="text-sm font-medium text-gray-700">Set Duration</span>
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Set Duration</span>
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer">
                                 <input 
@@ -325,15 +322,15 @@ function CreateEventSuspended() {
                                     name="timeMode" 
                                     checked={formData.timeMode === 'endTime'}
                                     onChange={() => setFormData({...formData, timeMode: 'endTime'})}
-                                    className="text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                    className="text-blue-600 focus:ring-blue-500 cursor-pointer dark:bg-gray-700 dark:border-gray-600"
                                 />
-                                <span className="text-sm font-medium text-gray-700">Set End Time</span>
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Set End Time</span>
                             </label>
                         </div>
 
                         {formData.timeMode === 'duration' ? (
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Duration (Hours)</label>
+                                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Duration (Hours)</label>
                                 <div className="flex items-center gap-3">
                                     <input 
                                         type="number" 
@@ -342,27 +339,26 @@ function CreateEventSuspended() {
                                         max="12"
                                         value={formData.duration}
                                         onChange={e => {const val = e.target.value; setFormData({...formData, duration: val == "" ? 0 : parseFloat(e.target.value)})}}
-                                        className="w-32 p-2.5 rounded-xl text-gray-700 border border-gray-200"
+                                        className="w-32 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-white transition-colors"
                                     />
                                     <div className="flex flex-col">
-                                        <span className="text-sm text-gray-500">
-                                            Ends at <span className="font-bold text-gray-900">{formData.endTime}</span>
+                                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                                            Ends at <span className="font-bold text-gray-900 dark:text-white">{formData.endTime}</span>
                                         </span>
-                                        {/* Show end time error even in duration mode if calculated time is invalid */}
                                         {errors.endTime && <span className="text-red-500 text-xs font-bold">{errors.endTime}</span>}
                                     </div>
                                 </div>
                             </div>
                         ) : (
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">End Time</label>
+                                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">End Time</label>
                                 <input 
                                     type="time" 
                                     value={formData.endTime}
                                     onChange={e => handleInputChange('endTime', e.target.value)}
-                                    className={`w-32 p-2.5 rounded-xl border cursor-pointer ${
-                                        errors.endTime ? 'border-red-500' : 'border-gray-200'
-                                    }`}
+                                    className={`w-32 p-2.5 rounded-xl border cursor-pointer 
+                                        bg-white dark:bg-gray-800 text-gray-700 dark:text-white dark:border-gray-700
+                                        ${errors.endTime ? 'border-red-500' : 'border-gray-200'}`}
                                 />
                                 {errors.endTime && <p className="text-red-500 text-xs mt-1">{errors.endTime}</p>}
                             </div>
@@ -375,10 +371,10 @@ function CreateEventSuspended() {
                              <button
                                 type="button"
                                 onClick={() => setFormData({...formData, locationType: 'on-campus'})}
-                                className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all cursor-pointer ${
+                                className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all cursor-pointer border ${
                                     formData.locationType === 'on-campus' 
-                                    ? 'bg-blue-100 text-blue-700' 
-                                    : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                                    ? 'bg-blue-100 text-blue-700 border-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-900/50' 
+                                    : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700'
                                 }`}
                              >
                                 On Campus
@@ -386,17 +382,17 @@ function CreateEventSuspended() {
                              <button
                                 type="button"
                                 onClick={() => setFormData({...formData, locationType: 'off-campus'})}
-                                className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all cursor-pointer ${
+                                className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all cursor-pointer border ${
                                     formData.locationType === 'off-campus' 
-                                    ? 'bg-blue-100 text-blue-700' 
-                                    : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                                    ? 'bg-blue-100 text-blue-700 border-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-900/50' 
+                                    : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700'
                                 }`}
                              >
                                 Off Campus
                              </button>
                         </div>
 
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">
                             {formData.locationType === 'on-campus' ? "Room / Building" : "Address / Venue"}
                         </label>
                         <input 
@@ -405,10 +401,11 @@ function CreateEventSuspended() {
                             value={formData.location}
                             onChange={e => handleInputChange('location', e.target.value)}
                             placeholder={formData.locationType === 'on-campus' ? "e.g. Room 101, Tech Hall" : "e.g. 123 Main St, Downtown"}
-                            className={`w-full p-3 rounded-xl border mb-2 text-gray-700 ${
-                                errors.location 
-                                ? 'border-red-500 focus:ring-2 focus:ring-red-500' 
-                                : 'border-gray-200 focus:ring-2 focus:ring-blue-500'
+                            className={`w-full p-3 rounded-xl border mb-2 
+                                bg-white dark:bg-gray-800 text-gray-700 dark:text-white dark:placeholder-gray-500
+                                ${errors.location 
+                                ? 'border-red-500 focus:ring-2 focus:ring-red-500 dark:border-red-500/50' 
+                                : 'border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500'
                             }`}
                         />
                         {errors.location && <p className="text-red-500 text-xs mt-1">{errors.location}</p>}
@@ -424,7 +421,9 @@ function CreateEventSuspended() {
                                             setFormData({...formData, location: loc});
                                             if(errors.location) setErrors({...errors, location: ''});
                                         }}
-                                        className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full transition-colors cursor-pointer"
+                                        className="text-xs px-3 py-1.5 rounded-full transition-colors cursor-pointer
+                                                   bg-gray-100 hover:bg-gray-200 text-gray-600
+                                                   dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
                                     >
                                         {loc}
                                     </button>
@@ -435,23 +434,24 @@ function CreateEventSuspended() {
                 </div>
 
                 {/* SECTION 3: DETAILS */}
-                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-6">
-                    <h2 className="font-bold text-gray-900 flex items-center gap-2">
-                        <Map className="w-5 h-5 text-purple-600" />
+                <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-6 transition-colors">
+                    <h2 className="font-bold text-gray-900 dark:text-white flex items-center gap-2 transition-colors">
+                        <Map className="w-5 h-5 text-purple-600 dark:text-purple-500" />
                         Details
                     </h2>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Description</label>
                         <textarea 
                             rows={4}
                             required
                             value={formData.description}
                             onChange={e => handleInputChange('description', e.target.value)}
-                            className={`w-full p-3 rounded-xl border min-h-[100px] text-gray-700 ${
-                                errors.description 
-                                ? 'border-red-500 focus:ring-2 focus:ring-red-500' 
-                                : 'border-gray-200 focus:ring-2 focus:ring-blue-500'
+                            className={`w-full p-3 rounded-xl border min-h-[100px] 
+                                bg-white dark:bg-gray-800 text-gray-700 dark:text-white dark:placeholder-gray-500
+                                ${errors.description 
+                                ? 'border-red-500 focus:ring-2 focus:ring-red-500 dark:border-red-500/50' 
+                                : 'border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500'
                             }`}
                             placeholder="Tell students what makes this event awesome..."
                         />
@@ -459,7 +459,7 @@ function CreateEventSuspended() {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Tags (Max 3)</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Tags (Max 3)</label>
                         <div className="flex flex-wrap gap-2">
                             {PREDEFINED_TAGS.map(tag => {
                                 const isSelected = formData.tags.includes(tag);
@@ -470,8 +470,8 @@ function CreateEventSuspended() {
                                         onClick={() => toggleTag(tag)}
                                         className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer ${
                                             isSelected 
-                                            ? 'bg-gray-900 text-white shadow-md' 
-                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                            ? 'bg-gray-900 text-white shadow-md dark:bg-white dark:text-gray-900' 
+                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700'
                                         }`}
                                     >
                                         {tag}
@@ -488,7 +488,9 @@ function CreateEventSuspended() {
                         type="submit"
                         disabled={isSubmitting}
                         className={`w-full py-4 rounded-2xl text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all active:scale-[0.98] cursor-pointer ${
-                            isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+                            isSubmitting 
+                            ? "bg-gray-400 cursor-not-allowed dark:bg-gray-700" 
+                            : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500"
                         }`}
                     >
                         {isSubmitting ? "Publishing Event..." : "Publish Event"}
@@ -504,17 +506,19 @@ function CreateEventSuspended() {
             
             {/* 1. DEVICE TOGGLE BAR */}
             <div className="flex justify-between items-center px-2">
-                <div className="flex items-center gap-2 text-gray-500">
+                <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 transition-colors">
                     <Eye className="w-4 h-4" />
                     <span className="text-xs font-bold uppercase tracking-wider">Live Preview</span>
                 </div>
         
-                <div className="flex bg-gray-200 p-1 rounded-lg">
+                <div className="flex bg-gray-200 dark:bg-gray-800 p-1 rounded-lg transition-colors">
                     <button 
                         type="button" 
                         onClick={() => setPreviewMode('desktop')}
                         className={`p-1.5 rounded-md transition-all cursor-pointer ${
-                            previewMode === 'desktop' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'
+                            previewMode === 'desktop' 
+                            ? 'bg-white shadow-sm text-gray-900 dark:bg-gray-700 dark:text-white' 
+                            : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                         }`}
                         title="Desktop View"
                     >
@@ -524,7 +528,9 @@ function CreateEventSuspended() {
                         type="button"
                         onClick={() => setPreviewMode('mobile')}
                         className={`p-1.5 rounded-md transition-all cursor-pointer ${
-                            previewMode === 'mobile' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'
+                            previewMode === 'mobile' 
+                            ? 'bg-white shadow-sm text-gray-900 dark:bg-gray-700 dark:text-white' 
+                            : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                         }`}
                         title="Mobile View"
                     >
@@ -541,12 +547,13 @@ function CreateEventSuspended() {
             }`}>
                 
                 {/* 3. INNER CARD */}
-                <div className={`bg-white overflow-hidden border border-gray-200 pointer-events-none select-none ${
-                    previewMode === 'mobile' ? 'rounded-[1.7rem] h-full' : 'rounded-2xl shadow-xl'
-                }`}>
+                {/* This card replicates the Event Card style. In dark mode, it should be dark. */}
+                <div className={`overflow-hidden pointer-events-none select-none transition-colors
+                                bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800
+                                ${previewMode === 'mobile' ? 'rounded-[1.7rem] h-full' : 'rounded-2xl shadow-xl'}`}>
                     
                     {/* A. IMAGE AREA */}
-                    <div className="h-48 bg-gray-200 relative group">
+                    <div className="h-48 bg-gray-200 dark:bg-gray-800 relative group transition-colors">
                         <img 
                             src={formData.coverImage || "/gsu_image.jpg"} 
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
@@ -576,40 +583,46 @@ function CreateEventSuspended() {
                         <div className="flex justify-between items-start mb-4 gap-4">
                             
                             <div className="flex-1 min-w-0">
-                                <h3 className="text-xl font-bold text-gray-900 leading-tight mb-1 break-words">
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white leading-tight mb-1 break-words transition-colors">
                                     {formData.title || "Your Event Title"}
                                 </h3>
-                                <p className="text-sm text-gray-500 line-clamp-2 h-10 break-words">
+                                <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 h-10 break-words transition-colors">
                                     {formData.description || "Description will appear here..."}
                                 </p>
                             </div>
         
-                            <div className="flex flex-col items-center justify-center bg-blue-50 w-14 h-14 rounded-xl border border-blue-100 shrink-0">
-                                <span className="text-[10px] font-bold text-blue-600 uppercase">{previewMonth}</span>
-                                <span className="text-lg font-extrabold text-gray-900">{previewDay}</span>
+                            <div className="flex flex-col items-center justify-center w-14 h-14 rounded-xl shrink-0 transition-colors
+                                            bg-blue-50 border border-blue-100
+                                            dark:bg-blue-900/20 dark:border-blue-900/40">
+                                <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase">{previewMonth}</span>
+                                <span className="text-lg font-extrabold text-gray-900 dark:text-white">{previewDay}</span>
                             </div>
                         </div>
         
                         <div className="space-y-2 mb-4">
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                                <Clock className="w-4 h-4 text-gray-400 shrink-0" />
+                            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 transition-colors">
+                                <Clock className="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" />
                                 <span className="truncate">{formData.startTime} - {formData.endTime}</span>
                             </div>
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                                <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
+                            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 transition-colors">
+                                <MapPin className="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" />
                                 <span className="truncate">{formData.location || "Location TBD"}</span>
                             </div>
                         </div>
         
-                        <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-100">
+                        <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-100 dark:border-gray-800 transition-colors">
                             {formData.tags.length > 0 ? (
                                 formData.tags.map(tag => (
-                                    <span key={tag} className="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded-md uppercase tracking-wide">
+                                    <span key={tag} className="text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wide transition-colors
+                                                               bg-gray-100 text-gray-600
+                                                               dark:bg-gray-800 dark:text-gray-400">
                                         {tag}
                                     </span>
                                 ))
                             ) : (
-                                <span className="text-[10px] font-bold bg-gray-50 text-gray-400 px-2 py-1 rounded-md uppercase tracking-wide">
+                                <span className="text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wide transition-colors
+                                                 bg-gray-50 text-gray-400
+                                                 dark:bg-gray-800/50 dark:text-gray-600">
                                     No Tags
                                 </span>
                             )}
@@ -618,7 +631,7 @@ function CreateEventSuspended() {
                 </div>
             </div>
         
-            <p className="text-center text-xs text-gray-400 px-8 mt-4">
+            <p className="text-center text-xs text-gray-400 dark:text-gray-500 px-8 mt-4 transition-colors">
                 {previewMode === 'mobile' 
                     ? "Previewing how students see it on their phones." 
                     : "Previewing how it looks on laptops and tablets."}
@@ -634,9 +647,7 @@ function CreateEventSuspended() {
 
 export default function CreateEventPage() {
   return (
-    // This tells Next.js: "Don't try to pre-render the inside part on the server.
-    // Wait until we hit the browser to load the search params."
-    <Suspense fallback={<div className="p-10 text-center">Loading event form...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-950">Loading event form...</div>}>
       <CreateEventSuspended />
     </Suspense>
   );

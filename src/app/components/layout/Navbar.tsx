@@ -1,58 +1,90 @@
-// app/components/Navbar.tsx
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LogIn, CalendarDays, User, Plus, Shield } from 'lucide-react';
+import { LogIn, CalendarDays, User, Plus, Moon, Sun } from 'lucide-react';
 import { useAuth } from "@/app/context/AuthContext";
+import { useTheme } from "next-themes";
 
-/**
- * A global navigation bar for the entire application.
- * It's displayed by the root layout.
- */
 export default function Navbar() {
   const pathname = usePathname();
   const { user } = useAuth();
+  const { theme, setTheme, systemTheme, resolvedTheme } = useTheme();
+
+  useEffect(() => {
+    console.log("Current theme:", theme);
+    console.log("System theme:", systemTheme);
+    console.log("Resolved theme:", resolvedTheme);
+    console.log("HTML class:", document.documentElement.className);
+  }, [theme, systemTheme, resolvedTheme]);
+  
+  // Hydration fix: Wait until mounted to render theme icons
+  const [mounted, setMounted] = useState(false);
+
+  // 2. HYDRATION FIX: Set mounted to true only after client load
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
   const isLoginPage = pathname === "/login";
   const isSignupPage = pathname === "/signup";
-  
 
   return (
-    <nav className="w-full bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+    <nav className="w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           
           {/* Brand/Logo */}
           <Link 
             href="/main" 
-            className="flex items-center gap-2 text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
+            className="flex items-center gap-2 text-xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
           >
-            <CalendarDays className="w-6 h-6 text-blue-600" />
+            <CalendarDays className="w-6 h-6 text-blue-600 dark:text-blue-500" />
             UniEvents
           </Link>
           
           {/* Actions Area */}
-          <div>
+          <div className="flex items-center gap-4">
+            
+            {/* Theme Toggle Button */}
+            {mounted ? (
+              <button
+                onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+                className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-all"
+                aria-label="Toggle Dark Mode"
+              >
+                {theme === "light" ? (
+                  <Sun className="w-5 h-5" />
+                ) : (
+                  <Moon className="w-5 h-5" />
+                )}
+              </button>
+            ) : (
+              // Optional: Render a blank placeholder of the same size to prevent layout shift
+              <div className="w-9 h-9" />
+            )}
+
+            {/* Auth Logic */}
             {isLoginPage ? (
-              <Link href="/signup" className="text-sm font-semibold text-gray-600 hover:text-blue-600">
+              <Link href="/signup" className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
                 Create new club
               </Link>
             ) : isSignupPage ? (
-              <Link href="/login" className="text-sm font-semibold text-gray-600 hover:text-blue-600">
+              <Link href="/login" className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
                 Already have a club?
               </Link>
             ) : (
               // --- MAIN APP LOGIC ---
               <div className="flex items-center gap-4">
                 
-                <Link href="/clubs" className="text-gray-600 hover:text-blue-600 font-medium">
+                <Link href="/clubs" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium">
                   Clubs
                 </Link>
+
                 {user ? (
                   /* 1. LOGGED IN VIEW */
                   <>
-                    {/* Create Event: Visible for BOTH Admin and Club */}
                     <Link 
                         href="/event/create"
                         className="hidden md:flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-bold text-sm transition-all shadow-sm hover:shadow-md active:scale-95"
@@ -61,11 +93,9 @@ export default function Navbar() {
                         <span>Create Event</span>
                     </Link>
 
-                    {/* Dynamic Profile Icon */}
-                    {/* Admins go to Dashboard (/admin), Clubs go to Profile (/clubs/id) */}
                     <Link 
                         href={user.role === 'admin' ? '/admin' : `/club/${user.id}`} 
-                        className="w-9 h-9 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors"
+                        className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                         title={`Logged in as ${user.name}`}
                     >
                         {user.avatarUrl ? (
@@ -79,7 +109,7 @@ export default function Navbar() {
                   /* 2. GUEST VIEW */
                   <Link 
                     href="/login"
-                    className="flex items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 transition-colors"
+                    className="flex items-center justify-center gap-2 rounded-xl bg-gray-900 dark:bg-gray-100 px-4 py-2 text-sm font-semibold text-white dark:text-gray-900 shadow-sm hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
                   >
                     <LogIn className="w-4 h-4" />
                     Club Login
@@ -88,7 +118,6 @@ export default function Navbar() {
               </div>
             )}
           </div>
-
         </div>
       </div>
     </nav>

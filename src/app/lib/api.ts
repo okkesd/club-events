@@ -230,7 +230,9 @@ export async function getAdminClubs(status?: 'verified' | 'pending'): Promise<Cl
     const res = await fetch(`${BASE_URL}/api/proxy/admin/clubs${query}`, { cache: 'no-store' });
     
     if (!res.ok) throw new Error("Failed to fetch clubs");
-    return res.json();
+    const resolvedData = await res.json()
+    const dataToReturn = resolvedData["data"]
+    return dataToReturn;
 }
 
 // 2. Verify or Reject a club
@@ -279,3 +281,33 @@ export async function getAllClubsUser(search?: string): Promise<ClubData[]> {
     const json = await res.json();
     return json.data;
 }
+
+export async function toggleEventLike(eventId: string, hasLiked: boolean): Promise<number> {
+
+  const BASE_URL = getBaseUrl()
+
+
+  const res = await fetch(`${BASE_URL}/api/proxy/event_like/${eventId}`, {
+    method: 'POST',  // Changed from GET
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ liked: hasLiked }),  // Send as body, not query param
+    cache: 'no-store',  // Ensure no caching
+  });
+
+  if (!res.ok) throw new Error("Failed to like")
+
+  const json = await res.json()
+  return json.data.likes
+}
+
+/*export async function toggleEventLike(eventId: string, hasLiked: boolean): Promise<Event> {
+  const BASE_URL = getBaseUrl();
+  const res = await fetch(`${BASE_URL}/api/proxy/event_like/${eventId}?liked=${hasLiked}`);
+  
+  if (!res.ok) throw new Error("Failed to like");
+  
+  const json = await res.json();
+  return json.data; // Returns the full event object with updated likes count
+}*/

@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { 
   Mail, Instagram, Globe, Linkedin, Calendar, 
   MapPin, ExternalLink, ArrowLeft, Users, Clock, 
-  Plus, Camera, Save, X, Edit3 
+  Plus, Camera, Save, X, Edit3, 
+  LogOut
 } from 'lucide-react';
 import { updateClub, uploadImage } from '@/app/lib/api';
 import { useRouter } from 'next/navigation';
@@ -82,8 +83,8 @@ function EventCard({ event, isPast = false }: { event: any, isPast?: boolean }) 
 // --- MAIN CLIENT COMPONENT ---
 export default function ClubProfileClient({ initialClub, events }: { initialClub: any, events: any[] }) {
   const router = useRouter();
-  const { user } = useAuth();
-  
+  const { user, logout } = useAuth();
+
   // 1. STATE
   const [club, setClub] = useState(initialClub);
   const [isEditing, setIsEditing] = useState(false);
@@ -251,6 +252,7 @@ export default function ClubProfileClient({ initialClub, events }: { initialClub
                         <>
                             {/* OWNER ONLY: Edit Button */}
                             {isOwner && (
+                                <>
                                 <button 
                                     onClick={() => setIsEditing(true)}
                                     className="flex items-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 px-4 py-2.5 rounded-xl font-bold transition-colors mr-2"
@@ -258,18 +260,21 @@ export default function ClubProfileClient({ initialClub, events }: { initialClub
                                     <Edit3 className="w-4 h-4" />
                                     Edit Profile
                                 </button>
+                                <Link 
+                                    href={`/event/create?preselect=${club.id}`}
+                                    className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 px-4 py-2.5 rounded-xl font-bold transition-all hover:bg-gray-50 dark:hover:bg-gray-700 ml-2"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    <span className="hidden sm:inline">Post Event</span>
+                                </Link>
+                            </>
+                            
                             )}
 
                             {club.socials?.instagram && <SocialButton icon={Instagram} href={club.socials.instagram} label="Instagram" />}
                             {/* Add other socials... */}
                             
-                            <Link 
-                                href={`/event/create?preselect=${club.id}`}
-                                className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 px-4 py-2.5 rounded-xl font-bold transition-all hover:bg-gray-50 dark:hover:bg-gray-700 ml-2"
-                            >
-                                <Plus className="w-4 h-4" />
-                                <span className="hidden sm:inline">Post Event</span>
-                            </Link>
+                            
                             <a 
                                 href={`mailto:${club.email}`} 
                                 className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 px-4 py-2.5 rounded-xl font-bold transition-all hover:bg-gray-50 dark:hover:bg-gray-700 ml-2"
@@ -387,6 +392,20 @@ export default function ClubProfileClient({ initialClub, events }: { initialClub
                     </div>
                 </div>
              </div>
+
+             {/* 2. OWNER ACTIONS (Moved here) */}
+             {isOwner && (
+                 <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 mt-5 border border-gray-100 dark:border-gray-800 transition-colors">
+                     <button 
+                         onClick={logout}
+                         className="w-full flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-900 hover:bg-red-50 dark:hover:bg-red-900/10 text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 border border-gray-200 dark:border-gray-700 hover:border-red-100 dark:hover:border-red-900/30 rounded-xl font-semibold transition-all group"
+                         title="Sign Out"
+                     >
+                        <span>Sign Out</span>
+                        <LogOut className="w-4 h-4 text-gray-400 group-hover:text-red-500 transition-colors" />
+                    </button>
+                </div>
+            )}
           </div>
 
         </div>

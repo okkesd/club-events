@@ -8,7 +8,12 @@ import {
 } from 'lucide-react';
 import { createEvent, uploadImage, getAllClubs } from '@/app/lib/api'; 
 import { ClubData } from '@/app/lib/types';
+import { useAuth } from '@/app/context/AuthContext';
 
+type clubs_type = {
+  id: string
+  clubName: string
+}
 
 const CAMPUS_LOCATIONS = ["Tech Hall", "Student Center", "Library 304", "Engineering Lab"];
 const PREDEFINED_TAGS = ["Workshop", "Social", "Free Food", "Career", "Competition", "Lecture"];
@@ -20,10 +25,15 @@ function CreateEventSuspended() {
   const preselectedClubId = searchParams.get('preselect');
   
   const [isUploading, setIsUploading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
   const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
-  const [clubs, setClubs] = useState<ClubData[]|null>(null);
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [clubs, setClubs] = useState<clubs_type[]>([]);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({}); // errors for the form
+  const [genericError, setGenericError] = useState<string | null>(null); // errors for generic case
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { user , isLoading } = useAuth()
+ 
   
   // --- FORM STATE ---
   const [formData, setFormData] = useState({
@@ -46,8 +56,53 @@ function CreateEventSuspended() {
 
   // Fetch clubs
   useEffect(() => {
-    getAllClubs().then((data) => setClubs(data));
-  }, []);
+
+    if (isLoading) return
+
+    if (!user) {
+        router.push("/login")
+    }
+
+    if (user && user.role === 'club') {
+        setFormData(prev => ({ ...prev, clubId: user.id }));
+        
+        // OPTIMIZATION: Don't fetch API. Just use the logged-in user's data.
+        setClubs([{ id: user.id, clubName: user.club_name }]);
+        setPageLoading(false);
+    } 
+    else if (user && user.role === 'admin') {
+        // Only Admins need to fetch the list
+        fetchClubsForAdmin();
+    }
+
+  }, [user, isLoading, router]);
+
+  const fetchClubsForAdmin = async () => {
+    try {
+        const data = await getAllClubs();
+        if (!data) {
+            throw new Error("Failed to fetch all clubs")
+        }
+        setClubs(
+            data.map((item) => 
+                ({
+                    id: item.id, 
+                    clubName: item.clubName
+                })
+            )
+        );
+        
+        // Default to the first club in the list (or the admin's own ID if applicable)
+        if (data && data.length > 0) {
+             setFormData(prev => ({ ...prev, clubId: data[0].id }));
+        }
+    } catch (err) {
+        console.error(err);
+        setGenericError("Failed to load club list. Please refresh.");
+    } finally {
+        setPageLoading(false);
+    }
+  };
 
   // --- TIME CALCULATION LOGIC ---
   useEffect(() => {
@@ -191,12 +246,13 @@ function CreateEventSuspended() {
         <div className="flex items-center justify-between mb-8">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-colors">Create Event</h1>
             
-            <div className="flex items-center gap-3 bg-white dark:bg-gray-900 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm transition-colors">
-                <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">Posting as:</span>
+            <div className={`flex items-center gap-3 bg-white dark:bg-gray-900 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm transition-colors ${user?.role !== "admin" ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+                <span className={`text-sm text-gray-500 dark:text-gray-400 font-medium ${user?.role !== "admin" ? 'cursor-not-allowed' : 'cursor-pointer'}`}>Posting as:</span>
                 <select 
-                    value={formData.clubId}
+                    value={user?.id}
                     onChange={(e) => setFormData({...formData, clubId: e.target.value})}
-                    className="bg-transparent font-bold text-gray-900 dark:text-white border-none focus:ring-0 p-0 cursor-pointer"
+                    className={`bg-transparent font-bold text-gray-900 dark:text-white border-none focus:ring-0 p-0 ${user?.role !== "admin" ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                    disabled={user?.role !== "admin"}
                 >
                     {clubs && clubs.map(c => <option key={c.id} value={c.id} className="dark:bg-gray-900">{c.clubName}</option>)}
                 </select>

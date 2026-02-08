@@ -3,13 +3,13 @@
 import React, { useEffect, useState } from "react";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LogIn, CalendarDays, User, Plus, Moon, Sun } from 'lucide-react';
+import { LogIn, CalendarDays, User, Plus, Moon, Sun, LogOut } from 'lucide-react';
 import { useAuth } from "@/app/context/AuthContext";
 import { useTheme } from "next-themes";
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { theme, setTheme, systemTheme, resolvedTheme } = useTheme();
 
   useEffect(() => {
@@ -93,10 +93,11 @@ export default function Navbar() {
                         <span>Create Event</span>
                     </Link>
 
+                    {/* Profile Link */}
                     <Link 
                         href={user.role === 'admin' ? '/admin' : `/club/${user.id}`} 
                         className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                        title={`Logged in as ${user.name}`}
+                        title={`Logged in as ${user.club_name}`}
                     >
                         {user.avatarUrl ? (
                             <img src={user.avatarUrl} alt="Avatar" className="w-full h-full rounded-full object-cover" />
@@ -104,6 +105,15 @@ export default function Navbar() {
                             <User className="w-5 h-5" />
                         )}
                     </Link>
+
+                    {/*  LOGOUT BUTTON */}
+                    <button 
+                        onClick={logout}
+                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                        title="Sign Out"
+                    >
+                        <LogOut className="w-5 h-5" />
+                    </button>
                   </>
                 ) : (
                   /* 2. GUEST VIEW */

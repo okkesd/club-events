@@ -5,19 +5,8 @@ import React, { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { LogIn, Loader2, AlertCircle, AtSign, Lock, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '../context/AuthContext';
 
-// --- Mock API (Unchanged) ---
-const mockLoginApi = (email: string, password: string): Promise<{ success: boolean; message: string }> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      if (email === "club@unievents.com" && password === "password123") {
-        resolve({ success: true, message: "Login successful!" });
-      } else {
-        resolve({ success: false, message: "Invalid email or password." });
-      }
-    }, 1500);
-  });
-};
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -26,18 +15,24 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
+  const { login } = useAuth(); // Get login function
+  
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
-    setIsLoading(true);
+    setIsSubmitting(true);
 
-    const response = await mockLoginApi(email, password);
-    setIsLoading(false);
-
-    if (response.success) {
-      router.push('/main');
-    } else {
-      setError(response.message);
+    try {
+      await login(email, password);
+      // No need to router.push here, the Context handles it
+    } catch (err: any) {
+      // Display the error message from the API
+      setError(err.message || "Invalid email or password.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

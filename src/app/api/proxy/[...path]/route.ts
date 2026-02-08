@@ -5,6 +5,22 @@ import { getProcessor } from "../processors";
 const PYTHON_API = process.env.BACKEND_URL || "http://127.0.0.1:8000";
 const API_SECRET = process.env.API_SECRET_KEY;
 
+// --- HELPER: Get Auth Header ---
+// Prepares the header for all requests
+function getForwardedHeaders(request: NextRequest) {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "x-api-key": API_SECRET || "",
+  };
+
+  const authHeader = request.headers.get("authorization");
+  if (authHeader) {
+    headers["Authorization"] = authHeader;
+  }
+  
+  return headers;
+}
+
 export async function GET(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   // 1. Get the path parameters (e.g., ["events", "weekly"])
   // Join them to make: "events/weekly"
@@ -43,6 +59,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       tags = ["events"]; 
     }
   } 
+
+  // Specific check: User profile should never be cached
+  if (pathString === "users/me") {
+    revalidateTime = 0;
+  }
   
   // 2. Get Query Params (e.g., ?date=2026-02-04)
   const queryString = request.nextUrl.search; // includes the '?'
@@ -56,10 +77,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const res = await fetch(targetUrl, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": API_SECRET || "",
-      },
+      headers: getForwardedHeaders(request),
       // Optional: You can add simple logic to cache only "GET" requests
       next: { 
         revalidate: revalidateTime, 
@@ -77,6 +95,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   }
 }
 
+
+
 /**
  * Shared Core Logic for all Mutation Requests (POST, PUT, PATCH, DELETE)
  */
@@ -91,21 +111,30 @@ async function handleMutation(
   console.log(`🔀 ${method} Proxy to: ${targetUrl}`);
 
   try {
-    // 1. Dynamic Strategy Selection (Reused for all methods!)
+    
+    const rawBody = await request.text();
+
+    // 2. Prepare headers
+    const headers: Record<string, string> = {
+      "x-api-key": API_SECRET || "",
+    };
+
+    // Forward Authorization Header (Crucial for protected actions)
+    const authHeader = request.headers.get("authorization");
+    if (authHeader) {
+      headers["Authorization"] = authHeader;
+    }
+
+    // Forward Content-Type (Crucial for Login Form Data vs JSON)
     const contentType = request.headers.get("content-type");
-    const processor = getProcessor(contentType);
-
-    // 2. Process Body
-    const payload = await processor.process(request);
-
-    // 3. Execute Fetch
+    if (contentType) {
+      headers["Content-Type"] = contentType;
+    }
+    
     const res = await fetch(targetUrl, {
-      method: method, // Dynamic method
-      body: payload.body,
-      headers: {
-        "x-api-key": API_SECRET || "",
-        ...payload.headers, 
-      },
+      method: method,
+      headers: headers,
+      body: rawBody || undefined, // Pass the raw body directly
     });
 
     // 4. Handle Response

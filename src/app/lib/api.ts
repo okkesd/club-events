@@ -144,9 +144,12 @@ export const uploadImage = async (file: File): Promise<string | null> => {
   formData.append("file", file);
   const BASE_URL = getBaseUrl();
 
+  const authHeader = getAuthHeader()
+
   try {
     const response = await fetch(`${BASE_URL}/api/proxy/upload`, {
       method: "POST",
+      headers: authHeader,
       body: formData,
     });
 
@@ -204,10 +207,13 @@ export async function updateClub(clubId: string, updateData: IClubUpdate): Promi
 
     const BASE_URL = getBaseUrl()
 
+    const headers = getAuthHeader()
+
     const response = await fetch(`${BASE_URL}/api/proxy/clubs/${clubId}`, {
         method: "PATCH",
         headers: {
             "Content-Type": "application/json",
+            ...headers
         },
         body: JSON.stringify(updateData),
     });
@@ -302,12 +308,84 @@ export async function toggleEventLike(eventId: string, hasLiked: boolean): Promi
   return json.data.likes
 }
 
-/*export async function toggleEventLike(eventId: string, hasLiked: boolean): Promise<Event> {
-  const BASE_URL = getBaseUrl();
-  const res = await fetch(`${BASE_URL}/api/proxy/event_like/${eventId}?liked=${hasLiked}`);
-  
-  if (!res.ok) throw new Error("Failed to like");
-  
-  const json = await res.json();
-  return json.data; // Returns the full event object with updated likes count
-}*/
+
+
+// 1. LOGIN FUNCTION
+export async function loginUser(email: string, password: string) {
+
+  const BASE_URL = getBaseUrl()
+
+  // OAuth2 expects form-data, not JSON
+  const formData = new URLSearchParams();
+  formData.append("username", email); // FastAPI maps 'username' to email
+  formData.append("password", password);
+
+  const res = await fetch(`${BASE_URL}/api/proxy/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: formData,
+  });
+
+  if (!res.ok) {
+    if (res.status === 401) {
+       // We throw a specific error text that the UI already knows how to display
+       throw new Error("Invalid email or password.");
+    }
+
+    // 2. Handle System Errors (500, 422, etc.)
+    // We try to parse the error detail from Python, fallback to generic message
+    let errorMessage = "Login failed";
+    try {
+        const errorData = await res.json();
+        errorMessage = errorData.detail || errorMessage;
+    } catch (e) {
+        // If response wasn't JSON (e.g. Nginx 502 Bad Gateway HTML), ignore parse error
+    }
+    
+    throw new Error(errorMessage);
+  }
+
+  return res.json(); // Returns { access_token, token_type }
+}
+
+// Helper to get the token from storage
+function getAuthHeader() {
+  // Ensure we are in the browser before accessing localStorage
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      return { "Authorization": `Bearer ${token}` };
+    }
+  }
+}
+
+// 2. GET CURRENT USER FUNCTION
+export async function getCurrentUser() {
+
+  const BASE_URL = getBaseUrl()
+
+  const headers = {
+      "Content-Type": "application/json",
+      ...getAuthHeader(),
+    }
+
+  const res = await fetch(`${BASE_URL}/api/proxy/users/me`, {
+    method: "GET",
+    headers: headers,
+  });
+
+  if (!res.ok) {
+
+    if (res.status == 401) { // return null for 401
+      
+      console.warn("Session expired or invalid (401). returning guest state.");
+      return null; 
+    } else { // throw error for other cases
+
+      throw new Error(`Failed to fetch user: ${res.status} ${res.statusText}`);
+    } 
+  }
+  return res.json(); // Returns the User object
+}

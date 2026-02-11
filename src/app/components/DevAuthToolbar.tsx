@@ -4,7 +4,7 @@ import { useAuth } from "@/app/context/AuthContext";
 import { Shield, Users, LogOut, UniversityIcon } from "lucide-react";
 
 export default function DevAuthToolbar() {
-  const { user, loginAsClub, loginAsUnverified, loginAsAdmin, logout_mock } = useAuth();
+  const { user } = useAuth(); // , loginAsClub, loginAsUnverified, loginAsAdmin, logout_mock 
 
   return (
     <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 p-2 bg-white/90 backdrop-blur border border-gray-200 shadow-xl rounded-xl text-xs">
@@ -15,7 +15,7 @@ export default function DevAuthToolbar() {
         </div>
       </div>
 
-      <div className="flex gap-2">
+      {/*<div className="flex gap-2">
         <button 
           onClick={loginAsClub}
           className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-bold transition-all ${
@@ -51,7 +51,7 @@ export default function DevAuthToolbar() {
             <LogOut className="w-3 h-3" />
           </button>
         )}
-      </div>
+      </div>*/}
     </div>
   );
 }

@@ -13,7 +13,7 @@ const mockSubscribeApi = (email: string, eventId: string): Promise<boolean> => {
   });
 };
 
-export function NotifyModal({ eventId }: { eventId: string }) {
+export function NotifyModal({ eventId, isEventInPast }: { eventId: string , isEventInPast: boolean}) {
   const [isOpen, setIsOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -60,13 +60,13 @@ export function NotifyModal({ eventId }: { eventId: string }) {
   return (
     <>
       {/* Trigger Button */}
-      <button 
+      {!isEventInPast && <button 
         onClick={() => setIsOpen(true)}
         className="flex items-center justify-center gap-2 py-2 px-3 border rounded-lg text-sm font-semibold transition-colors w-full border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
       >
         <Bell className="w-4 h-4 text-gray-500 dark:text-gray-400" />
         Notify Me
-      </button>
+      </button>}
 
       {/* Modal Backdrop */}
       {isOpen && (

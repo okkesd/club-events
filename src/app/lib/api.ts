@@ -1,4 +1,4 @@
-import { IEvent, ClubData, IApiResponse, IClubUpdate, IEventUpdate } from './types';
+import { IEvent, ClubData, IApiResponse, IClubUpdate, IEventUpdate, SignUpData } from './types';
 import { getWeekStartDate } from './dateUtils';
 
 const URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4444";
@@ -168,10 +168,14 @@ export const uploadImage = async (file: File): Promise<string | null> => {
 
 export async function createEvent(eventData: any): Promise<IApiResponse<IEvent>> {
   const BASE_URL = getBaseUrl();
+  const headers = getAuthHeader()
 
     const response = await fetch(`${BASE_URL}/api/proxy/events`, {
         method: "POST",
-        headers: { "Content-Type": "application/json",},
+        headers: { 
+          "Content-Type": "application/json",
+          ...headers
+        },
         body: JSON.stringify(eventData),
     });
 
@@ -232,8 +236,12 @@ export async function getAdminClubs(status?: 'verified' | 'pending'): Promise<Cl
     // Build URL with query param if status exists
     const query = status ? `?status=${status}` : '';
     let BASE_URL = getBaseUrl()
+    const headers = getAuthHeader()
 
-    const res = await fetch(`${BASE_URL}/api/proxy/admin/clubs${query}`, { cache: 'no-store' });
+    const res = await fetch(`${BASE_URL}/api/proxy/admin/clubs${query}`, {
+        headers: headers,
+        cache: 'no-store'
+      });
     
     if (!res.ok) throw new Error("Failed to fetch clubs");
     const resolvedData = await res.json()
@@ -244,10 +252,14 @@ export async function getAdminClubs(status?: 'verified' | 'pending'): Promise<Cl
 // 2. Verify or Reject a club
 export async function setClubVerification(clubId: string, isVerified: boolean, reason?: string) {
   const BASE_URL = getBaseUrl();
+  const headers = getAuthHeader()
 
     const res = await fetch(`${BASE_URL}/api/proxy/admin/clubs/${clubId}/status`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...headers
+        },
         body: JSON.stringify({ 
             is_verified: isVerified,
             rejection_reason: reason 
@@ -388,4 +400,61 @@ export async function getCurrentUser() {
     } 
   }
   return res.json(); // Returns the User object
+}
+export async function signUpUser(data: SignUpData) {
+  const BASE_URL = getBaseUrl()
+
+  const res = await fetch(`${BASE_URL}/api/proxy/signup`, { // or /signup
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.detail || "Registration failed");
+  }
+
+  // Expecting backend to return { access_token: "...", token_type: "bearer" }
+  // OR just { success: true } if you require email verification first.
+  return res.json();
+}
+
+export async function contactApi(email: string, message: string){
+
+  const BASE_URL = getBaseUrl()
+
+  const res = await fetch(`${BASE_URL}/api/proxy/contact`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({"email": email, "message": message})
+  })
+
+  if (!res.ok){
+    const error = await res.json()
+    throw new Error(`Error contact: ${error}`)
+  }
+
+  return res.json()
+}
+
+export async function getContacts(){
+  const BASE_URL = getBaseUrl()
+  const headers = getAuthHeader()
+
+  const res = await fetch(`${BASE_URL}/api/proxy/get_contacts`, {
+    method: "GET",
+    headers: headers
+  })
+
+  if (!res.ok){
+    const resposne = await res.json()
+    throw new Error(`Failed to get contacts: ${resposne}`)
+  }
+  const result = await res.json()
+  console.log(result)
+
+  return result
 }

@@ -49,9 +49,10 @@ function CreateEventSuspended() {
     locationType: "on-campus" as "on-campus" | "off-campus",
     location: "",
     tags: [] as string[],
-    isRegistrationRequired: false,
+    isRegistrationOpen: false,
     capacity: 0,
-    registrationLink: ""
+    registrationLink: "",
+    likes: 0
   });
 
   // Fetch clubs
@@ -201,7 +202,9 @@ function CreateEventSuspended() {
     setIsSubmitting(true);
     
     try {
-        const response = await createEvent(formData);
+        const {timeMode, ...pureData} = (formData)
+        console.log("data to send: ", pureData)
+        const response = await createEvent(pureData);
 
         if (response.success && response.data) {
             alert("Event Created Successfully!");

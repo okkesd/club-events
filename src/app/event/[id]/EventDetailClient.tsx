@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
@@ -23,11 +23,19 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentEvent, setCurrentEvent] = useState(event);
+  const [isEventInPast, setIsEventInPast] = useState(false)
 
   console.log("likes: ",currentEvent.likes)
 
   // --- AUTH CHECK ---
   const isOwner = user && (user.id === currentEvent.clubId || user.role === 'admin');
+
+  useEffect(() => {
+    const eventDate = new Date(event.date + "T00:00:00");
+    if (eventDate.getTime() < Date.now()) {
+      setIsEventInPast(true);
+    }
+  }, [])
 
   // --- HANDLERS ---
   const handleUpdate = async (formData: any) => {
@@ -213,7 +221,7 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                         <hr className="border-gray-100 dark:border-gray-800 transition-colors" />
 
                         {/* Registration Button Logic */}
-                        {currentEvent.registrationLink && (
+                        {!isEventInPast && currentEvent.registrationLink && (
                             currentEvent.isRegistrationOpen ? (
                                 <a 
                                     href={currentEvent.registrationLink} 
@@ -252,7 +260,7 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                                 </div>
                         
                                 {/* 2. CALENDAR & SHARE (Existing, wrapped in a grid to fill remaining space) */}
-                                <div className="grid grid-cols-2 gap-3 flex-grow">
+                                {!isEventInPast && <div className="grid grid-cols-2 gap-3 flex-grow">
                                     <button className="flex items-center justify-center gap-2 py-2 px-3 border rounded-lg text-sm font-semibold transition-colors
                                                        border-gray-200 text-gray-700 hover:bg-gray-50 
                                                        dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
@@ -261,10 +269,10 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                                         <span className="sm:hidden">Cal</span>
                                     </button>
                                     <ShareButton />
-                                </div>
+                                </div>}
                             </div>
                             
-                            <NotifyModal eventId={currentEvent.id} />
+                            <NotifyModal eventId={currentEvent.id} isEventInPast={isEventInPast}/>
                         </div>
                     </div>
                 </div>

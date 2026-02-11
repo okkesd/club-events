@@ -2,7 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { getCurrentUser, loginUser } from "@/app/lib/api";
+import { getCurrentUser, loginUser, signUpUser } from "@/app/lib/api";
+import { SignUpData } from "../lib/types";
 
 // --- TYPES ---
 export type UserRole = "club" | "admin" | "guest";
@@ -21,6 +22,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>; // Real Login
   logout: () => void;
+  signUp: (signUp: SignUpData) => Promise<void>
   // Keep these for DevToolbar if you want, or remove them
   /*loginAsClub: () => void;
   loginAsAdmin: () => void;
@@ -123,18 +125,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     localStorage.removeItem("access_token");
     setUser(null);
-    router.push("/");
+    router.push("/main");
   };
 
   // 2. Helper to save state
-  const setAndPersistUser = (newUser: User | null) => {
+  /*const setAndPersistUser = (newUser: User | null) => {
     setUser(newUser);
     if (newUser) {
       localStorage.setItem("mock_auth_user", JSON.stringify(newUser));
     } else {
       localStorage.removeItem("mock_auth_user");
     }
-  };
+  };*/
+
+  const signUp = async (signUpData: SignUpData) => {
+    const {email, password, ...rest} = signUpData
+
+    const res = await signUpUser(signUpData)
+    console.log(res)
+    if (!res.success){
+      throw new Error("Failed to sign up user")
+    } else {
+      console.log("done, logging in")
+      await login(email, password)
+      console.log("done, logged in")
+    }
+  }
 
   /*// 3. Mock Actions
   const loginAsClub = () => {
@@ -158,7 +174,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };*/
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout}}>
+    <AuthContext.Provider value={{ user, isLoading, login, logout, signUp}}>
       {children}
     </AuthContext.Provider>
   );

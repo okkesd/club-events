@@ -54,7 +54,6 @@ export default function RootLayout({
             {children}
             
           </main>
-          <DevAuthToolbar />
             <Footer />
             <CookieBanner />
         </div>
@@ -64,3 +63,5 @@ export default function RootLayout({
     </html>
   );
 }
+
+// <DevAuthToolbar />

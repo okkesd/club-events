@@ -1,4 +1,4 @@
-import { IEvent, ClubData, IApiResponse, IClubUpdate, IEventUpdate } from './types';
+import { IEvent, ClubData, IApiResponse, IClubUpdate, IEventUpdate, SignUpData } from './types';
 import { getWeekStartDate } from './dateUtils';
 
 const URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4444";
@@ -144,9 +144,12 @@ export const uploadImage = async (file: File): Promise<string | null> => {
   formData.append("file", file);
   const BASE_URL = getBaseUrl();
 
+  const authHeader = getAuthHeader()
+
   try {
     const response = await fetch(`${BASE_URL}/api/proxy/upload`, {
       method: "POST",
+      headers: authHeader,
       body: formData,
     });
 
@@ -165,10 +168,14 @@ export const uploadImage = async (file: File): Promise<string | null> => {
 
 export async function createEvent(eventData: any): Promise<IApiResponse<IEvent>> {
   const BASE_URL = getBaseUrl();
+  const headers = getAuthHeader()
 
     const response = await fetch(`${BASE_URL}/api/proxy/events`, {
         method: "POST",
-        headers: { "Content-Type": "application/json",},
+        headers: { 
+          "Content-Type": "application/json",
+          ...headers
+        },
         body: JSON.stringify(eventData),
     });
 
@@ -204,10 +211,13 @@ export async function updateClub(clubId: string, updateData: IClubUpdate): Promi
 
     const BASE_URL = getBaseUrl()
 
+    const headers = getAuthHeader()
+
     const response = await fetch(`${BASE_URL}/api/proxy/clubs/${clubId}`, {
         method: "PATCH",
         headers: {
             "Content-Type": "application/json",
+            ...headers
         },
         body: JSON.stringify(updateData),
     });
@@ -226,8 +236,12 @@ export async function getAdminClubs(status?: 'verified' | 'pending'): Promise<Cl
     // Build URL with query param if status exists
     const query = status ? `?status=${status}` : '';
     let BASE_URL = getBaseUrl()
+    const headers = getAuthHeader()
 
-    const res = await fetch(`${BASE_URL}/api/proxy/admin/clubs${query}`, { cache: 'no-store' });
+    const res = await fetch(`${BASE_URL}/api/proxy/admin/clubs${query}`, {
+        headers: headers,
+        cache: 'no-store'
+      });
     
     if (!res.ok) throw new Error("Failed to fetch clubs");
     const resolvedData = await res.json()
@@ -238,10 +252,14 @@ export async function getAdminClubs(status?: 'verified' | 'pending'): Promise<Cl
 // 2. Verify or Reject a club
 export async function setClubVerification(clubId: string, isVerified: boolean, reason?: string) {
   const BASE_URL = getBaseUrl();
+  const headers = getAuthHeader()
 
     const res = await fetch(`${BASE_URL}/api/proxy/admin/clubs/${clubId}/status`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...headers
+        },
         body: JSON.stringify({ 
             is_verified: isVerified,
             rejection_reason: reason 
@@ -302,12 +320,141 @@ export async function toggleEventLike(eventId: string, hasLiked: boolean): Promi
   return json.data.likes
 }
 
-/*export async function toggleEventLike(eventId: string, hasLiked: boolean): Promise<Event> {
-  const BASE_URL = getBaseUrl();
-  const res = await fetch(`${BASE_URL}/api/proxy/event_like/${eventId}?liked=${hasLiked}`);
-  
-  if (!res.ok) throw new Error("Failed to like");
-  
-  const json = await res.json();
-  return json.data; // Returns the full event object with updated likes count
-}*/
+
+
+// 1. LOGIN FUNCTION
+export async function loginUser(email: string, password: string) {
+
+  const BASE_URL = getBaseUrl()
+
+  // OAuth2 expects form-data, not JSON
+  const formData = new URLSearchParams();
+  formData.append("username", email); // FastAPI maps 'username' to email
+  formData.append("password", password);
+
+  const res = await fetch(`${BASE_URL}/api/proxy/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: formData,
+  });
+
+  if (!res.ok) {
+    if (res.status === 401) {
+       // We throw a specific error text that the UI already knows how to display
+       throw new Error("Invalid email or password.");
+    }
+
+    // 2. Handle System Errors (500, 422, etc.)
+    // We try to parse the error detail from Python, fallback to generic message
+    let errorMessage = "Login failed";
+    try {
+        const errorData = await res.json();
+        errorMessage = errorData.detail || errorMessage;
+    } catch (e) {
+        // If response wasn't JSON (e.g. Nginx 502 Bad Gateway HTML), ignore parse error
+    }
+    
+    throw new Error(errorMessage);
+  }
+
+  return res.json(); // Returns { access_token, token_type }
+}
+
+// Helper to get the token from storage
+function getAuthHeader() {
+  // Ensure we are in the browser before accessing localStorage
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      return { "Authorization": `Bearer ${token}` };
+    }
+  }
+}
+
+// 2. GET CURRENT USER FUNCTION
+export async function getCurrentUser() {
+
+  const BASE_URL = getBaseUrl()
+
+  const headers = {
+      "Content-Type": "application/json",
+      ...getAuthHeader(),
+    }
+
+  const res = await fetch(`${BASE_URL}/api/proxy/users/me`, {
+    method: "GET",
+    headers: headers,
+  });
+
+  if (!res.ok) {
+
+    if (res.status == 401) { // return null for 401
+      
+      console.warn("Session expired or invalid (401). returning guest state.");
+      return null; 
+    } else { // throw error for other cases
+
+      throw new Error(`Failed to fetch user: ${res.status} ${res.statusText}`);
+    } 
+  }
+  return res.json(); // Returns the User object
+}
+export async function signUpUser(data: SignUpData) {
+  const BASE_URL = getBaseUrl()
+
+  const res = await fetch(`${BASE_URL}/api/proxy/signup`, { // or /signup
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.detail || "Registration failed");
+  }
+
+  // Expecting backend to return { access_token: "...", token_type: "bearer" }
+  // OR just { success: true } if you require email verification first.
+  return res.json();
+}
+
+export async function contactApi(email: string, message: string){
+
+  const BASE_URL = getBaseUrl()
+
+  const res = await fetch(`${BASE_URL}/api/proxy/contact`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({"email": email, "message": message})
+  })
+
+  if (!res.ok){
+    const error = await res.json()
+    throw new Error(`Error contact: ${error}`)
+  }
+
+  return res.json()
+}
+
+export async function getContacts(){
+  const BASE_URL = getBaseUrl()
+  const headers = getAuthHeader()
+
+  const res = await fetch(`${BASE_URL}/api/proxy/get_contacts`, {
+    method: "GET",
+    headers: headers
+  })
+
+  if (!res.ok){
+    const resposne = await res.json()
+    throw new Error(`Failed to get contacts: ${resposne}`)
+  }
+  const result = await res.json()
+  console.log(result)
+
+  return result
+}

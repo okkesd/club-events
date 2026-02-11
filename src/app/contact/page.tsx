@@ -1,27 +1,29 @@
 // app/contact/page.tsx
 "use client";
 
-import React, { useState, FormEvent } from 'react';
+import React, { useState, FormEvent, useEffect } from 'react';
 import { Mail, MessageSquare, Send, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { contactApi } from '../lib/api';
 
 /**
  * Mock API to simulate sending a message to the backend.
  */
-const mockContactApi = (email: string, message: string): Promise<{ success: boolean }> => {
-  return new Promise((resolve) => {
-    console.log(`[Mock API] Contact Form Submitted:\nEmail: ${email}\nMessage: ${message}`);
-    setTimeout(() => {
-      resolve({ success: true });
-    }, 1500); // 1.5s delay
-  });
-};
 
 export default function ContactPage() {
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
+  const [email, setEmail] = useState<string>('');
+  const [message, setMessage] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSent, setIsSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const { user } = useAuth()
+
+  useEffect( () => {
+    if (user){
+      setEmail(user.email)
+    }
+  })
 
   const isValidEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -53,7 +55,7 @@ export default function ContactPage() {
 
     // 2. API Call with Try/Catch/Finally
     try {
-      await mockContactApi(email, message);
+      await contactApi(email, message);
       setIsSent(true); 
     } catch (err) {
       console.error("API Error:", err);

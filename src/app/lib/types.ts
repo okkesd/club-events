@@ -95,3 +95,10 @@ export interface IUser {
   isVerified: boolean;
   avatarUrl?: string; // Helper for UI (usually mapped from logoUrl)
 }
+
+export interface SignUpData {
+  clubName: string;
+  email: string;
+  password: string;
+  // Any other fields you collect (e.g. category, description)
+}

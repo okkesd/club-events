@@ -5,23 +5,13 @@ import React, { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserPlus, Loader2, AlertCircle, Mail, Lock, Building2, Check, X } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '@/app/context/AuthContext';
+import { SignUpData } from '../lib/types';
 
-// --- Mock API for Signup ---
-const mockSignupApi = (clubName: string, email: string): Promise<{ success: boolean; message: string }> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      // Simulate "Club name taken" check
-      if (clubName.toLowerCase() === "robotics club") {
-        resolve({ success: false, message: "This club name is already registered." });
-      } else {
-        resolve({ success: true, message: "Account created! Redirecting..." });
-      }
-    }, 1500);
-  });
-};
 
 export default function SignupPage() {
   const router = useRouter();
+  const { signUp } = useAuth()
   
   // Form State
   const [clubName, setClubName] = useState('');
@@ -55,16 +45,18 @@ export default function SignupPage() {
 
     // 2. API Call
     setIsLoading(true);
-    const response = await mockSignupApi(clubName, email);
+    const data: SignUpData = {clubName, email, password}
+    const response = await signUp(data);
+    console.log(response)
     setIsLoading(false);
 
-    // 3. Handle Response
-    if (response.success) {
+    // 3. Handle Response -> handled in login
+    /*if (response.success) {
       // Redirect to profile (passing name as query param for demo purposes)
       router.push(`/profile?club=${encodeURIComponent(clubName)}`);
     } else {
       setError(response.message);
-    }
+    }*/
   };
 
   return (

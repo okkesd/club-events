@@ -1,34 +1,41 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { getCurrentUser, loginUser, signUpUser } from "@/app/lib/api";
+import { SignUpData } from "../lib/types";
 
 // --- TYPES ---
 export type UserRole = "club" | "admin" | "guest";
 
 export interface User {
   id: string;
-  name: string;
+  club_name: string;
   email: string;
   role: UserRole;
   isVerified: boolean;
-  avatarUrl?: string; // Optional helper for UI
+  avatarUrl?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  // Helper functions to instantly switch roles for testing
-  loginAsClub: () => void;
-  loginAsAdmin: () => void;
-  loginAsUnverified: () => void
+  login: (email: string, password: string) => Promise<void>; // Real Login
   logout: () => void;
+  signUp: (signUp: SignUpData) => Promise<void>
+  // Keep these for DevToolbar if you want, or remove them
+  /*loginAsClub: () => void;
+  loginAsAdmin: () => void;
+  loginAsUnverified: () => void;
+  logout_mock: () => void;*/
 }
 
+/*
 // --- MOCK DATA ---
 // These match your seed_db.py IDs so the app works seamlessly
 const MOCK_CLUB_USER: User = {
   id: "club-1",
-  name: "Tech & Coding Society",
+  clubName: "Tech & Coding Society",
   email: "tech@university.edu",
   role: "club",
   isVerified: true,
@@ -37,7 +44,7 @@ const MOCK_CLUB_USER: User = {
 
 const MOCK_UNVERIFIED_CLUB: User = { // ✅ NEW TEST USER
   id: "club-3",
-  name: "Chess Club (Pending)",
+  clubName: "Chess Club (Pending)",
   email: "chess@university.edu",
   role: "club",
   isVerified: false, // ❌ Unverified
@@ -46,12 +53,12 @@ const MOCK_UNVERIFIED_CLUB: User = { // ✅ NEW TEST USER
 
 const MOCK_ADMIN_USER: User = {
   id: "admin-1",
-  name: "System Administrator",
+  clubName: "System Administrator",
   email: "admin@university.edu",
   role: "admin",
   isVerified: true,
   avatarUrl: "https://ui-avatars.com/api/?name=Admin&background=333&color=fff"
-};
+};*/
 
 // --- CONTEXT CREATION ---
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -60,27 +67,92 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   // 1. Load from localStorage on mount (Persistence)
   useEffect(() => {
-    const storedUser = localStorage.getItem("mock_auth_user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setIsLoading(false);
+    const initAuth = async () => {
+      const token = localStorage.getItem("access_token");
+      if (token) {
+        try {
+          const userData = await getCurrentUser();
+          
+          if (userData) {
+
+            setUser(userData);
+          } else {
+
+            localStorage.removeItem("access_token")
+            setUser(null)
+          }
+        } catch (error) {
+
+          console.error("Token invalid or expired", error);
+          localStorage.removeItem("access_token");
+          setUser(null);
+        } finally {
+
+          setIsLoading(false);
+        }
+      } 
+      
+    };
+
+    initAuth();
   }, []);
 
+  // LOGIN
+  const login = async (email: string, password: string) => {
+    setIsLoading(true);
+    try {
+      // Step A: Get Token
+      const data = await loginUser(email, password);
+      localStorage.setItem("access_token", data.access_token);
+
+      // Step B: Get User Details using that token
+      const userData = await getCurrentUser();
+      setUser(userData);
+      
+      router.push("/main"); // Redirect after success
+    } catch (error: any) {
+      console.error("Login Failed:", error);
+      throw error; // Throw to UI to show error message
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  // 3. LOGOUT
+  const logout = () => {
+    localStorage.removeItem("access_token");
+    setUser(null);
+    router.push("/main");
+  };
+
   // 2. Helper to save state
-  const setAndPersistUser = (newUser: User | null) => {
+  /*const setAndPersistUser = (newUser: User | null) => {
     setUser(newUser);
     if (newUser) {
       localStorage.setItem("mock_auth_user", JSON.stringify(newUser));
     } else {
       localStorage.removeItem("mock_auth_user");
     }
-  };
+  };*/
 
-  // 3. Mock Actions
+  const signUp = async (signUpData: SignUpData) => {
+    const {email, password, ...rest} = signUpData
+
+    const res = await signUpUser(signUpData)
+    console.log(res)
+    if (!res.success){
+      throw new Error("Failed to sign up user")
+    } else {
+      console.log("done, logging in")
+      await login(email, password)
+      console.log("done, logged in")
+    }
+  }
+
+  /*// 3. Mock Actions
   const loginAsClub = () => {
     console.log("🔓 Mock Login: Club Mode");
     setAndPersistUser(MOCK_CLUB_USER);
@@ -96,13 +168,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAndPersistUser(MOCK_UNVERIFIED_CLUB);
   };
 
-  const logout = () => {
+  const logout_mock = () => {
     console.log("🔒 Logout");
     setAndPersistUser(null);
-  };
+  };*/
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, loginAsClub, loginAsAdmin, loginAsUnverified, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, logout, signUp}}>
       {children}
     </AuthContext.Provider>
   );

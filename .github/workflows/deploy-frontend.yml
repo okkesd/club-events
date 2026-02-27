@@ -71,10 +71,10 @@ jobs:
             cd /home/${{ secrets.SSH_USER }}/docker-app
             
             # Pull new frontend
-            docker-compose pull frontend
+            docker compose pull frontend
             
             # Restart Frontend and Nginx (Nginx needs restart to see new config)
-            docker-compose up -d frontend nginx
+            docker compose up -d frontend nginx
             
             docker image prune -f
 

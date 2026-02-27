@@ -31,7 +31,7 @@ export default function ClubsDirectory() {
     }
   };
 
-  // trigger merge again and again one more, last, after last
+  // trigger merge again and again one more, last, after last, for backend
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-20 transition-colors duration-300">
       

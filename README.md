@@ -10,4 +10,4 @@ The frontend provides:
 - Club listing and details
 - Event creation and management
 
-It communicates with the backend through REST APIs.
+It communicates with the backend through REST APIs

@@ -31,6 +31,7 @@ export default function ClubsDirectory() {
     }
   };
 
+  // trigger merge
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-20 transition-colors duration-300">
       

@@ -80,15 +80,9 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd /home/${{ secrets.SSH_USER }}/docker-app
+            docker load < /tmp/frontend.tar
             
-            # Pull new frontend
-            docker compose pull frontend
-            
-            # Restart Frontend and Nginx (Nginx needs restart to see new config)
-            docker compose up -d frontend nginx
-            
-            docker image prune -f
+            docker compose up -d frontend
 
       # --- PHASE 4: CLEANUP ---
       - name: Revoke Runner IP

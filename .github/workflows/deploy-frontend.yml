@@ -19,13 +19,25 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and Push Frontend Image
+      - name: Build Frontend Image (no push yet)
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
-          push: true
+          push: false
+          load: true
           tags: ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:latest
+
+      - name: Scan image for vulnerabilities
+        uses: docker/scout-action@v1
+        with:
+          command: cves
+          image: ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:latest
+          only-severities: critical,high
+          exit-code: true
+
+      - name: Push image (only if scan passed)
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:latest
 
       # --- PHASE 2: SECURITY ---
       - name: Configure AWS Credentials
@@ -52,7 +64,7 @@ jobs:
       # 1. Copy nginx.conf to the specific 'nginx' folder
       # ⚠️ TARGET CHANGED: Added "/nginx" to the end to match your server structure
       - name: Copy Nginx Config
-        uses: appleboy/scp-action@master
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
@@ -62,7 +74,7 @@ jobs:
 
       # 2. Restart Frontend & Nginx
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}

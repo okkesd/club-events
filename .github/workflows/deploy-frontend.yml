@@ -76,6 +76,8 @@ jobs:
       - name: Save image to tar
         run: docker save ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:latest -o ${{ github.workspace }}/frontend.tar
 
+      - name: Fix permissions
+        run: chmod 644 ${{ github.workspace }}/frontend.tar
       - name: Copy image to EC2
         uses: appleboy/scp-action@v0.1.7
         with:

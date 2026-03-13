@@ -73,7 +73,19 @@ jobs:
           target: "/home/${{ secrets.SSH_USER }}/docker-app/nginx"
 
       # 2. Restart Frontend & Nginx
-      - name: Deploy via SSH
+      - name: Save image to tar
+        run: docker save okkesd/myapp-frontend:latest -o /tmp/frontend.tar
+
+      - name: Copy image to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "/tmp/frontend.tar"
+          target: "/tmp"
+
+      - name: Load and run image on EC2
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -81,8 +93,10 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             docker load < /tmp/frontend.tar
-            
-            docker compose up -d frontend
+            cd /home/${{ secrets.SSH_USER }}/docker-app
+            docker compose up -d frontend nginx
+            docker image prune -f
+            rm /tmp/frontend.tar
 
       # --- PHASE 4: CLEANUP ---
       - name: Revoke Runner IP

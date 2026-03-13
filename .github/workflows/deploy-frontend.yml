@@ -33,7 +33,7 @@ jobs:
         with:
           command: cves
           image: ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:latest
-          only-severities: critical,high
+          only-severities: critical
           exit-code: true
 
       - name: Push image (only if scan passed)

@@ -64,7 +64,7 @@ jobs:
       # 1. Copy nginx.conf to the specific 'nginx' folder
       # ⚠️ TARGET CHANGED: Added "/nginx" to the end to match your server structure
       - name: Copy Nginx Config
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
@@ -74,7 +74,7 @@ jobs:
 
       # 2. Restart Frontend & Nginx
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}

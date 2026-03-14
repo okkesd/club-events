@@ -41,7 +41,7 @@ export default function Navbar() {
             className="flex items-center gap-2 text-xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
           >
             <CalendarDays className="w-6 h-6 text-blue-600 dark:text-blue-500" />
-            UniEvents
+            Evenements
           </Link>
           
           {/* Actions Area */}

@@ -246,16 +246,17 @@ export default function SignupPage() {
       
       {/* Scrollable Content */}
       <div className="p-6 overflow-y-auto space-y-6 text-sm text-gray-600 dark:text-gray-300 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
-        
+
         <p className="italic text-gray-500 dark:text-gray-400">
-          Last Updated: {new Date().toLocaleDateString()}
+          Last Updated: March 22, 2026
         </p>
 
         <section>
           <h4 className="font-bold text-gray-900 dark:text-white mb-1">1. Student Project Disclaimer</h4>
           <p>
-            UniEvents is a student-run project provided "as is". We are not officially affiliated with the university administration. 
-            We are not responsible for data loss, service interruptions, or the accuracy of event information.
+            UniEvents is an independent student project developed by computer science students at Galatasaray University.
+            It is not affiliated with, endorsed by, or officially connected to the Galatasaray University administration.
+            The service is provided &quot;as is&quot; without any guarantees or warranty. We are not responsible for data loss, service interruptions, or the accuracy of event information posted by clubs.
           </p>
         </section>
 
@@ -263,25 +264,46 @@ export default function SignupPage() {
           <h4 className="font-bold text-gray-900 dark:text-white mb-1">2. User Conduct</h4>
           <p>By using this platform, you agree not to:</p>
           <ul className="list-disc pl-5 mt-1 space-y-1">
-            <li>Post unlawful, harmful, or abusive content.</li>
-            <li>Impersonate any person or club.</li>
-            <li>Spam the calendar with fake events.</li>
+            <li>Post content that is unlawful, harmful, threatening, or abusive.</li>
+            <li>Impersonate any person, club, or entity.</li>
+            <li>Upload viruses or malicious code.</li>
+            <li>Spam or solicit other users commercially.</li>
+            <li>Post misleading or false event information.</li>
           </ul>
         </section>
 
         <section>
           <h4 className="font-bold text-gray-900 dark:text-white mb-1">3. Content Ownership</h4>
           <p>
-            Clubs retain rights to their images and text. However, by uploading, you grant UniEvents a license to display this content on the platform.
+            Clubs retain all rights to the images and text they upload. By uploading content, you grant UniEvents a non-exclusive license to display and distribute this content on the platform for as long as the content remains on the service.
           </p>
         </section>
 
         <section>
-          <h4 className="font-bold text-gray-900 dark:text-white mb-1">4. Termination</h4>
+          <h4 className="font-bold text-gray-900 dark:text-white mb-1">4. Limitation of Liability</h4>
           <p>
-            Admins reserve the right to suspend or ban accounts that violate these terms without prior notice.
+            To the fullest extent permitted by applicable law, UniEvents and its developers shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of data, use, or profits, arising out of or in connection with your use of the service.
           </p>
         </section>
+
+        <section>
+          <h4 className="font-bold text-gray-900 dark:text-white mb-1">5. Termination</h4>
+          <p>
+            We reserve the right to terminate or suspend your account immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach these Terms.
+          </p>
+        </section>
+
+        <section>
+          <h4 className="font-bold text-gray-900 dark:text-white mb-1">6. Governing Law</h4>
+          <p>
+            These Terms are governed by the laws of the Republic of Turkey. Disputes shall be subject to the exclusive jurisdiction of the courts of Istanbul, Turkey.
+          </p>
+        </section>
+
+        <p className="text-gray-500 dark:text-gray-400 pt-2">
+          Read the full terms at <Link href="/legal/terms" className="text-blue-600 dark:text-blue-400 hover:underline">/legal/terms</Link>.
+          Contact: <a href="mailto:okkesdonbaloglu25@gmail.com" className="text-blue-600 dark:text-blue-400 hover:underline">okkesdonbaloglu25@gmail.com</a>
+        </p>
       </div>
       
       {/* Footer / Actions */}

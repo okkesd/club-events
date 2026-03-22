@@ -3,12 +3,12 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { 
-  MapPin, Users, ChevronLeft, ExternalLink, 
-  CalendarPlus, Ticket, Edit3 
+import {
+  MapPin, Users, ChevronLeft, ExternalLink,
+  CalendarPlus, Ticket, Edit3, Trash2
 } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
-import { fetchEventById, updateEvent } from '@/app/lib/api';
+import { fetchEventById, updateEvent, deleteEvent } from '@/app/lib/api';
 import EventForm from '@/app/components/EventForm';
 import { ShareButton } from '@/app/event/[id]/ShareButton';
 import { NotifyModal } from '@/app/event/[id]/NotifyModal';
@@ -23,7 +23,9 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentEvent, setCurrentEvent] = useState(event);
-  const [isEventInPast, setIsEventInPast] = useState(false)
+  const [isEventInPast, setIsEventInPast] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   console.log("likes: ",currentEvent.likes)
 
@@ -49,6 +51,21 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
         alert("Failed to update event");
     } finally {
         setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteEvent(currentEvent.id);
+      alert("Event deleted successfully.");
+      router.push(`/club/${currentEvent.clubId}`);
+      router.refresh();
+    } catch (err: any) {
+      alert(err.message || "Failed to delete event");
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -114,6 +131,7 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
         </Link>
 
         {isOwner && (
+          <div className="flex items-center gap-2">
             <button
                 onClick={() => setIsEditing(true)}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold shadow-sm transition-all
@@ -123,6 +141,18 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                 <Edit3 className="w-4 h-4" />
                 Edit Event
             </button>
+            <button
+                onClick={() => setShowDeleteConfirm(true)}
+                disabled={isDeleting}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold shadow-sm transition-all
+                           bg-white text-red-600 border border-gray-200 hover:border-red-400 hover:bg-red-50
+                           dark:bg-gray-800 dark:text-red-400 dark:border-gray-700 dark:hover:bg-gray-700 dark:hover:border-red-500
+                           disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                <Trash2 className="w-4 h-4" />
+                {isDeleting ? "Deleting..." : "Delete"}
+            </button>
+          </div>
         )}
       </div>
 
@@ -281,6 +311,38 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
 
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 max-w-sm w-full transition-colors">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Delete Event</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+              Are you sure you want to delete this event? This cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isDeleting}
+                className="px-4 py-2 text-sm font-semibold rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50
+                           dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors
+                           disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 text-sm font-semibold rounded-lg bg-red-600 text-white hover:bg-red-700
+                           dark:bg-red-600 dark:hover:bg-red-500 transition-colors
+                           disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isDeleting ? "Deleting..." : "Yes, Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

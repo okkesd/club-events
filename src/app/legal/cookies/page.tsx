@@ -1,29 +1,34 @@
-import React from 'react';
-
 export default function CookiesPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors">
       <div className="max-w-3xl mx-auto bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Cookie Policy</h1>
-        
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Cookie &amp; Local Storage Policy</h1>
+        <p className="text-gray-500 dark:text-gray-400 mb-8">Last Updated: March 22, 2026</p>
+
         <div className="space-y-6 text-gray-700 dark:text-gray-300 leading-relaxed">
           <section>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">What are cookies?</h2>
-            <p>Cookies are small pieces of text sent to your web browser by a website you visit. A cookie file is stored in your web browser and allows the Service or a third-party to recognize you and make your next visit easier and the Service more useful to you.</p>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">What We Store in Your Browser</h2>
+            <p>UniEvents uses your browser&apos;s <strong>local storage</strong> (not traditional cookies) to provide core functionality. Local storage is similar to cookies but the data stays on your device and is not automatically sent to our servers with every request.</p>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">How UniEvents uses cookies</h2>
-            <p>When you use and access the Service, we may place a number of cookies files in your web browser. We use cookies for the following purposes:</p>
-            <ul className="list-disc pl-5 mt-2 space-y-1">
-              <li><strong>Essential cookies:</strong> To authenticate users and prevent fraudulent use of user accounts. Without these, you cannot log in.</li>
-              <li><strong>Preferences cookies:</strong> To remember your theme preference (Light/Dark mode) and whether you have accepted this cookie policy.</li>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">What We Store &amp; Why</h2>
+            <ul className="list-disc pl-5 mt-2 space-y-3">
+              <li><strong>Authentication token</strong> — Keeps you logged in. This token is sent to our servers with requests that require authentication (e.g., creating or editing events). Without this, you would need to log in on every page visit.</li>
+              <li><strong>Theme preference</strong> — Remembers whether you chose light or dark mode. This data never leaves your device.</li>
+              <li><strong>Event like states</strong> — Tracks which events you have liked so we can show the correct state. This data never leaves your device (the like count itself is stored on our servers).</li>
+              <li><strong>Privacy banner preference</strong> — Remembers whether you have acknowledged this notice so we do not show it again.</li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Your choices</h2>
-            <p>If you'd like to delete cookies or instruct your web browser to delete or refuse cookies, please visit the help pages of your web browser. Please note, however, that if you delete cookies or refuse to accept them, you might not be able to use all of the features we offer, you may not be able to store your preferences, and some of our pages might not display properly.</p>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Third-Party Cookies</h2>
+            <p>We do not use any third-party cookies, analytics, or tracking services.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Your Choices</h2>
+            <p>You can clear local storage data at any time through your browser settings. Clearing this data will log you out and reset your theme and like preferences. You can also use your browser&apos;s developer tools to inspect exactly what UniEvents stores.</p>
           </section>
         </div>
       </div>

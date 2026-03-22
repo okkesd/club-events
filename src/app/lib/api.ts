@@ -270,13 +270,34 @@ export async function setClubVerification(clubId: string, isVerified: boolean, r
     return res.json();
 }
 
+// to delete an event by its owner or admin
+export async function deleteEvent(eventId: string): Promise<IApiResponse<IEvent>> {
+  const BASE_URL = getBaseUrl();
+  const headers = getAuthHeader();
+
+  const res = await fetch(`${BASE_URL}/api/proxy/events/${eventId}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      ...headers,
+    },
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || "Failed to delete event");
+  }
+
+  return res.json();
+}
+
 // to update an event by its owner
 export async function updateEvent(eventId: string, data: IEventUpdate) {
   const BASE_URL = getBaseUrl();
 
     const res = await fetch(`${BASE_URL}/api/proxy/events/${eventId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...getAuthHeader() },
         body: JSON.stringify(data),
     });
 

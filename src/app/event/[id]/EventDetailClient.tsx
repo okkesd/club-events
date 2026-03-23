@@ -8,7 +8,7 @@ import {
   CalendarPlus, Ticket, Edit3, Trash2
 } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
-import { fetchEventById, updateEvent, deleteEvent } from '@/app/lib/api';
+import { fetchEventById, updateEvent, deleteEvent, resolveImageUrl } from '@/app/lib/api';
 import EventForm from '@/app/components/EventForm';
 import { ShareButton } from '@/app/event/[id]/ShareButton';
 import { NotifyModal } from '@/app/event/[id]/NotifyModal';
@@ -163,7 +163,7 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
           {hasBrochure && (
             <div className="lg:col-span-3 order-1">
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden sticky top-8 transition-colors">
-                <EventBrochure src={currentEvent.coverImage!} alt={currentEvent.title} />
+                <EventBrochure src={resolveImageUrl(currentEvent.coverImage)} alt={currentEvent.title} />
               </div>
             </div>
           )}

@@ -5,6 +5,15 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
 
   output: "standalone",
+
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'iaidhetakrjyqsoyrges.supabase.co',
+      },
+    ],
+  },
   
   async redirects() {
     return [

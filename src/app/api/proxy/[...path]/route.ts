@@ -58,7 +58,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     if (path.includes("events")) {
       tags = ["events"]; 
     }
-  } 
+  }
+  // Rule D: Announcement routes = Tag "announcements"
+  else if (section === "announcements") {
+    tags = ["announcements"];
+    if (path.length === 2 && path[1]) {
+      revalidateTime = 0; // Don't cache single announcement fetches
+    }
+  }
 
   // Specific check: User profile should never be cached
   if (pathString === "users/me") {

@@ -6,7 +6,7 @@ import {
   Calendar, Clock, MapPin, Upload, Image as ImageIcon, 
   Type, Map, Eye, Smartphone, Monitor 
 } from 'lucide-react';
-import { createEvent, uploadImage, getAllClubs } from '@/app/lib/api'; 
+import { createEvent, uploadImage, getAllClubs, resolveImageUrl } from '@/app/lib/api';
 import { ClubData } from '@/app/lib/types';
 import { useAuth } from '@/app/context/AuthContext';
 
@@ -298,7 +298,7 @@ function CreateEventSuspended() {
                         <div className="flex items-center gap-4">
                             {formData.coverImage ? (
                                 <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 group transition-colors">
-                                    <img src={formData.coverImage} alt="Cover" className="w-full h-full object-cover" />
+                                    <img src={resolveImageUrl(formData.coverImage)} alt="Cover" className="w-full h-full object-cover" />
                                     <button 
                                         type="button"
                                         onClick={() => setFormData({...formData, coverImage: ""})}
@@ -614,7 +614,7 @@ function CreateEventSuspended() {
                     {/* A. IMAGE AREA */}
                     <div className="h-48 bg-gray-200 dark:bg-gray-800 relative group transition-colors">
                         <img 
-                            src={formData.coverImage || "/gsu_image.jpg"} 
+                            src={resolveImageUrl(formData.coverImage) || "/gsu_image.jpg"}
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
                             alt="Event Preview" 
                             onError={(e) => {

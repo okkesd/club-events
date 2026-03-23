@@ -100,5 +100,56 @@ export interface SignUpData {
   clubName: string;
   email: string;
   password: string;
-  // Any other fields you collect (e.g. category, description)
+}
+
+/**
+ * --- ANNOUNCEMENTS ---
+ */
+export type AnnouncementCategory =
+  | 'internship' | 'job' | 'scholarship' | 'competition'
+  | 'recruitment' | 'academic' | 'workshop' | 'general';
+
+export interface IAnnouncement {
+  id: string;
+  clubId: string;
+  clubName: string;
+  title: string;
+  body: string;
+  coverImage?: string;
+  link?: string;
+  tags: string[];
+  category: AnnouncementCategory;
+  isPinned: boolean;
+  expiresAt?: string;   // "YYYY-MM-DD"
+  createdAt: string;     // ISO datetime
+  updatedAt: string;     // ISO datetime
+}
+
+export interface IAnnouncementCreate {
+  clubId: string;
+  title: string;
+  body: string;
+  coverImage?: string;
+  link?: string;
+  tags?: string[];
+  category?: AnnouncementCategory;
+  expiresAt?: string;
+}
+
+export interface IAnnouncementUpdate {
+  title?: string;
+  body?: string;
+  coverImage?: string;
+  link?: string;
+  tags?: string[];
+  category?: AnnouncementCategory;
+  expiresAt?: string | null;
+}
+
+export interface IAnnouncementFilters {
+  category?: AnnouncementCategory;
+  club_id?: string;
+  tag?: string;
+  search?: string;
+  include_expired?: boolean;
 }

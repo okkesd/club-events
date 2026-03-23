@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Search, Users, ChevronRight, Loader2 } from 'lucide-react';
-import { getAllClubsUser } from '@/app/lib/api';
+import { getAllClubsUser, resolveImageUrl } from '@/app/lib/api';
 import { ClubData } from '@/app/lib/types';
 
 export default function ClubsDirectory() {
@@ -79,7 +79,7 @@ export default function ClubsDirectory() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {clubs.map((club) => {
               // Safe fallback for image if none provided
-              const logoSrc = club.logoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(club.clubName)}&background=random`;
+              const logoSrc = resolveImageUrl(club.logoUrl) || `https://ui-avatars.com/api/?name=${encodeURIComponent(club.clubName)}&background=random`;
 
               return (
                 <Link 

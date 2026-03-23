@@ -1,0 +1,295 @@
+"use client";
+
+import React, { useState } from "react";
+import {
+  Upload, Image as ImageIcon, Link as LinkIcon, Tag as TagIcon, X,
+} from "lucide-react";
+import { uploadImage, resolveImageUrl } from "@/app/lib/api";
+import { AnnouncementCategory } from "@/app/lib/types";
+
+const CATEGORIES: { value: AnnouncementCategory; label: string }[] = [
+  { value: "internship", label: "Internship" },
+  { value: "job", label: "Job" },
+  { value: "scholarship", label: "Scholarship" },
+  { value: "competition", label: "Competition" },
+  { value: "recruitment", label: "Recruitment" },
+  { value: "academic", label: "Academic" },
+  { value: "workshop", label: "Workshop" },
+  { value: "general", label: "General" },
+];
+
+const SUGGESTED_TAGS = [
+  "engineering", "business", "design", "paid", "remote",
+  "on-campus", "beginner-friendly", "graduate", "undergraduate", "deadline",
+];
+
+interface AnnouncementFormProps {
+  initialData?: {
+    title?: string;
+    body?: string;
+    coverImage?: string;
+    link?: string;
+    tags?: string[];
+    category?: AnnouncementCategory;
+    expiresAt?: string;
+  };
+  onSubmit: (data: any) => Promise<void>;
+  onCancel?: () => void;
+  isSubmitting: boolean;
+}
+
+export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSubmitting }: AnnouncementFormProps) {
+  const [formData, setFormData] = useState({
+    title: initialData?.title || "",
+    body: initialData?.body || "",
+    coverImage: initialData?.coverImage || "",
+    link: initialData?.link || "",
+    tags: initialData?.tags || [] as string[],
+    category: initialData?.category || "general" as AnnouncementCategory,
+    expiresAt: initialData?.expiresAt || "",
+  });
+
+  const [isUploading, setIsUploading] = useState(false);
+  const [tagInput, setTagInput] = useState("");
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      setIsUploading(true);
+      const url = await uploadImage(e.target.files[0]);
+      if (url) setFormData((prev) => ({ ...prev, coverImage: url }));
+      setIsUploading(false);
+    }
+  };
+
+  const addTag = (tag: string) => {
+    const trimmed = tag.trim().toLowerCase();
+    if (trimmed && !formData.tags.includes(trimmed)) {
+      setFormData((prev) => ({ ...prev, tags: [...prev.tags, trimmed] }));
+    }
+    setTagInput("");
+  };
+
+  const removeTag = (tag: string) => {
+    setFormData((prev) => ({ ...prev, tags: prev.tags.filter((t) => t !== tag) }));
+  };
+
+  const handleTagKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      addTag(tagInput);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const payload = {
+      ...formData,
+      expiresAt: formData.expiresAt || undefined,
+      link: formData.link || undefined,
+      coverImage: formData.coverImage || undefined,
+    };
+    onSubmit(payload);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Title */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-2 transition-colors">Title</label>
+        <input
+          type="text"
+          required
+          value={formData.title}
+          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+          placeholder="e.g., Summer Internship at Google"
+          className="w-full p-3 rounded-xl border transition-colors outline-none
+            border-gray-200 dark:border-gray-700 vibrant:border-purple-200
+            bg-white dark:bg-gray-800 vibrant:bg-white/80
+            text-gray-900 dark:text-white vibrant:text-purple-900
+            focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 vibrant:focus:ring-purple-500
+            focus:border-blue-500 vibrant:focus:border-purple-500"
+        />
+      </div>
+
+      {/* Category */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-2 transition-colors">Category</label>
+        <div className="flex flex-wrap gap-2">
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat.value}
+              type="button"
+              onClick={() => setFormData({ ...formData, category: cat.value })}
+              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                formData.category === cat.value
+                  ? "bg-blue-600 text-white vibrant:bg-purple-600 shadow-sm"
+                  : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 vibrant:bg-purple-50 vibrant:text-purple-500 hover:bg-gray-200 dark:hover:bg-gray-700 vibrant:hover:bg-purple-100"
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Body */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-2 transition-colors">Description</label>
+        <textarea
+          rows={6}
+          required
+          value={formData.body}
+          onChange={(e) => setFormData({ ...formData, body: e.target.value })}
+          placeholder="Full details about this announcement..."
+          className="w-full p-3 rounded-xl border transition-colors outline-none resize-y
+            border-gray-200 dark:border-gray-700 vibrant:border-purple-200
+            bg-white dark:bg-gray-800 vibrant:bg-white/80
+            text-gray-900 dark:text-white vibrant:text-purple-900
+            focus:ring-2 focus:ring-blue-500 vibrant:focus:ring-purple-500
+            focus:border-blue-500 vibrant:focus:border-purple-500"
+        />
+      </div>
+
+      {/* Cover Image */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-2 transition-colors">Cover Image</label>
+        <div className="flex items-center gap-4">
+          {formData.coverImage ? (
+            <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 group transition-colors">
+              <img src={resolveImageUrl(formData.coverImage)} alt="Cover" className="w-full h-full object-cover" />
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, coverImage: "" })}
+                className="absolute inset-0 bg-black/50 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-xs font-bold cursor-pointer"
+              >
+                Remove
+              </button>
+            </div>
+          ) : (
+            <div className="w-24 h-24 rounded-xl bg-gray-50 dark:bg-gray-800 vibrant:bg-purple-50 border-2 border-dashed border-gray-300 dark:border-gray-700 vibrant:border-purple-300 flex items-center justify-center text-gray-400 dark:text-gray-600 vibrant:text-purple-400 transition-colors">
+              <ImageIcon className="w-8 h-8" />
+            </div>
+          )}
+          <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 border rounded-lg font-medium transition-colors shadow-sm
+            bg-white text-gray-700 border-gray-300 hover:bg-gray-50
+            dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-700
+            vibrant:bg-white/80 vibrant:border-purple-200 vibrant:text-purple-700 vibrant:hover:bg-purple-50">
+            <Upload className="w-4 h-4" />
+            {isUploading ? "Uploading..." : "Upload"}
+            <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} disabled={isUploading} />
+          </label>
+        </div>
+      </div>
+
+      {/* External Link */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-2 transition-colors">
+          <span className="flex items-center gap-1.5"><LinkIcon className="w-4 h-4" /> External Link (optional)</span>
+        </label>
+        <input
+          type="url"
+          value={formData.link}
+          onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+          placeholder="https://..."
+          className="w-full p-3 rounded-xl border transition-colors outline-none
+            border-gray-200 dark:border-gray-700 vibrant:border-purple-200
+            bg-white dark:bg-gray-800 vibrant:bg-white/80
+            text-gray-900 dark:text-white vibrant:text-purple-900
+            focus:ring-2 focus:ring-blue-500 vibrant:focus:ring-purple-500
+            focus:border-blue-500 vibrant:focus:border-purple-500"
+        />
+      </div>
+
+      {/* Expiry Date */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-2 transition-colors">
+          Deadline / Expiry Date (optional)
+        </label>
+        <input
+          type="date"
+          value={formData.expiresAt}
+          onChange={(e) => setFormData({ ...formData, expiresAt: e.target.value })}
+          className="w-full p-3 rounded-xl border transition-colors outline-none
+            border-gray-200 dark:border-gray-700 vibrant:border-purple-200
+            bg-white dark:bg-gray-800 vibrant:bg-white/80
+            text-gray-900 dark:text-white vibrant:text-purple-900
+            focus:ring-2 focus:ring-blue-500 vibrant:focus:ring-purple-500
+            focus:border-blue-500 vibrant:focus:border-purple-500"
+        />
+      </div>
+
+      {/* Tags */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-2 transition-colors">
+          <span className="flex items-center gap-1.5"><TagIcon className="w-4 h-4" /> Tags</span>
+        </label>
+
+        {/* Current tags */}
+        {formData.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-3">
+            {formData.tags.map((tag) => (
+              <span
+                key={tag}
+                className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 vibrant:bg-purple-100 vibrant:text-purple-700"
+              >
+                {tag}
+                <button type="button" onClick={() => removeTag(tag)} className="hover:text-red-500 transition-colors">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Tag input */}
+        <input
+          type="text"
+          value={tagInput}
+          onChange={(e) => setTagInput(e.target.value)}
+          onKeyDown={handleTagKeyDown}
+          placeholder="Type a tag and press Enter..."
+          className="w-full p-3 rounded-xl border transition-colors outline-none mb-2
+            border-gray-200 dark:border-gray-700 vibrant:border-purple-200
+            bg-white dark:bg-gray-800 vibrant:bg-white/80
+            text-gray-900 dark:text-white vibrant:text-purple-900
+            focus:ring-2 focus:ring-blue-500 vibrant:focus:ring-purple-500
+            focus:border-blue-500 vibrant:focus:border-purple-500"
+        />
+
+        {/* Suggested tags */}
+        <div className="flex flex-wrap gap-1.5">
+          {SUGGESTED_TAGS.filter((t) => !formData.tags.includes(t)).map((tag) => (
+            <button
+              key={tag}
+              type="button"
+              onClick={() => addTag(tag)}
+              className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 vibrant:bg-purple-50 vibrant:text-purple-400 hover:bg-gray-200 dark:hover:bg-gray-700 vibrant:hover:bg-purple-100 transition-colors"
+            >
+              + {tag}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-800 vibrant:border-purple-200">
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-5 py-2.5 text-gray-600 dark:text-gray-300 vibrant:text-purple-600 font-bold hover:bg-gray-100 dark:hover:bg-gray-800 vibrant:hover:bg-purple-100 rounded-xl transition-colors"
+          >
+            Cancel
+          </button>
+        )}
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 vibrant:bg-purple-600 vibrant:hover:bg-purple-700 text-white font-bold rounded-xl disabled:opacity-50 transition-colors"
+        >
+          {isSubmitting ? "Saving..." : initialData ? "Save Changes" : "Publish"}
+        </button>
+      </div>
+    </form>
+  );
+}

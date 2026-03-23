@@ -1,8 +1,19 @@
-import { IEvent, ClubData, IApiResponse, IClubUpdate, IEventUpdate, SignUpData } from './types';
+import { IEvent, ClubData, IApiResponse, IClubUpdate, IEventUpdate, SignUpData, IAnnouncement, IAnnouncementCreate, IAnnouncementUpdate, IAnnouncementFilters } from './types';
 import { getWeekStartDate } from './dateUtils';
 
 const URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4444";
 const PROXY_URL = process.env.PROXY_URL || "/api/proxy";
+
+/**
+ * Resolves an image URL that may be either an absolute Supabase URL
+ * or a relative backend path (e.g. "/static/abc123.jpg").
+ * Returns the URL as-is if absolute, or prepends the backend URL if relative.
+ */
+export function resolveImageUrl(url: string | undefined | null): string {
+  if (!url) return "";
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return `${URL}${url}`;
+}
 
 const formatDateToLocalISO = (date: Date): string => {
   const year = date.getFullYear();
@@ -155,7 +166,7 @@ export const uploadImage = async (file: File): Promise<string | null> => {
 
     if (response.ok) {
       const json = await response.json();
-      return json.url; // Returns "http://localhost:4444/static/..."
+      return json.url; // Returns absolute Supabase URL or legacy relative path
     } else {
       console.error("Upload failed");
       return null;
@@ -478,4 +489,102 @@ export async function getContacts(){
   console.log(result)
 
   return result
+}
+
+// ============================================
+// ANNOUNCEMENTS
+// ============================================
+
+export async function fetchAnnouncements(filters?: IAnnouncementFilters): Promise<IAnnouncement[]> {
+  const BASE_URL = getBaseUrl();
+  const params = new URLSearchParams();
+
+  if (filters?.category) params.set("category", filters.category);
+  if (filters?.club_id) params.set("club_id", filters.club_id);
+  if (filters?.tag) params.set("tag", filters.tag);
+  if (filters?.search) params.set("search", filters.search);
+  if (filters?.include_expired) params.set("include_expired", "true");
+
+  const query = params.toString() ? `?${params.toString()}` : "";
+
+  const res = await fetch(`${BASE_URL}/api/proxy/announcements${query}`, { cache: "no-store" });
+
+  if (!res.ok) throw new Error("Failed to fetch announcements");
+
+  const json = await res.json();
+  return json.data;
+}
+
+export async function fetchAnnouncementById(id: string): Promise<IAnnouncement | null> {
+  const BASE_URL = getBaseUrl();
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/proxy/announcements/${id}`);
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json.data;
+  } catch {
+    return null;
+  }
+}
+
+export async function createAnnouncement(data: IAnnouncementCreate): Promise<IApiResponse<IAnnouncement>> {
+  const BASE_URL = getBaseUrl();
+
+  const res = await fetch(`${BASE_URL}/api/proxy/announcements`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...getAuthHeader() },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || "Failed to create announcement");
+  }
+
+  return res.json();
+}
+
+export async function updateAnnouncement(id: string, data: IAnnouncementUpdate): Promise<IApiResponse<IAnnouncement>> {
+  const BASE_URL = getBaseUrl();
+
+  const res = await fetch(`${BASE_URL}/api/proxy/announcements/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...getAuthHeader() },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || "Failed to update announcement");
+  }
+
+  return res.json();
+}
+
+export async function deleteAnnouncement(id: string): Promise<IApiResponse<IAnnouncement>> {
+  const BASE_URL = getBaseUrl();
+
+  const res = await fetch(`${BASE_URL}/api/proxy/announcements/${id}`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json", ...getAuthHeader() },
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || "Failed to delete announcement");
+  }
+
+  return res.json();
+}
+
+export async function fetchAnnouncementsByClubId(clubId: string): Promise<IAnnouncement[]> {
+  const BASE_URL = getBaseUrl();
+
+  const res = await fetch(`${BASE_URL}/api/proxy/announcements?club_id=${clubId}`, { cache: "no-store" });
+
+  if (!res.ok) throw new Error("Failed to fetch club announcements");
+
+  const json = await res.json();
+  return json.data;
 }

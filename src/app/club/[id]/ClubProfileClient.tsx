@@ -2,13 +2,14 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { 
-  Mail, Instagram, Globe, Linkedin, Calendar, 
-  MapPin, ExternalLink, ArrowLeft, Users, Clock, 
-  Plus, Camera, Save, X, Edit3, 
-  LogOut
+import {
+  Mail, Instagram, Globe, Linkedin, Calendar,
+  MapPin, ExternalLink, ArrowLeft, Users, Clock,
+  Plus, Camera, Save, X, Edit3,
+  LogOut, Megaphone,
 } from 'lucide-react';
-import { updateClub, uploadImage } from '@/app/lib/api';
+import { IAnnouncement } from '@/app/lib/types';
+import { updateClub, uploadImage, resolveImageUrl } from '@/app/lib/api';
 import { useRouter } from 'next/navigation';
 import { useAuth } from "@/app/context/AuthContext";
 
@@ -81,7 +82,7 @@ function EventCard({ event, isPast = false }: { event: any, isPast?: boolean }) 
 }
 
 // --- MAIN CLIENT COMPONENT ---
-export default function ClubProfileClient({ initialClub, events }: { initialClub: any, events: any[] }) {
+export default function ClubProfileClient({ initialClub, events, announcements = [] }: { initialClub: any, events: any[], announcements?: IAnnouncement[] }) {
   const router = useRouter();
   const { user, logout } = useAuth();
 
@@ -153,7 +154,7 @@ export default function ClubProfileClient({ initialClub, events }: { initialClub
         <div className="relative h-48 md:h-64 w-full bg-gray-900 dark:bg-black overflow-hidden group">
           {formData.banner_url ? (
             <img 
-              src={formData.banner_url} 
+              src={resolveImageUrl(formData.banner_url)}
               alt="Club Banner" 
               className={`w-full h-full object-cover transition-opacity ${isEditing ? 'opacity-60' : 'opacity-90'}`}
             />
@@ -190,7 +191,7 @@ export default function ClubProfileClient({ initialClub, events }: { initialClub
             {/* LOGO AREA */}
             <div className="bg-white dark:bg-gray-900 p-1.5 rounded-2xl shadow-lg shrink-0 relative group transition-colors">
               <img 
-                src={formData.logo_url || "https://via.placeholder.com/150"} 
+                src={resolveImageUrl(formData.logo_url) || "https://via.placeholder.com/150"}
                 alt="Club Logo" 
                 className="w-28 h-28 md:w-40 md:h-40 rounded-xl object-cover bg-gray-100 dark:bg-gray-800 border border-gray-100 dark:border-gray-800 transition-colors"
               />
@@ -351,6 +352,51 @@ export default function ClubProfileClient({ initialClub, events }: { initialClub
                     </div>
                 )}
             </div>
+
+            {/* Announcements Section */}
+            {announcements.length > 0 && (
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-5 flex items-center gap-2 transition-colors">
+                  <Megaphone className="w-6 h-6 text-blue-600 dark:text-blue-500" />
+                  Announcements
+                </h3>
+                <div className="space-y-3">
+                  {announcements.map((a) => (
+                    <Link
+                      key={a.id}
+                      href={`/announcements/${a.id}`}
+                      className="group block bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-md transition-all"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="shrink-0 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                          {a.category}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate transition-colors">
+                            {a.title}
+                          </h4>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">
+                            {a.body}
+                          </p>
+                        </div>
+                        {a.expiresAt && (
+                          <span className="shrink-0 flex items-center gap-1 text-[10px] text-gray-400 dark:text-gray-500">
+                            <Clock className="w-3 h-3" />
+                            {new Date(a.expiresAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                          </span>
+                        )}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+                <Link
+                  href={`/announcements`}
+                  className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  View all announcements
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* RIGHT: Sidebar Info */}

@@ -44,14 +44,15 @@ export function EventCard({ event, showHourLabels }: { event: IEvent, showHourLa
                 h-full w-full rounded-md border-l-4 p-2 shadow-sm text-xs overflow-hidden flex flex-col gap-1 transition-colors
                 bg-blue-50 border-blue-500 hover:bg-blue-100 hover:shadow-md
                 dark:bg-blue-900/20 dark:border-blue-500 dark:hover:bg-blue-900/40
+                vibrant:bg-violet-50 vibrant:border-purple-500 vibrant:hover:bg-violet-100 vibrant:hover:shadow-md
             `}>
                 {/* Title: Blue-900 (Light) -> Blue-100 (Dark) */}
-                <div className="font-bold text-blue-900 dark:text-blue-100 truncate leading-tight">
+                <div className="font-bold text-blue-900 dark:text-blue-100 vibrant:text-purple-900 truncate leading-tight">
                     {event.title}
                 </div>
                 
                 {/* Time: Blue-700 (Light) -> Blue-300 (Dark) */}
-                <div className="flex items-center text-blue-700 dark:text-blue-300 gap-1 opacity-90">
+                <div className="flex items-center text-blue-700 dark:text-blue-300 vibrant:text-purple-700 gap-1 opacity-90">
                     <Clock size={12} />
                     <span className="truncate">
                         {event.startTime} - {eventEndTime}
@@ -60,7 +61,7 @@ export function EventCard({ event, showHourLabels }: { event: IEvent, showHourLa
     
                 {/* Description */}
                 {event.duration >= 1 && (
-                    <p className="text-blue-800/70 dark:text-blue-200/60 line-clamp-2 mt-1">
+                    <p className="text-blue-800/70 dark:text-blue-200/60 vibrant:text-purple-800/70 line-clamp-2 mt-1">
                         {event.description || "No description"}
                     </p>
                 )}

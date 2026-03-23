@@ -12,26 +12,63 @@
   --foreground: #ededed;
 }
 
+.vibrant {
+  /* Vibrant Mode */
+  --background: #faf5ff;
+  --foreground: #1e1b4b;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-vibrant-heading, var(--font-geist-sans));
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
+@custom-variant vibrant (&:where(.vibrant, .vibrant *));
 
 html, body {
   background-color: var(--background);
   color: var(--foreground);
 }
 
+/* ============================================
+   VIBRANT THEME — Global Overrides
+   ============================================ */
 
-/* REMOVE THIS ENTIRE BLOCK */
-/* 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  transition: background-color 0.3s ease, color 0.3s ease;
+/* Gradient background for page body */
+.vibrant body,
+.vibrant .vibrant-page-bg {
+  background: linear-gradient(160deg, #faf5ff 0%, #fdf2f8 40%, #fffbeb 100%);
 }
-*/
+
+/* Gradient text utility */
+.vibrant .vibrant-gradient-text {
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Colored card shadows */
+.vibrant .vibrant-shadow {
+  box-shadow: 0 4px 14px -2px rgba(124, 58, 237, 0.12);
+}
+.vibrant .vibrant-shadow:hover {
+  box-shadow: 0 8px 25px -5px rgba(124, 58, 237, 0.22);
+}
+
+/* Vibrant heading font — applied when the font variable is loaded */
+.vibrant h1,
+.vibrant h2,
+.vibrant h3 {
+  font-family: var(--font-vibrant-heading, var(--font-geist-sans)), sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* Vibrant scrollbar accent */
+.vibrant ::-webkit-scrollbar-thumb {
+  background-color: #c4b5fd;
+}

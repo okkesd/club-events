@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Calendar, Clock, MapPin, Upload, Image as ImageIcon, Type, Map 
 } from 'lucide-react';
-import { uploadImage } from '@/app/lib/api'; 
+import { uploadImage, resolveImageUrl } from '@/app/lib/api';
 
 interface EventFormProps {
     initialData?: any; // If provided, we are in Edit Mode
@@ -77,7 +77,7 @@ export default function EventForm({ initialData, onSubmit, onCancel, isSubmittin
             <div className="flex items-center gap-4">
                 <div className="w-24 h-24 rounded-xl bg-gray-100 overflow-hidden relative">
                     {formData.coverImage ? (
-                        <img src={formData.coverImage} className="w-full h-full object-cover" />
+                        <img src={resolveImageUrl(formData.coverImage)} className="w-full h-full object-cover" />
                     ) : <ImageIcon className="w-8 h-8 text-gray-400 m-auto mt-8" />}
                 </div>
                 <label className="cursor-pointer px-4 py-2 bg-gray-100 rounded-lg font-bold text-sm">

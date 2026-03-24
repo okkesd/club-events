@@ -369,24 +369,18 @@ export async function getAllClubsUser(search?: string): Promise<ClubData[]> {
     return json.data;
 }
 
-export async function toggleEventLike(eventId: string, hasLiked: boolean): Promise<number> {
-
+export async function toggleEventLike(eventId: string): Promise<{ likes: number; hasLiked: boolean }> {
   const BASE_URL = getBaseUrl()
 
-
   const res = await fetch(`${BASE_URL}/api/proxy/event_like/${eventId}`, {
-    method: 'POST',  // Changed from GET
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ liked: hasLiked }),  // Send as body, not query param
-    cache: 'no-store',  // Ensure no caching
+    method: 'POST',
+    cache: 'no-store',
   });
 
   if (!res.ok) throw new Error("Failed to like")
 
   const json = await res.json()
-  return json.data.likes
+  return json.data
 }
 
 

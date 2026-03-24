@@ -7,10 +7,10 @@ interface LikeButtonProps {
   eventId: string;
   initialLikes: number;
   initialHasLiked: boolean;
-  reFreshData: () => Promise<void>
 }
 
-export default function LikeButton({ eventId, initialLikes, initialHasLiked, reFreshData }: LikeButtonProps) {
+export default function LikeButton({ eventId, initialLikes, initialHasLiked }: LikeButtonProps) {
+  const [likes, setLikes] = useState(initialLikes);
   const [hasLiked, setHasLiked] = useState(initialHasLiked);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -18,18 +18,21 @@ export default function LikeButton({ eventId, initialLikes, initialHasLiked, reF
     if (isLoading) return;
 
     setIsLoading(true);
-    const newHasLiked = !hasLiked;
 
-    // Optimistic UI update
-    setHasLiked(newHasLiked);
+    // Optimistic UI
+    setHasLiked((prev) => !prev);
+    setLikes((prev) => prev + (hasLiked ? -1 : 1));
 
     try {
-      await toggleEventLike(eventId, newHasLiked);
-      await reFreshData();
+      const data = await toggleEventLike(eventId);
+      // Sync with server truth
+      setLikes(data.likes);
+      setHasLiked(data.hasLiked);
     } catch (error) {
       console.error("Failed to like event:", error);
-      // Revert on error
-      setHasLiked(!newHasLiked);
+      // Revert
+      setHasLiked(initialHasLiked);
+      setLikes(initialLikes);
     } finally {
       setIsLoading(false);
     }
@@ -46,7 +49,7 @@ export default function LikeButton({ eventId, initialLikes, initialHasLiked, reF
         }`}
     >
       <Heart className={`w-5 h-5 transition-transform ${hasLiked ? 'fill-current scale-110' : ''}`} />
-      <span className="text-xs font-bold">{initialLikes}</span>
+      <span className="text-xs font-bold">{likes}</span>
     </button>
   );
 }

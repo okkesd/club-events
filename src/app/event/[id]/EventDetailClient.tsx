@@ -8,7 +8,7 @@ import {
   CalendarPlus, Ticket, Edit3, Trash2, Eye
 } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
-import { fetchEventById, updateEvent, deleteEvent, resolveImageUrl } from '@/app/lib/api';
+import { updateEvent, deleteEvent, resolveImageUrl } from '@/app/lib/api';
 import EventForm from '@/app/components/EventForm';
 import { ShareButton } from '@/app/event/[id]/ShareButton';
 import { NotifyModal } from '@/app/event/[id]/NotifyModal';
@@ -68,20 +68,6 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
       setShowDeleteConfirm(false);
     }
   };
-
-  const reFreshData = async () => {
-  try {
-    const res = await fetchEventById(currentEvent.id);
-    if (res) {
-      setCurrentEvent(res);
-      console.log("Data refreshed:", res); // Add this to verify
-    } else {
-      throw new Error("Failed to update the event");
-    }
-  } catch (error) {
-    console.error("Refresh error:", error); // Add error logging
-  }
-};
 
   // --- VIEW MODE HELPERS ---
   const [year, month, day] = currentEvent.date.split('-');
@@ -301,8 +287,7 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                                         key={`like-${currentEvent.id}-${currentEvent.likes}`}
                                         eventId={currentEvent.id}
                                         initialLikes={currentEvent.likes ?? 0}
-                                        initialHasLiked={currentEvent.hasLiked ?? false}
-                                        reFreshData={reFreshData} />
+                                        initialHasLiked={currentEvent.hasLiked ?? false} />
                                 </div>
                         
                                 {/* 2. CALENDAR & SHARE (Existing, wrapped in a grid to fill remaining space) */}

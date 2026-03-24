@@ -56,7 +56,7 @@ export default function ContactPage() {
     // 2. API Call with Try/Catch/Finally
     try {
       await contactApi(email, message);
-      setIsSent(true); 
+      setIsSent(true);
     } catch (err) {
       console.error("API Error:", err);
       const errorMessage = err instanceof Error ? err.message : "Something went wrong. Please try again.";
@@ -67,19 +67,19 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="flex-grow flex items-center justify-center bg-gray-50 dark:bg-gray-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
-      <div className="max-w-md w-full bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 transition-colors">
-        
+    <div className="flex-grow flex items-center justify-center bg-gray-50 dark:bg-gray-950 vibrant:bg-transparent py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
+      <div className="max-w-md w-full bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 vibrant:border-purple-200 transition-colors">
+
         {/* Header */}
         {!isSent && (
           <div className="text-center mb-8">
-            <div className="mx-auto h-12 w-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-4 transition-colors">
-               <Mail className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            <div className="mx-auto h-12 w-12 bg-blue-100 dark:bg-blue-900/30 vibrant:bg-purple-100 rounded-full flex items-center justify-center mb-4 transition-colors">
+               <Mail className="h-6 w-6 text-blue-600 dark:text-blue-400 vibrant:text-purple-600" />
             </div>
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white transition-colors">
+            <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors">
               Contact Support
             </h2>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 transition-colors">
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 vibrant:text-purple-600 transition-colors">
               Have a question or feature request? Let us know!
             </p>
           </div>
@@ -88,16 +88,16 @@ export default function ContactPage() {
         {/* Success State */}
         {isSent ? (
           <div className="text-center py-8 animate-in fade-in zoom-in duration-300">
-            <div className="mx-auto h-16 w-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-4 transition-colors">
-              <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
+            <div className="mx-auto h-16 w-16 bg-green-100 dark:bg-green-900/30 vibrant:bg-green-100/80 rounded-full flex items-center justify-center mb-4 transition-colors">
+              <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400 vibrant:text-green-600" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white transition-colors">Message Sent!</h3>
-            <p className="text-gray-600 dark:text-gray-400 mt-2 transition-colors">
-              Thank you for reaching out. We'll get back to you at <span className="font-medium text-gray-900 dark:text-gray-200">{email}</span> shortly.
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors">Message Sent!</h3>
+            <p className="text-gray-600 dark:text-gray-400 vibrant:text-purple-600 mt-2 transition-colors">
+              Thank you for reaching out. We'll get back to you at <span className="font-medium text-gray-900 dark:text-gray-200 vibrant:text-purple-800">{email}</span> shortly.
             </p>
             <button
               onClick={() => { setIsSent(false); setMessage(''); setEmail(''); setError(null); }}
-              className="mt-6 text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm cursor-pointer underline transition-colors"
+              className="mt-6 text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 vibrant:text-purple-600 vibrant:hover:text-pink-600 font-medium text-sm cursor-pointer underline transition-colors"
             >
               Send another message
             </button>
@@ -105,23 +105,24 @@ export default function ContactPage() {
         ) : (
           /* Form State */
           <form className="space-y-6" onSubmit={handleSubmit}>
-            
+
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">
                 Your Email
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400 dark:text-gray-500 transition-colors" />
+                  <Mail className="h-5 w-5 text-gray-400 dark:text-gray-500 vibrant:text-purple-400 transition-colors" />
                 </div>
                 <input
                   type="email"
                   id="email"
-                  required 
+                  required
                   className="block w-full pl-10 pr-3 py-3 border rounded-lg sm:text-sm transition-colors
                              border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                             dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder-gray-500 dark:focus:ring-blue-400"
+                             dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder-gray-500 dark:focus:ring-blue-400
+                             vibrant:bg-white/80 vibrant:border-purple-200 vibrant:text-purple-900 vibrant:placeholder-purple-400 vibrant:focus:ring-purple-500 vibrant:focus:border-purple-400"
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -132,12 +133,12 @@ export default function ContactPage() {
 
             {/* Message */}
             <div>
-              <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">
+              <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">
                 Message
               </label>
               <div className="relative">
                 <div className="absolute top-3 left-3 pointer-events-none">
-                  <MessageSquare className="h-5 w-5 text-gray-400 dark:text-gray-500 transition-colors" />
+                  <MessageSquare className="h-5 w-5 text-gray-400 dark:text-gray-500 vibrant:text-purple-400 transition-colors" />
                 </div>
                 <textarea
                   id="message"
@@ -145,7 +146,8 @@ export default function ContactPage() {
                   rows={4}
                   className="block w-full pl-10 pr-3 py-3 border rounded-lg sm:text-sm transition-colors resize-none
                              border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                             dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder-gray-500 dark:focus:ring-blue-400"
+                             dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder-gray-500 dark:focus:ring-blue-400
+                             vibrant:bg-white/80 vibrant:border-purple-200 vibrant:text-purple-900 vibrant:placeholder-purple-400 vibrant:focus:ring-purple-500 vibrant:focus:border-purple-400"
                   placeholder="How can we help you?"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
@@ -158,7 +160,8 @@ export default function ContactPage() {
             {error && (
               <div className="flex items-center gap-2 rounded-lg p-3 text-sm border animate-in fade-in slide-in-from-top-1
                               bg-red-50 text-red-700 border-red-100
-                              dark:bg-red-900/20 dark:text-red-300 dark:border-red-900/50 transition-colors">
+                              dark:bg-red-900/20 dark:text-red-300 dark:border-red-900/50
+                              vibrant:bg-red-50/80 vibrant:text-red-700 vibrant:border-red-200 transition-colors">
                 <AlertCircle className="w-5 h-5 flex-shrink-0" />
                 <span>{error}</span>
               </div>
@@ -168,10 +171,11 @@ export default function ContactPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white 
-                         bg-blue-600 hover:bg-blue-700 
+              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white
+                         bg-blue-600 hover:bg-blue-700
                          dark:bg-blue-600 dark:hover:bg-blue-500
-                         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900
+                         vibrant:bg-purple-600 vibrant:hover:bg-purple-700
+                         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900 vibrant:focus:ring-purple-500 vibrant:focus:ring-offset-0
                          disabled:opacity-70 disabled:cursor-not-allowed transition-all cursor-pointer"
             >
               {isLoading ? (

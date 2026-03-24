@@ -3,7 +3,7 @@ export default function PrivacyPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors">
       <div className="max-w-3xl mx-auto bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Privacy Policy</h1>
-        <p className="text-gray-500 dark:text-gray-400 mb-8">Last Updated: March 22, 2026</p>
+        <p className="text-gray-500 dark:text-gray-400 mb-8">Last Updated: March 24, 2026</p>
 
         <div className="space-y-6 text-gray-700 dark:text-gray-300 leading-relaxed">
           <section>
@@ -18,9 +18,11 @@ export default function PrivacyPage() {
               <li><strong>Account Data:</strong> Club name, email address, and password (stored encrypted) when you register a club account.</li>
               <li><strong>Event Data:</strong> Event titles, descriptions, dates, locations, and cover images uploaded by clubs.</li>
               <li><strong>Contact Messages:</strong> Email address and message content submitted through our contact form.</li>
-              <li><strong>Local Storage Data:</strong> We store your authentication token, theme preference (light/dark mode), and event like states in your browser&apos;s local storage. This data never leaves your device except for the authentication token, which is sent with requests to verify your identity.</li>
+              <li><strong>IP Address (likes):</strong> When you like an event, your IP address is stored alongside the like to prevent duplicate counting. This data is used solely for deduplication and is not linked to any account or used for tracking.</li>
+              <li><strong>Subscription Data:</strong> If you subscribe to email notifications, your email address and optional preferences (club, category) are stored.</li>
+              <li><strong>Local Storage Data:</strong> We store your authentication token and theme preference (light/dark/vibrant mode) in your browser&apos;s local storage. This data never leaves your device except for the authentication token, which is sent with requests to verify your identity.</li>
             </ul>
-            <p className="mt-2">We do not use analytics or tracking tools. We do not collect data from users who browse events without registering a club account, other than what is stored locally on your device.</p>
+            <p className="mt-2">We do not use analytics or tracking tools. We do not collect data from users who browse events without registering a club account, other than what is stored locally on your device and IP addresses stored when liking events.</p>
           </section>
 
           <section>
@@ -41,6 +43,8 @@ export default function PrivacyPage() {
               <li>Allow clubs to create, edit, and manage their events.</li>
               <li>Display events to users of the platform.</li>
               <li>Respond to contact messages.</li>
+              <li>Prevent duplicate event likes using IP-based deduplication.</li>
+              <li>Send email notifications to subscribers about new announcements and events.</li>
             </ul>
             <p className="mt-2">We do not sell, share, or transfer your personal data to any third parties for marketing or advertising purposes.</p>
           </section>
@@ -57,7 +61,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">7. Data Retention</h2>
-            <p>We retain your account data for as long as your account is active. Event data is retained for as long as the event exists on the platform. Contact messages are retained indefinitely to help us improve the service. If you request account deletion, we will delete your account data and associated events within 30 days of your request.</p>
+            <p>We retain your account data for as long as your account is active. Event data is retained for as long as the event exists on the platform. Contact messages are retained indefinitely to help us improve the service. IP addresses stored for event likes are retained for as long as the associated event exists and are deleted when the event is removed. Subscription data is retained until you unsubscribe. If you request account deletion, we will delete your account data and associated events within 30 days of your request.</p>
           </section>
 
           <section>

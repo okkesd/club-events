@@ -297,10 +297,11 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                             <div className="flex gap-3">
                                 {/* 1. LIKE BUTTON (New) */}
                                 <div className="shrink-0">
-                                    <LikeButton 
+                                    <LikeButton
                                         key={`like-${currentEvent.id}-${currentEvent.likes}`}
                                         eventId={currentEvent.id}
                                         initialLikes={currentEvent.likes ?? 0}
+                                        initialHasLiked={currentEvent.hasLiked ?? false}
                                         reFreshData={reFreshData} />
                                 </div>
                         

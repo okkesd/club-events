@@ -67,6 +67,7 @@ export interface IEvent {
   capacity?: number;
   likes: number;
   viewCount: number;
+  hasLiked?: boolean; // Server-side IP-based dedup
 }
 
 // For creating/updating an event (everything optional for update)

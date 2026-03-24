@@ -7,17 +7,26 @@ const API_SECRET = process.env.API_SECRET_KEY;
 
 // --- HELPER: Get Auth Header ---
 // Prepares the header for all requests
+function getClientIp(request: NextRequest): string {
+  return (
+    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+    request.headers.get("x-real-ip") ||
+    "unknown"
+  );
+}
+
 function getForwardedHeaders(request: NextRequest) {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     "x-api-key": API_SECRET || "",
+    "X-Forwarded-For": getClientIp(request),
   };
 
   const authHeader = request.headers.get("authorization");
   if (authHeader) {
     headers["Authorization"] = authHeader;
   }
-  
+
   return headers;
 }
 
@@ -128,6 +137,7 @@ async function handleMutation(
     // 2. Prepare headers
     const headers: Record<string, string> = {
       "x-api-key": API_SECRET || "",
+      "X-Forwarded-For": getClientIp(request),
     };
 
     // Forward Authorization Header (Crucial for protected actions)

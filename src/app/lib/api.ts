@@ -1,8 +1,54 @@
-import { IEvent, ClubData, IApiResponse, IClubUpdate, IEventUpdate, SignUpData, IAnnouncement, IAnnouncementCreate, IAnnouncementUpdate, IAnnouncementFilters } from './types';
+import { IEvent, ClubData, IApiResponse, IClubUpdate, IEventUpdate, SignUpData, IAnnouncement, IAnnouncementCreate, IAnnouncementUpdate, IAnnouncementFilters, PaginatedResponse, IEventFilters, ISubscribeRequest, ISubscription } from './types';
 import { getWeekStartDate } from './dateUtils';
 
 const URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4444";
 const PROXY_URL = process.env.PROXY_URL || "/api/proxy";
+
+/**
+ * Custom error class for API errors with status code and structured details.
+ */
+export class ApiError extends Error {
+  status: number;
+  details?: any;
+
+  constructor(message: string, status: number, details?: any) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.details = details;
+  }
+}
+
+/**
+ * Handles non-OK responses by throwing an ApiError with appropriate message.
+ * - 422: Validation error — extracts field-level detail from FastAPI format
+ * - 429: Rate limit — user-friendly message
+ * - Other: Generic fallback
+ */
+async function handleApiError(res: Response): Promise<never> {
+  let body: any = {};
+  try { body = await res.json(); } catch {}
+
+  if (res.status === 422) {
+    // FastAPI validation: { detail: [{ loc: [...], msg: "...", type: "..." }] }
+    const detail = body.detail;
+    if (Array.isArray(detail)) {
+      const messages = detail.map((d: any) => {
+        const field = d.loc?.slice(-1)[0] || "field";
+        return `${field}: ${d.msg}`;
+      });
+      throw new ApiError(messages.join("; "), 422, detail);
+    }
+    throw new ApiError(typeof detail === "string" ? detail : "Validation error", 422, detail);
+  }
+
+  if (res.status === 429) {
+    throw new ApiError("Too many requests. Please wait a moment and try again.", 429);
+  }
+
+  const message = body.detail || body.message || `Request failed (${res.status})`;
+  throw new ApiError(message, res.status, body);
+}
 
 /**
  * Resolves an image URL that may be either an absolute Supabase URL
@@ -183,17 +229,14 @@ export async function createEvent(eventData: any): Promise<IApiResponse<IEvent>>
 
     const response = await fetch(`${BASE_URL}/api/proxy/events`, {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           ...headers
         },
         body: JSON.stringify(eventData),
     });
 
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.detail || "Failed to create event");
-    }
+    if (!response.ok) await handleApiError(response);
 
     return response.json();
 }
@@ -233,10 +276,7 @@ export async function updateClub(clubId: string, updateData: IClubUpdate): Promi
         body: JSON.stringify(updateData),
     });
 
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.detail || "Failed to update club profile");
-    }
+    if (!response.ok) await handleApiError(response);
 
     return response.json();
 }
@@ -312,10 +352,7 @@ export async function updateEvent(eventId: string, data: IEventUpdate) {
         body: JSON.stringify(data),
     });
 
-    if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.detail || "Failed to update event");
-    }
+    if (!res.ok) await handleApiError(res);
     return res.json();
 }
 
@@ -495,7 +532,7 @@ export async function getContacts(){
 // ANNOUNCEMENTS
 // ============================================
 
-export async function fetchAnnouncements(filters?: IAnnouncementFilters): Promise<IAnnouncement[]> {
+export async function fetchAnnouncements(filters?: IAnnouncementFilters): Promise<PaginatedResponse<IAnnouncement>> {
   const BASE_URL = getBaseUrl();
   const params = new URLSearchParams();
 
@@ -504,6 +541,8 @@ export async function fetchAnnouncements(filters?: IAnnouncementFilters): Promis
   if (filters?.tag) params.set("tag", filters.tag);
   if (filters?.search) params.set("search", filters.search);
   if (filters?.include_expired) params.set("include_expired", "true");
+  if (filters?.page) params.set("page", String(filters.page));
+  if (filters?.pageSize) params.set("page_size", String(filters.pageSize));
 
   const query = params.toString() ? `?${params.toString()}` : "";
 
@@ -511,8 +550,7 @@ export async function fetchAnnouncements(filters?: IAnnouncementFilters): Promis
 
   if (!res.ok) throw new Error("Failed to fetch announcements");
 
-  const json = await res.json();
-  return json.data;
+  return res.json();
 }
 
 export async function fetchAnnouncementById(id: string): Promise<IAnnouncement | null> {
@@ -537,10 +575,7 @@ export async function createAnnouncement(data: IAnnouncementCreate): Promise<IAp
     body: JSON.stringify(data),
   });
 
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail || "Failed to create announcement");
-  }
+  if (!res.ok) await handleApiError(res);
 
   return res.json();
 }
@@ -554,10 +589,7 @@ export async function updateAnnouncement(id: string, data: IAnnouncementUpdate):
     body: JSON.stringify(data),
   });
 
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail || "Failed to update announcement");
-  }
+  if (!res.ok) await handleApiError(res);
 
   return res.json();
 }
@@ -570,10 +602,7 @@ export async function deleteAnnouncement(id: string): Promise<IApiResponse<IAnno
     headers: { "Content-Type": "application/json", ...getAuthHeader() },
   });
 
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail || "Failed to delete announcement");
-  }
+  if (!res.ok) await handleApiError(res);
 
   return res.json();
 }
@@ -584,6 +613,98 @@ export async function fetchAnnouncementsByClubId(clubId: string): Promise<IAnnou
   const res = await fetch(`${BASE_URL}/api/proxy/announcements?club_id=${clubId}`, { cache: "no-store" });
 
   if (!res.ok) throw new Error("Failed to fetch club announcements");
+
+  const json = await res.json();
+  // Handle both paginated and flat responses
+  return json.data;
+}
+
+// ============================================
+// EVENTS BROWSE (paginated)
+// ============================================
+
+export async function fetchEvents(filters?: IEventFilters): Promise<PaginatedResponse<IEvent>> {
+  const BASE_URL = getBaseUrl();
+  const params = new URLSearchParams();
+
+  if (filters?.search) params.set("search", filters.search);
+  if (filters?.club_id) params.set("club_id", filters.club_id);
+  if (filters?.tag) params.set("tag", filters.tag);
+  if (filters?.location_type) params.set("location_type", filters.location_type);
+  if (filters?.date_from) params.set("date_from", filters.date_from);
+  if (filters?.date_to) params.set("date_to", filters.date_to);
+  if (filters?.page) params.set("page", String(filters.page));
+  if (filters?.pageSize) params.set("page_size", String(filters.pageSize));
+
+  const query = params.toString() ? `?${params.toString()}` : "";
+
+  const res = await fetch(`${BASE_URL}/api/proxy/events${query}`, { cache: "no-store" });
+
+  if (!res.ok) throw new Error("Failed to fetch events");
+
+  return res.json();
+}
+
+// ============================================
+// CLUBS (paginated)
+// ============================================
+
+export async function fetchClubsPaginated(search?: string, page?: number, pageSize?: number): Promise<PaginatedResponse<ClubData>> {
+  const BASE_URL = getBaseUrl();
+  const params = new URLSearchParams();
+
+  if (search) params.set("search", search);
+  if (page) params.set("page", String(page));
+  if (pageSize) params.set("page_size", String(pageSize));
+
+  const query = params.toString() ? `?${params.toString()}` : "";
+
+  const res = await fetch(`${BASE_URL}/api/proxy/clubs${query}`, { cache: "no-store" });
+
+  if (!res.ok) throw new Error("Failed to fetch clubs");
+
+  return res.json();
+}
+
+// ============================================
+// SUBSCRIPTIONS
+// ============================================
+
+export async function subscribe(data: ISubscribeRequest): Promise<IApiResponse<ISubscription>> {
+  const BASE_URL = getBaseUrl();
+
+  const res = await fetch(`${BASE_URL}/api/proxy/subscriptions`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) await handleApiError(res);
+
+  return res.json();
+}
+
+export async function unsubscribe(token: string): Promise<IApiResponse<null>> {
+  const BASE_URL = getBaseUrl();
+
+  const res = await fetch(`${BASE_URL}/api/proxy/subscriptions/unsubscribe/${token}`, {
+    method: "POST",
+  });
+
+  if (!res.ok) await handleApiError(res);
+
+  return res.json();
+}
+
+export async function getAdminSubscriptions(): Promise<ISubscription[]> {
+  const BASE_URL = getBaseUrl();
+
+  const res = await fetch(`${BASE_URL}/api/proxy/admin/subscriptions`, {
+    headers: getAuthHeader(),
+    cache: "no-store",
+  });
+
+  if (!res.ok) throw new Error("Failed to fetch subscriptions");
 
   const json = await res.json();
   return json.data;

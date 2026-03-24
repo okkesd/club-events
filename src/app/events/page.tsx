@@ -1,0 +1,287 @@
+"use client";
+
+import React, { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
+import {
+  Search, CalendarDays, MapPin, Clock, Filter, X, Tag as TagIcon, Eye, Heart,
+} from "lucide-react";
+import { fetchEvents, resolveImageUrl } from "@/app/lib/api";
+import { IEvent, IEventFilters, Pagination } from "@/app/lib/types";
+import PaginationBar from "@/app/components/PaginationBar";
+
+const LOCATION_TYPES = [
+  { value: "on-campus", label: "On Campus" },
+  { value: "off-campus", label: "Off Campus" },
+] as const;
+
+export default function EventsBrowsePage() {
+  const [events, setEvents] = useState<IEvent[]>([]);
+  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Filters
+  const [search, setSearch] = useState("");
+  const [locationType, setLocationType] = useState<"on-campus" | "off-campus" | "">("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [page, setPage] = useState(1);
+
+  const load = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const filters: IEventFilters = {
+        search: search || undefined,
+        location_type: locationType || undefined,
+        date_from: dateFrom || undefined,
+        date_to: dateTo || undefined,
+        page,
+        pageSize: 12,
+      };
+      const res = await fetchEvents(filters);
+      setEvents(res.data);
+      setPagination(res.pagination);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [search, locationType, dateFrom, dateTo, page]);
+
+  // Debounced search, immediate for other filters
+  useEffect(() => {
+    const timer = setTimeout(() => load(), 300);
+    return () => clearTimeout(timer);
+  }, [load]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [search, locationType, dateFrom, dateTo]);
+
+  const clearFilters = () => {
+    setSearch("");
+    setLocationType("");
+    setDateFrom("");
+    setDateTo("");
+    setPage(1);
+  };
+
+  const hasFilters = search || locationType || dateFrom || dateTo;
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 vibrant:bg-transparent pb-20 transition-colors duration-300">
+      {/* Header */}
+      <div className="bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 vibrant:border-purple-200 py-12 px-4 mb-8 transition-colors">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2.5 bg-blue-100 dark:bg-blue-900/30 vibrant:bg-purple-100 rounded-xl">
+              <CalendarDays className="w-6 h-6 text-blue-600 dark:text-blue-400 vibrant:text-purple-600" />
+            </div>
+            <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white vibrant:text-purple-900 tracking-tight transition-colors">
+              Browse Events
+            </h1>
+          </div>
+          <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-500 max-w-2xl transition-colors">
+            Discover upcoming events from all campus clubs.
+          </p>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4">
+        {/* Filters */}
+        <div className="mb-6 space-y-4">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+            <input
+              type="text"
+              placeholder="Search events..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-11 pr-4 py-3 rounded-xl transition-colors outline-none
+                bg-white border border-gray-200 text-gray-900 placeholder-gray-500
+                focus:ring-2 focus:ring-blue-200 focus:border-blue-500
+                dark:bg-gray-900 dark:border-gray-800 dark:text-white dark:placeholder-gray-400
+                dark:focus:ring-blue-900/50 dark:focus:border-blue-500
+                vibrant:bg-white/80 vibrant:border-purple-200 vibrant:focus:ring-purple-200 vibrant:focus:border-purple-500"
+            />
+          </div>
+
+          {/* Filter row */}
+          <div className="flex flex-wrap items-center gap-3">
+            <Filter className="w-4 h-4 text-gray-400 dark:text-gray-500 vibrant:text-purple-400 shrink-0" />
+
+            {/* Location type */}
+            {LOCATION_TYPES.map((lt) => (
+              <button
+                key={lt.value}
+                onClick={() => setLocationType(locationType === lt.value ? "" : lt.value)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  locationType === lt.value
+                    ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 vibrant:bg-purple-100 vibrant:text-purple-700 ring-2 ring-offset-1 ring-blue-400 dark:ring-blue-500 vibrant:ring-purple-400"
+                    : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 vibrant:bg-purple-50 vibrant:text-purple-400 hover:bg-gray-200 dark:hover:bg-gray-700 vibrant:hover:bg-purple-100"
+                }`}
+              >
+                <MapPin className="w-3 h-3 inline mr-1" />
+                {lt.label}
+              </button>
+            ))}
+
+            <div className="h-5 w-px bg-gray-200 dark:bg-gray-700 vibrant:bg-purple-200 mx-1" />
+
+            {/* Date range */}
+            <div className="flex items-center gap-2">
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                className="px-2 py-1.5 rounded-lg text-xs border border-gray-200 dark:border-gray-700 vibrant:border-purple-200 bg-white dark:bg-gray-900 vibrant:bg-white/80 text-gray-700 dark:text-gray-300 vibrant:text-purple-700 outline-none"
+                title="From date"
+              />
+              <span className="text-gray-400 text-xs">to</span>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                className="px-2 py-1.5 rounded-lg text-xs border border-gray-200 dark:border-gray-700 vibrant:border-purple-200 bg-white dark:bg-gray-900 vibrant:bg-white/80 text-gray-700 dark:text-gray-300 vibrant:text-purple-700 outline-none"
+                title="To date"
+              />
+            </div>
+
+            {hasFilters && (
+              <button onClick={clearFilters} className="px-3 py-1.5 rounded-lg text-xs font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center gap-1">
+                <X className="w-3 h-3" /> Clear
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Content */}
+        {isLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="bg-white dark:bg-gray-900 h-64 rounded-2xl border border-gray-200 dark:border-gray-800 animate-pulse transition-colors" />
+            ))}
+          </div>
+        ) : events.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {events.map((event) => (
+                <BrowseEventCard key={event.id} event={event} />
+              ))}
+            </div>
+            {pagination && (
+              <PaginationBar pagination={pagination} onPageChange={setPage} />
+            )}
+          </>
+        ) : (
+          <div className="text-center py-20">
+            <div className="bg-gray-100 dark:bg-gray-800 vibrant:bg-purple-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors">
+              <CalendarDays className="w-8 h-8 text-gray-400 dark:text-gray-500 vibrant:text-purple-400" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors">No events found</h3>
+            <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-400 mt-2 transition-colors">
+              {hasFilters ? "Try adjusting your filters." : "Check back soon for upcoming events."}
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function BrowseEventCard({ event }: { event: IEvent }) {
+  const eventDate = new Date(event.date + "T00:00:00");
+  const monthName = eventDate.toLocaleString("en-US", { month: "short" });
+  const dayNumber = eventDate.getDate();
+  const isPast = eventDate.getTime() < Date.now();
+
+  return (
+    <Link
+      href={`/event/${event.id}`}
+      className={`group block bg-white dark:bg-gray-900 vibrant:bg-white/80 rounded-2xl border overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5
+        border-gray-200 dark:border-gray-800 vibrant:border-purple-200
+        ${isPast ? "opacity-60" : ""}
+      `}
+    >
+      {/* Cover image or colored header */}
+      {event.coverImage ? (
+        <div className="w-full h-40 bg-gray-100 dark:bg-gray-800 overflow-hidden">
+          <img
+            src={resolveImageUrl(event.coverImage)}
+            alt={event.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        </div>
+      ) : (
+        <div className="w-full h-3 bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 vibrant:from-purple-500 vibrant:to-pink-500" />
+      )}
+
+      <div className="p-5">
+        {/* Date badge + location type */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <div className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800 vibrant:bg-purple-50 border border-gray-200 dark:border-gray-700 vibrant:border-purple-200 rounded-lg w-11 h-11 shrink-0 transition-colors">
+              <span className="text-[9px] font-bold text-red-500 dark:text-red-400 uppercase leading-none">{monthName}</span>
+              <span className="text-sm font-extrabold text-gray-900 dark:text-white leading-none">{dayNumber}</span>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-purple-400 font-medium">
+                <Clock className="w-3 h-3 inline mr-0.5" />
+                {event.startTime} - {event.endTime}
+              </p>
+            </div>
+          </div>
+          <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-md ${
+            event.locationType === "off-campus"
+              ? "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400"
+              : "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+          }`}>
+            {event.locationType === "off-campus" ? "Off Campus" : "On Campus"}
+          </span>
+        </div>
+
+        {/* Title */}
+        <h3 className="text-base font-bold text-gray-900 dark:text-white vibrant:text-purple-900 group-hover:text-blue-600 dark:group-hover:text-blue-400 vibrant:group-hover:text-pink-600 leading-snug mb-1.5 line-clamp-2 transition-colors">
+          {event.title}
+        </h3>
+
+        {/* Club name */}
+        <p className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-purple-400 mb-3 transition-colors">
+          {event.clubName} · {event.location}
+        </p>
+
+        {/* Tags */}
+        {event.tags && event.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {event.tags.slice(0, 3).map((tag) => (
+              <span key={tag} className="flex items-center gap-0.5 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 vibrant:bg-purple-50 vibrant:text-purple-500">
+                <TagIcon className="w-2.5 h-2.5" /> {tag}
+              </span>
+            ))}
+            {event.tags.length > 3 && (
+              <span className="text-[10px] text-gray-400 dark:text-gray-500">+{event.tags.length - 3}</span>
+            )}
+          </div>
+        )}
+
+        {/* Stats row */}
+        <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500 vibrant:text-purple-400">
+          <span className="flex items-center gap-1">
+            <Heart className="w-3 h-3" /> {event.likes}
+          </span>
+          {event.viewCount > 0 && (
+            <span className="flex items-center gap-1">
+              <Eye className="w-3 h-3" /> {event.viewCount}
+            </span>
+          )}
+          {event.isRegistrationOpen && (
+            <span className="ml-auto text-[10px] font-bold uppercase text-green-600 dark:text-green-400 vibrant:text-green-600">
+              Open
+            </span>
+          )}
+        </div>
+      </div>
+    </Link>
+  );
+}

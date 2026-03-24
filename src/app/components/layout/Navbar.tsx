@@ -80,6 +80,9 @@ export default function Navbar() {
             ) : (
               <div className="flex items-center gap-4">
 
+                <Link href="/events" className="text-gray-600 dark:text-gray-300 vibrant:text-purple-700 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600 font-medium hidden sm:inline">
+                  Events
+                </Link>
                 <Link href="/clubs" className="text-gray-600 dark:text-gray-300 vibrant:text-purple-700 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600 font-medium">
                   Clubs
                 </Link>

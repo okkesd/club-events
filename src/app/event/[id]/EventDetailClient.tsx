@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   MapPin, Users, ChevronLeft, ExternalLink,
-  CalendarPlus, Ticket, Edit3, Trash2
+  CalendarPlus, Ticket, Edit3, Trash2, Eye
 } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
 import { fetchEventById, updateEvent, deleteEvent, resolveImageUrl } from '@/app/lib/api';
@@ -243,6 +243,21 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                                     <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-0.5 transition-colors">Capacity</p>
                                     <p className="text-sm text-gray-900 dark:text-gray-200 font-semibold leading-snug transition-colors">
                                         Limited to <span className="text-purple-700 dark:text-purple-400">{currentEvent.capacity}</span> spots
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* View Count */}
+                        {currentEvent.viewCount > 0 && (
+                            <div className="flex items-start gap-3">
+                                <div className="p-2 bg-gray-50 dark:bg-gray-800 rounded-lg text-gray-500 dark:text-gray-400 shrink-0 transition-colors">
+                                    <Eye className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-0.5 transition-colors">Views</p>
+                                    <p className="text-sm text-gray-900 dark:text-gray-200 font-semibold leading-snug transition-colors">
+                                        {currentEvent.viewCount.toLocaleString()}
                                     </p>
                                 </div>
                             </div>

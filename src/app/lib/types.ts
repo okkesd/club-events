@@ -43,29 +43,30 @@ export interface IEvent {
   id: string;
   clubId: string;
   clubName: string; // Flattened for display
-  
+
   title: string;
   description: string;
-  
+
   // Time
   date: string;       // "YYYY-MM-DD"
   startTime: string;  // "HH:MM"
   endTime: string;    // "HH:MM"
   duration: number;   // e.g. 1.5
-  
+
   // Location
   locationType: 'on-campus' | 'off-campus';
   location: string;
-  
+
   // Visuals & Meta
   coverImage?: string;
   tags?: string[];
-  
+
   // Registration
   isRegistrationOpen: boolean;
   registrationLink?: string;
   capacity?: number;
   likes: number;
+  viewCount: number;
 }
 
 // For creating/updating an event (everything optional for update)
@@ -152,4 +153,54 @@ export interface IAnnouncementFilters {
   tag?: string;
   search?: string;
   include_expired?: boolean;
+  page?: number;
+  pageSize?: number;
+}
+
+/**
+ * --- PAGINATION ---
+ */
+export interface Pagination {
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface PaginatedResponse<T> {
+  success: boolean;
+  data: T[];
+  pagination: Pagination;
+}
+
+/**
+ * --- SUBSCRIPTIONS ---
+ */
+export interface ISubscription {
+  id: string;
+  email: string;
+  clubId?: string;
+  category?: AnnouncementCategory;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface ISubscribeRequest {
+  email: string;
+  clubId?: string;
+  category?: AnnouncementCategory;
+}
+
+/**
+ * --- EVENTS BROWSE ---
+ */
+export interface IEventFilters {
+  search?: string;
+  club_id?: string;
+  tag?: string;
+  location_type?: 'on-campus' | 'off-campus';
+  date_from?: string;
+  date_to?: string;
+  page?: number;
+  pageSize?: number;
 }

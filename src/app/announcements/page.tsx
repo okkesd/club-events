@@ -1,14 +1,16 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import {
   Search, Megaphone, Pin, Clock, ExternalLink, Plus,
   ChevronRight, Filter, X, Tag as TagIcon,
 } from "lucide-react";
 import { fetchAnnouncements, resolveImageUrl } from "@/app/lib/api";
-import { IAnnouncement, AnnouncementCategory } from "@/app/lib/types";
+import { IAnnouncement, AnnouncementCategory, Pagination } from "@/app/lib/types";
 import { useAuth } from "@/app/context/AuthContext";
+import PaginationBar from "@/app/components/PaginationBar";
+import SubscribeForm from "@/app/components/SubscribeForm";
 
 const CATEGORIES: { value: AnnouncementCategory; label: string; color: string }[] = [
   { value: "internship", label: "Internship", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 vibrant:bg-blue-100 vibrant:text-blue-700" },
@@ -39,36 +41,46 @@ function isExpired(expiresAt?: string): boolean {
 export default function AnnouncementsPage() {
   const { user } = useAuth();
   const [announcements, setAnnouncements] = useState<IAnnouncement[]>([]);
+  const [pagination, setPagination] = useState<Pagination | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<AnnouncementCategory | "">("");
   const [showExpired, setShowExpired] = useState(false);
+  const [page, setPage] = useState(1);
 
-  useEffect(() => {
-    const timer = setTimeout(() => load(), 300);
-    return () => clearTimeout(timer);
-  }, [search, selectedCategory, showExpired]);
-
-  const load = async () => {
+  const load = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data = await fetchAnnouncements({
+      const res = await fetchAnnouncements({
         search: search || undefined,
         category: selectedCategory || undefined,
         include_expired: showExpired,
+        page,
+        pageSize: 12,
       });
-      setAnnouncements(data);
+      setAnnouncements(res.data);
+      setPagination(res.pagination);
     } catch (err) {
       console.error(err);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [search, selectedCategory, showExpired, page]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => load(), 300);
+    return () => clearTimeout(timer);
+  }, [load]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, selectedCategory, showExpired]);
 
   const clearFilters = () => {
     setSearch("");
     setSelectedCategory("");
     setShowExpired(false);
+    setPage(1);
   };
 
   const hasFilters = search || selectedCategory || showExpired;
@@ -180,11 +192,16 @@ export default function AnnouncementsPage() {
             ))}
           </div>
         ) : announcements.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {announcements.map((a) => (
-              <AnnouncementCard key={a.id} announcement={a} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {announcements.map((a) => (
+                <AnnouncementCard key={a.id} announcement={a} />
+              ))}
+            </div>
+            {pagination && (
+              <PaginationBar pagination={pagination} onPageChange={setPage} />
+            )}
+          </>
         ) : (
           <div className="text-center py-20">
             <div className="bg-gray-100 dark:bg-gray-800 vibrant:bg-purple-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors">
@@ -196,6 +213,17 @@ export default function AnnouncementsPage() {
             </p>
           </div>
         )}
+
+        {/* Subscribe section */}
+        <div className="mt-12 bg-white dark:bg-gray-900 vibrant:bg-white/80 rounded-2xl border border-gray-200 dark:border-gray-800 vibrant:border-purple-200 p-6 transition-colors">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-2 transition-colors">
+            Stay updated
+          </h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 vibrant:text-purple-500 mb-4 transition-colors">
+            Get notified about new announcements via email.
+          </p>
+          <SubscribeForm />
+        </div>
       </div>
     </div>
   );

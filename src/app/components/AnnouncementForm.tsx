@@ -80,8 +80,15 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
     }
   };
 
+  const TITLE_MAX = 200;
+  const BODY_MAX = 10000;
+
+  const titleOverLimit = formData.title.length > TITLE_MAX;
+  const bodyOverLimit = formData.body.length > BODY_MAX;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (titleOverLimit || bodyOverLimit) return;
     const payload = {
       ...formData,
       expiresAt: formData.expiresAt || undefined,
@@ -95,19 +102,25 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Title */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-2 transition-colors">Title</label>
+        <div className="flex items-center justify-between mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 transition-colors">Title</label>
+          <span className={`text-xs ${titleOverLimit ? "text-red-500 font-bold" : "text-gray-400 dark:text-gray-500"}`}>
+            {formData.title.length}/{TITLE_MAX}
+          </span>
+        </div>
         <input
           type="text"
           required
+          maxLength={TITLE_MAX}
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           placeholder="e.g., Summer Internship at Google"
-          className="w-full p-3 rounded-xl border transition-colors outline-none
-            border-gray-200 dark:border-gray-700 vibrant:border-purple-200
+          className={`w-full p-3 rounded-xl border transition-colors outline-none
+            ${titleOverLimit ? "border-red-400 focus:ring-red-300" : "border-gray-200 dark:border-gray-700 vibrant:border-purple-200"}
             bg-white dark:bg-gray-800 vibrant:bg-white/80
             text-gray-900 dark:text-white vibrant:text-purple-900
             focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 vibrant:focus:ring-purple-500
-            focus:border-blue-500 vibrant:focus:border-purple-500"
+            focus:border-blue-500 vibrant:focus:border-purple-500`}
         />
       </div>
 
@@ -134,19 +147,25 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
 
       {/* Body */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-2 transition-colors">Description</label>
+        <div className="flex items-center justify-between mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 transition-colors">Description</label>
+          <span className={`text-xs ${bodyOverLimit ? "text-red-500 font-bold" : "text-gray-400 dark:text-gray-500"}`}>
+            {formData.body.length}/{BODY_MAX}
+          </span>
+        </div>
         <textarea
           rows={6}
           required
+          maxLength={BODY_MAX}
           value={formData.body}
           onChange={(e) => setFormData({ ...formData, body: e.target.value })}
           placeholder="Full details about this announcement..."
-          className="w-full p-3 rounded-xl border transition-colors outline-none resize-y
-            border-gray-200 dark:border-gray-700 vibrant:border-purple-200
+          className={`w-full p-3 rounded-xl border transition-colors outline-none resize-y
+            ${bodyOverLimit ? "border-red-400 focus:ring-red-300" : "border-gray-200 dark:border-gray-700 vibrant:border-purple-200"}
             bg-white dark:bg-gray-800 vibrant:bg-white/80
             text-gray-900 dark:text-white vibrant:text-purple-900
             focus:ring-2 focus:ring-blue-500 vibrant:focus:ring-purple-500
-            focus:border-blue-500 vibrant:focus:border-purple-500"
+            focus:border-blue-500 vibrant:focus:border-purple-500`}
         />
       </div>
 

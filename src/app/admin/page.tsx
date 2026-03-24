@@ -6,9 +6,8 @@ import {
     MoreHorizontal, ExternalLink, Loader2,
     AlertTriangle, X, Ban, Mail // ✅ Added Mail Icon
 } from 'lucide-react';
-// ✅ Import getContacts
-import { getAdminClubs, setClubVerification, getContacts } from '@/app/lib/api';
-import { ClubData } from '@/app/lib/types';
+import { getAdminClubs, setClubVerification, getContacts, getAdminSubscriptions } from '@/app/lib/api';
+import { ClubData, ISubscription } from '@/app/lib/types';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
 
@@ -21,11 +20,11 @@ interface ContactMsg {
 }
 
 export default function AdminDashboard() {
-  // ✅ Added 'contacts' to tab type
-  const [activeTab, setActiveTab] = useState<'pending' | 'verified' | 'blocked' | 'contacts'>('pending');
-  
+  const [activeTab, setActiveTab] = useState<'pending' | 'verified' | 'blocked' | 'contacts' | 'subscribers'>('pending');
+
   const [clubs, setClubs] = useState<ClubData[]>([]);
-  const [contacts, setContacts] = useState<ContactMsg[]>([]); // ✅ State for messages
+  const [contacts, setContacts] = useState<ContactMsg[]>([]);
+  const [subscribers, setSubscribers] = useState<ISubscription[]>([]);
   
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoadingPage, setIsLoadingPage] = useState(true);
@@ -55,6 +54,8 @@ export default function AdminDashboard() {
 
     if (activeTab === 'contacts') {
         fetchMessages();
+    } else if (activeTab === 'subscribers') {
+        fetchSubscribers();
     } else {
         fetchClubs();
     }
@@ -87,7 +88,19 @@ export default function AdminDashboard() {
     }
   };
 
-  // ✅ NEW: Fetch Contacts
+  const fetchSubscribers = async () => {
+    setIsLoadingPage(true);
+    try {
+      const data = await getAdminSubscriptions();
+      setSubscribers(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to fetch subscribers:", err);
+      setSubscribers([]);
+    } finally {
+      setIsLoadingPage(false);
+    }
+  };
+
   const fetchMessages = async () => {
     setIsLoadingPage(true);
     try {
@@ -185,17 +198,30 @@ export default function AdminDashboard() {
                 </button>
             ))}
 
-            {/* ✅ Messages Tab */}
+            {/* Messages Tab */}
             <button
                 onClick={() => setActiveTab('contacts')}
                 className={`pb-3 px-4 text-sm font-bold flex items-center gap-2 transition-colors border-b-2 whitespace-nowrap ${
-                    activeTab === 'contacts' 
-                    ? 'border-blue-600 text-blue-700 dark:text-blue-400' 
+                    activeTab === 'contacts'
+                    ? 'border-blue-600 text-blue-700 dark:text-blue-400'
                     : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                 }`}
             >
                 <Mail className="w-4 h-4" />
                 Messages
+            </button>
+
+            {/* Subscribers Tab */}
+            <button
+                onClick={() => setActiveTab('subscribers')}
+                className={`pb-3 px-4 text-sm font-bold flex items-center gap-2 transition-colors border-b-2 whitespace-nowrap ${
+                    activeTab === 'subscribers'
+                    ? 'border-purple-600 text-purple-700 dark:text-purple-400'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                }`}
+            >
+                <Mail className="w-4 h-4" />
+                Subscribers
             </button>
         </div>
 
@@ -209,8 +235,53 @@ export default function AdminDashboard() {
                 </div>
             ) : (
                 <>
-                {/* --- 1. MESSAGES TABLE --- */}
-                {activeTab === 'contacts' ? (
+                {/* --- 0. SUBSCRIBERS TABLE --- */}
+                {activeTab === 'subscribers' ? (
+                    subscribers.length === 0 ? (
+                        <div className="p-12 text-center text-gray-400 dark:text-gray-600">
+                            <Mail className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                            <p>No subscribers yet.</p>
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-100 dark:border-gray-800 transition-colors">
+                                    <tr>
+                                        <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Email</th>
+                                        <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Club</th>
+                                        <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Category</th>
+                                        <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Subscribed</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                                    {subscribers.map((sub) => (
+                                        <tr key={sub.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                                            <td className="p-5 text-sm font-semibold text-gray-900 dark:text-gray-200">{sub.email}</td>
+                                            <td className="p-5 text-sm text-gray-500 dark:text-gray-400">{sub.clubId || "All"}</td>
+                                            <td className="p-5 text-sm text-gray-500 dark:text-gray-400 capitalize">{sub.category || "All"}</td>
+                                            <td className="p-5">
+                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${
+                                                    sub.isActive
+                                                        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                                                        : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
+                                                }`}>
+                                                    {sub.isActive ? "Active" : "Inactive"}
+                                                </span>
+                                            </td>
+                                            <td className="p-5 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                                                {new Date(sub.createdAt).toLocaleDateString()}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )
+                ) :
+
+                /* --- 1. MESSAGES TABLE --- */
+                activeTab === 'contacts' ? (
                     contacts.length === 0 ? (
                         <div className="p-12 text-center text-gray-400 dark:text-gray-600">
                             <Mail className="w-12 h-12 mx-auto mb-3 opacity-20" />

@@ -66,6 +66,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       revalidateTime = 0; // Don't cache single announcement fetches
     }
   }
+  // Rule E: Subscription routes = No cache
+  else if (section === "subscriptions") {
+    revalidateTime = 0;
+  }
 
   // Specific check: User profile should never be cached
   if (pathString === "users/me") {

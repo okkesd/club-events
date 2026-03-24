@@ -54,8 +54,15 @@ export default function EventForm({ initialData, onSubmit, onCancel, isSubmittin
         }
     };
 
+    const TITLE_MAX = 200;
+    const DESC_MAX = 5000;
+
+    const titleOverLimit = formData.title.length > TITLE_MAX;
+    const descOverLimit = formData.description.length > DESC_MAX;
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        if (titleOverLimit || descOverLimit) return;
         onSubmit(formData);
     };
 
@@ -65,11 +72,17 @@ export default function EventForm({ initialData, onSubmit, onCancel, isSubmittin
             
             {/* Title */}
             <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Event Title</label>
-                <input 
+                <div className="flex items-center justify-between mb-1">
+                    <label className="block text-sm font-medium text-gray-700">Event Title</label>
+                    <span className={`text-xs ${titleOverLimit ? "text-red-500 font-bold" : "text-gray-400"}`}>
+                        {formData.title.length}/{TITLE_MAX}
+                    </span>
+                </div>
+                <input
                     type="text" required value={formData.title}
+                    maxLength={TITLE_MAX}
                     onChange={e => setFormData({...formData, title: e.target.value})}
-                    className="w-full p-3 rounded-xl border border-gray-200"
+                    className={`w-full p-3 rounded-xl border ${titleOverLimit ? "border-red-400 focus:ring-red-300" : "border-gray-200"}`}
                 />
             </div>
 
@@ -88,11 +101,17 @@ export default function EventForm({ initialData, onSubmit, onCancel, isSubmittin
 
             {/* Description */}
             <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea 
+                <div className="flex items-center justify-between mb-1">
+                    <label className="block text-sm font-medium text-gray-700">Description</label>
+                    <span className={`text-xs ${descOverLimit ? "text-red-500 font-bold" : "text-gray-400"}`}>
+                        {formData.description.length}/{DESC_MAX}
+                    </span>
+                </div>
+                <textarea
                     rows={4} required value={formData.description}
+                    maxLength={DESC_MAX}
                     onChange={e => setFormData({...formData, description: e.target.value})}
-                    className="w-full p-3 rounded-xl border border-gray-200"
+                    className={`w-full p-3 rounded-xl border ${descOverLimit ? "border-red-400 focus:ring-red-300" : "border-gray-200"}`}
                 />
             </div>
 

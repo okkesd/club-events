@@ -501,10 +501,7 @@ export async function contactApi(email: string, message: string){
     body: JSON.stringify({"email": email, "message": message})
   })
 
-  if (!res.ok){
-    const error = await res.json()
-    throw new Error(`Error contact: ${error}`)
-  }
+  if (!res.ok) await handleApiError(res);
 
   return res.json()
 }
@@ -519,13 +516,14 @@ export async function getContacts(){
   })
 
   if (!res.ok){
-    const resposne = await res.json()
-    throw new Error(`Failed to get contacts: ${resposne}`)
+    if (res.status === 404) {
+      // 404 means no contacts found — return empty data
+      return { data: [] };
+    }
+    const body = await res.json()
+    throw new Error(body.detail || "Failed to get contacts")
   }
-  const result = await res.json()
-  console.log(result)
-
-  return result
+  return res.json()
 }
 
 // ============================================

@@ -105,12 +105,10 @@ export default function AdminDashboard() {
     setIsLoadingPage(true);
     try {
         const res = await getContacts();
-        // Assuming API returns { success: true, contacts: [...] } OR just [...]
-        // Adjust based on your actual API response structure
-        const msgs = res.data; 
-        setContacts(msgs);
+        setContacts(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
         console.error("Failed to fetch contacts", err);
+        setContacts([]);
     } finally {
         setIsLoadingPage(false);
     }

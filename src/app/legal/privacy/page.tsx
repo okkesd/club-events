@@ -3,12 +3,12 @@ export default function PrivacyPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors">
       <div className="max-w-3xl mx-auto bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Privacy Policy</h1>
-        <p className="text-gray-500 dark:text-gray-400 mb-8">Last Updated: March 22, 2026</p>
+        <p className="text-gray-500 dark:text-gray-400 mb-8">Last Updated: March 26, 2026</p>
 
         <div className="space-y-6 text-gray-700 dark:text-gray-300 leading-relaxed">
           <section>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">1. Who We Are</h2>
-            <p>UniEvents is an independent student project developed by computer science students at Galatasaray University. It is not affiliated with or endorsed by the university administration. For any questions about your data, you can reach us at <a href="mailto:okkesdonbaloglu25@gmail.com" className="text-blue-600 dark:text-blue-400 hover:underline">okkesdonbaloglu25@gmail.com</a>.</p>
+            <p>UniEvents is an independent student project developed by computer science students at Galatasaray University. It is not affiliated with or endorsed by the university administration. For any questions about your data, you can reach us at <a href="mailto:evenementsadmin@gmail.com" className="text-blue-600 dark:text-blue-400 hover:underline">evenementsadmin@gmail.com</a>.</p>
           </section>
 
           <section>
@@ -18,9 +18,11 @@ export default function PrivacyPage() {
               <li><strong>Account Data:</strong> Club name, email address, and password (stored encrypted) when you register a club account.</li>
               <li><strong>Event Data:</strong> Event titles, descriptions, dates, locations, and cover images uploaded by clubs.</li>
               <li><strong>Contact Messages:</strong> Email address and message content submitted through our contact form.</li>
-              <li><strong>Local Storage Data:</strong> We store your authentication token, theme preference (light/dark mode), and event like states in your browser&apos;s local storage. This data never leaves your device except for the authentication token, which is sent with requests to verify your identity.</li>
+              <li><strong>Anonymous Visitor ID (likes &amp; views):</strong> When you visit or like an event, an anonymous identifier (a randomly generated UUID stored in an essential cookie called <strong>visitor_id</strong>) is recorded alongside the action to prevent duplicate counting. This identifier contains no personal information, is not linked to any account, and is not used for tracking or advertising.</li>
+              <li><strong>Subscription Data:</strong> If you subscribe to email notifications, your email address and optional preferences (club, category) are stored.</li>
+              <li><strong>Local Storage Data:</strong> We store your authentication token and theme preference (light/dark/vibrant mode) in your browser&apos;s local storage. This data never leaves your device except for the authentication token, which is sent with requests to verify your identity.</li>
             </ul>
-            <p className="mt-2">We do not use analytics or tracking tools. We do not collect data from users who browse events without registering a club account, other than what is stored locally on your device.</p>
+            <p className="mt-2">We do not use analytics or tracking tools. We do not collect data from users who browse events without registering a club account, other than what is stored locally on your device and the anonymous visitor ID used for like and view deduplication.</p>
           </section>
 
           <section>
@@ -41,6 +43,8 @@ export default function PrivacyPage() {
               <li>Allow clubs to create, edit, and manage their events.</li>
               <li>Display events to users of the platform.</li>
               <li>Respond to contact messages.</li>
+              <li>Prevent duplicate event likes and view counts using anonymous visitor ID deduplication.</li>
+              <li>Send email notifications to subscribers about new announcements and events.</li>
             </ul>
             <p className="mt-2">We do not sell, share, or transfer your personal data to any third parties for marketing or advertising purposes.</p>
           </section>
@@ -57,7 +61,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">7. Data Retention</h2>
-            <p>We retain your account data for as long as your account is active. Event data is retained for as long as the event exists on the platform. Contact messages are retained indefinitely to help us improve the service. If you request account deletion, we will delete your account data and associated events within 30 days of your request.</p>
+            <p>We retain your account data for as long as your account is active. Event data is retained for as long as the event exists on the platform. Contact messages are retained indefinitely to help us improve the service. Anonymous visitor IDs stored for event likes and views are retained for as long as the associated event exists and are deleted when the event is removed. Subscription data is retained until you unsubscribe. If you request account deletion, we will delete your account data and associated events within 30 days of your request.</p>
           </section>
 
           <section>
@@ -73,7 +77,7 @@ export default function PrivacyPage() {
               <li>Object to any result that is against your interests arising from the analysis of your data exclusively through automated systems.</li>
               <li>Claim compensation for damages arising from unlawful processing of your data.</li>
             </ul>
-            <p className="mt-2">To exercise any of these rights, please contact us at <a href="mailto:okkesdonbaloglu25@gmail.com" className="text-blue-600 dark:text-blue-400 hover:underline">okkesdonbaloglu25@gmail.com</a>. We will respond to your request within 30 days.</p>
+            <p className="mt-2">To exercise any of these rights, please contact us at <a href="mailto:evenementsadmin@gmail.com" className="text-blue-600 dark:text-blue-400 hover:underline">evenementsadmin@gmail.com</a>. We will respond to your request within 30 days.</p>
           </section>
 
           <section>

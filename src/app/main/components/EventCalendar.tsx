@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { IEvent } from "@/app/lib/types";
 import { fetchEventsForWeek } from "@/app/lib/api";
 import { formatWeekHeader, getWeekDays } from "@/app/lib/dateUtils";
-// Assuming CalendarHeader exists, or we render a simple one here
-import { CalendarHeader } from "./CalendarHeader"; 
-import { DayColumn } from "./DayColumn"; // Updated path to match typical structure
+import { CalendarHeader } from "./CalendarHeader";
+import { DayColumn } from "./DayColumn";
+import { CalendarListView } from "./CalendarListView";
 import { ErrorState } from "./ErrorState";
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { useMediaQuery } from "@/app/lib/hooks/useMediaQuery";
 
 export default function EventCalendar() {
     // --- State ---
@@ -17,6 +18,22 @@ export default function EventCalendar() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<any>(null);
 
+    // View mode: default to "list" (mobile-first), switch to "grid" on desktop
+    const isDesktop = useMediaQuery("(min-width: 768px)");
+    const [viewMode, setViewMode] = useState<"grid" | "list">("list");
+    const hasUserToggled = useRef(false);
+
+    useEffect(() => {
+        if (!hasUserToggled.current) {
+            setViewMode(isDesktop ? "grid" : "list");
+        }
+    }, [isDesktop]);
+
+    const toggleView = () => {
+        hasUserToggled.current = true;
+        setViewMode((prev) => (prev === "grid" ? "list" : "grid"));
+    };
+
     const weekDays = useMemo(() => getWeekDays(currentDate), [currentDate]);
 
     // --- Effects ---
@@ -24,7 +41,6 @@ export default function EventCalendar() {
         setIsLoading(true);
         fetchEventsForWeek(currentDate)
             .then((data) => {
-                // Assuming data is an array of IEvent based on your logic
                 if (data) {
                     setEvents(data);
                     setError(null);
@@ -56,8 +72,8 @@ export default function EventCalendar() {
     // --- Helper for Rendering ---
     const getEventsForDay = (day: Date): IEvent[] => {
         const year = day.getFullYear();
-        const month = (day.getMonth() + 1).toString().padStart(2, '0');
-        const dateStr = day.getDate().toString().padStart(2, '0');
+        const month = (day.getMonth() + 1).toString().padStart(2, "0");
+        const dateStr = day.getDate().toString().padStart(2, "0");
         const currentDayString = `${year}-${month}-${dateStr}`;
 
         return events
@@ -68,37 +84,47 @@ export default function EventCalendar() {
                 return new Date(dateTimeA).getTime() - new Date(dateTimeB).getTime();
             });
     };
-    // let's re-deploy
+
     // --- Render ---
     if (error) return <ErrorState message={error} retry={() => setCurrentDate(new Date(currentDate))} />;
 
     return (
-        <div className="flex flex-col h-full w-full bg-white dark:bg-gray-950 text-slate-800 dark:text-gray-100 transition-colors duration-300">
+        <div className="flex flex-col h-full w-full bg-white dark:bg-gray-950 vibrant:bg-transparent text-slate-800 dark:text-gray-100 vibrant:text-indigo-950 transition-colors duration-300">
             {/* Header Section */}
-                <CalendarHeader
+            <CalendarHeader
                 weekHeader={formatWeekHeader(weekDays)}
                 onPreviousWeek={goToPreviousWeek}
                 onNextWeek={goToNextWeek}
+                viewMode={viewMode}
+                onToggleView={toggleView}
             />
-           
-            {/* Calendar Grid Container */}
+
+            {/* Calendar Content */}
             <main className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
                 {isLoading ? (
                     <div className="flex h-96 w-full items-center justify-center">
                         <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
                     </div>
-                ) : (
-                    // The Day Columns
-                    <div className="grid grid-cols-7 min-w-[1000px] h-full divide-x divide-slate-200 dark:divide-gray-800">
-                        {weekDays.map((day, index) => (
-                            <DayColumn
-                                key={day.toISOString()}
-                                day={day}
-                                events={getEventsForDay(day)}
-                                isFirstDay={index === 0}
-                            />
-                        ))}
+                ) : viewMode === "grid" ? (
+                    // Grid View (original 7-column calendar)
+                    <div className="overflow-x-auto">
+                        <div className="grid grid-cols-7 min-w-[1000px] h-full divide-x divide-slate-200 dark:divide-gray-800 vibrant:divide-purple-200">
+                            {weekDays.map((day, index) => (
+                                <DayColumn
+                                    key={day.toISOString()}
+                                    day={day}
+                                    events={getEventsForDay(day)}
+                                    isFirstDay={index === 0}
+                                />
+                            ))}
+                        </div>
                     </div>
+                ) : (
+                    // List View (mobile-friendly agenda)
+                    <CalendarListView
+                        weekDays={weekDays}
+                        getEventsForDay={getEventsForDay}
+                    />
                 )}
             </main>
         </div>

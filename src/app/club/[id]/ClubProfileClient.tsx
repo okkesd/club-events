@@ -2,26 +2,29 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { 
-  Mail, Instagram, Globe, Linkedin, Calendar, 
-  MapPin, ExternalLink, ArrowLeft, Users, Clock, 
-  Plus, Camera, Save, X, Edit3, 
-  LogOut
+import {
+  Mail, Instagram, Globe, Linkedin, Calendar,
+  MapPin, ExternalLink, ArrowLeft, Users, Clock,
+  Camera, Save, X, Edit3,
+  LogOut, Megaphone, ShieldAlert,
 } from 'lucide-react';
-import { updateClub, uploadImage } from '@/app/lib/api';
+import { IAnnouncement } from '@/app/lib/types';
+import { updateClub, uploadImage, resolveImageUrl } from '@/app/lib/api';
 import { useRouter } from 'next/navigation';
 import { useAuth } from "@/app/context/AuthContext";
+import ClubSubscribeButton from './ClubSubscibeButton';
 
 // --- Helper Components ---
 function SocialButton({ icon: Icon, href, label }: { icon: any, href: string, label: string }) {
   if (!href) return null;
   return (
-    <a 
-      href={href} 
-      target="_blank" 
+    <a
+      href={href}
+      target="_blank"
       rel="noreferrer"
       className="p-2.5 bg-gray-50 hover:bg-blue-50 text-gray-600 hover:text-blue-600 rounded-full transition-colors border border-gray-200
-                 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-blue-900/30 dark:hover:text-blue-400"
+                 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-blue-900/30 dark:hover:text-blue-400
+                 vibrant:bg-purple-50 vibrant:border-purple-200 vibrant:text-purple-500 vibrant:hover:bg-purple-100 vibrant:hover:text-purple-700"
       title={label}
     >
       <Icon className="w-5 h-5" />
@@ -32,39 +35,40 @@ function SocialButton({ icon: Icon, href, label }: { icon: any, href: string, la
 function EventCard({ event, isPast = false }: { event: any, isPast?: boolean }) {
     const dateObj = new Date(event.date);
     const month = dateObj.toLocaleString('default', { month: 'short' });
-    const day = dateObj.getDate(); 
+    const day = dateObj.getDate();
 
     return (
-        <Link 
+        <Link
             href={`/event/${event.id}`}
             className={`group block bg-white p-4 rounded-xl border transition-all duration-300
                 dark:bg-gray-900 dark:border-gray-800
-                ${isPast 
-                ? 'border-gray-100 opacity-75 hover:opacity-100 hover:border-gray-300 dark:opacity-50 dark:hover:opacity-100 dark:hover:border-gray-600' 
-                : 'border-gray-200 hover:border-blue-400 hover:shadow-md dark:hover:border-blue-500/50 dark:hover:shadow-blue-900/10'
+                vibrant:bg-white/70 vibrant:backdrop-blur-sm
+                ${isPast
+                ? 'border-gray-100 opacity-75 hover:opacity-100 hover:border-gray-300 dark:opacity-50 dark:hover:opacity-100 dark:hover:border-gray-600 vibrant:border-purple-100 vibrant:hover:border-purple-300'
+                : 'border-gray-200 hover:border-blue-400 hover:shadow-md dark:hover:border-blue-500/50 dark:hover:shadow-blue-900/10 vibrant:border-purple-200 vibrant:hover:border-purple-400 vibrant:hover:shadow-purple-200/30'
             }`}
         >
             <div className="flex items-start gap-4">
                 {/* Date Box */}
                 <div className={`shrink-0 w-16 h-16 rounded-lg flex flex-col items-center justify-center border transition-colors
                     ${isPast
-                    ? 'bg-gray-100 text-gray-500 border-gray-200 dark:bg-gray-800 dark:text-gray-500 dark:border-gray-700'
-                    : 'bg-blue-50 text-blue-700 border-blue-100 group-hover:bg-blue-600 group-hover:text-white dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-900/40 dark:group-hover:bg-blue-600 dark:group-hover:text-white'
+                    ? 'bg-gray-100 text-gray-500 border-gray-200 dark:bg-gray-800 dark:text-gray-500 dark:border-gray-700 vibrant:bg-purple-50 vibrant:text-purple-400 vibrant:border-purple-200'
+                    : 'bg-blue-50 text-blue-700 border-blue-100 group-hover:bg-blue-600 group-hover:text-white dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-900/40 dark:group-hover:bg-blue-600 dark:group-hover:text-white vibrant:bg-purple-50 vibrant:text-purple-700 vibrant:border-purple-200 vibrant:group-hover:bg-purple-600 vibrant:group-hover:text-white'
                 }`}>
                     <span className="text-xs font-bold uppercase">{month}</span>
                     <span className="text-xl font-extrabold">{day}</span>
                 </div>
-                
+
                 {/* Content */}
                 <div>
                     <h4 className={`text-lg font-bold transition-colors ${
-                        isPast 
-                        ? 'text-gray-600 dark:text-gray-500' 
-                        : 'text-gray-900 group-hover:text-blue-700 dark:text-gray-100 dark:group-hover:text-blue-400'
+                        isPast
+                        ? 'text-gray-600 dark:text-gray-500 vibrant:text-purple-400'
+                        : 'text-gray-900 group-hover:text-blue-700 dark:text-gray-100 dark:group-hover:text-blue-400 vibrant:text-purple-900 vibrant:group-hover:text-purple-600'
                     }`}>
                         {event.title}
                     </h4>
-                    <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400 mt-2">
+                    <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400 vibrant:text-purple-500 mt-2">
                         <div className="flex items-center gap-1">
                             <Clock className="w-3.5 h-3.5" />
                             <span>{event.startTime}</span>
@@ -81,7 +85,7 @@ function EventCard({ event, isPast = false }: { event: any, isPast?: boolean }) 
 }
 
 // --- MAIN CLIENT COMPONENT ---
-export default function ClubProfileClient({ initialClub, events }: { initialClub: any, events: any[] }) {
+export default function ClubProfileClient({ initialClub, events, announcements = [] }: { initialClub: any, events: any[], announcements?: IAnnouncement[] }) {
   const router = useRouter();
   const { user, logout } = useAuth();
 
@@ -89,7 +93,8 @@ export default function ClubProfileClient({ initialClub, events }: { initialClub
   const [club, setClub] = useState(initialClub);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  
+  const [activeTab, setActiveTab] = useState<'events' | 'announcements'>('events');
+
   // Form State
   const [formData, setFormData] = useState({
     clubName: initialClub.clubName,
@@ -100,6 +105,39 @@ export default function ClubProfileClient({ initialClub, events }: { initialClub
   });
 
   const isOwner = user && user.id === club.id;
+  const isAdmin = user && user.role === 'admin';
+  const isUnverified = !club.isVerified;
+
+  // Announcements expire 14 days after creation (or at expiresAt if set)
+  const isAnnouncementExpired = (a: IAnnouncement) => {
+    const now = new Date();
+    if (a.expiresAt) return new Date(a.expiresAt) < now;
+    const created = new Date(a.createdAt);
+    created.setDate(created.getDate() + 14);
+    return created < now;
+  };
+
+  const activeAnnouncements = announcements.filter(a => !isAnnouncementExpired(a));
+  const visibleAnnouncements = isOwner ? announcements : activeAnnouncements;
+
+  // Access restriction: unverified clubs are only visible to the owner and admins
+  if (isUnverified && !isOwner && !isAdmin) {
+    return (
+      <div className="bg-gray-50 dark:bg-gray-950 vibrant:bg-transparent min-h-screen flex items-center justify-center px-4 transition-colors">
+        <div className="text-center max-w-md">
+          <div className="mx-auto w-16 h-16 bg-yellow-100 dark:bg-yellow-900/30 vibrant:bg-yellow-100/80 rounded-full flex items-center justify-center mb-4">
+            <ShieldAlert className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-2">Club Not Available</h2>
+          <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-600 mb-6">This club profile is not publicly available yet. It may be pending verification.</p>
+          <Link href="/clubs" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 vibrant:bg-purple-600 vibrant:hover:bg-purple-700 transition-colors">
+            <ArrowLeft className="w-4 h-4" />
+            Browse Clubs
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   // 3. HANDLERS
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'banner_url' | 'logo_url') => {
@@ -114,7 +152,7 @@ export default function ClubProfileClient({ initialClub, events }: { initialClub
     try {
         const response = await updateClub(club.id, formData);
         if (response.success) {
-            setClub(response.data); 
+            setClub(response.data);
             setIsEditing(false);
         }
     } catch (error) {
@@ -139,33 +177,40 @@ export default function ClubProfileClient({ initialClub, events }: { initialClub
   // --- SORTING LOGIC ---
   const sortedEvents = [...events].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   const now = new Date();
-  const upcomingEvents = sortedEvents.filter(e => new Date(e.date) >= now)
+
+  // An event is past only after its end time (date + endTime), not just the date
+  const isEventPast = (e: any) => {
+    const end = new Date(`${e.date}T${e.endTime || "23:59"}`);
+    return end < now;
+  };
+
+  const upcomingEvents = sortedEvents.filter(e => !isEventPast(e))
                         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  const pastEvents = sortedEvents.filter(e => new Date(e.date) < now);
+  const pastEvents = sortedEvents.filter(e => isEventPast(e));
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-950 min-h-screen pb-20 transition-colors duration-300">
-      
+    <div className="bg-gray-50 dark:bg-gray-950 vibrant:bg-transparent min-h-screen pb-20 transition-colors duration-300">
+
       {/* --- HERO HEADER --- */}
-      <div className="bg-white dark:bg-gray-900 shadow-sm mb-6 transition-colors">
-        
+      <div className="bg-white dark:bg-gray-900 vibrant:bg-white/60 vibrant:backdrop-blur-sm shadow-sm mb-6 transition-colors">
+
         {/* BANNER AREA */}
         <div className="relative h-48 md:h-64 w-full bg-gray-900 dark:bg-black overflow-hidden group">
           {formData.banner_url ? (
-            <img 
-              src={formData.banner_url} 
-              alt="Club Banner" 
+            <img
+              src={resolveImageUrl(formData.banner_url)}
+              alt="Club Banner"
               className={`w-full h-full object-cover transition-opacity ${isEditing ? 'opacity-60' : 'opacity-90'}`}
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-r from-blue-900 to-indigo-900 dark:from-blue-950 dark:to-indigo-950" />
+            <div className="w-full h-full bg-gradient-to-r from-blue-900 to-indigo-900 dark:from-blue-950 dark:to-indigo-950 vibrant:from-purple-600 vibrant:to-pink-500" />
           )}
-          
+
           {/* Back Button */}
-          <Link 
+          <Link
             href="/main"
-            className="absolute top-4 left-4 bg-white/90 dark:bg-black/50 backdrop-blur hover:bg-white dark:hover:bg-black/70 
-                       text-gray-800 dark:text-white px-3 py-1.5 rounded-lg text-sm font-semibold 
+            className="absolute top-4 left-4 bg-white/90 dark:bg-black/50 backdrop-blur hover:bg-white dark:hover:bg-black/70
+                       text-gray-800 dark:text-white px-3 py-1.5 rounded-lg text-sm font-semibold
                        flex items-center gap-2 transition-all shadow-sm z-10"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -186,13 +231,13 @@ export default function ClubProfileClient({ initialClub, events }: { initialClub
 
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-start md:items-end -mt-12 md:-mt-16 mb-6 gap-6 relative z-10">
-            
+
             {/* LOGO AREA */}
-            <div className="bg-white dark:bg-gray-900 p-1.5 rounded-2xl shadow-lg shrink-0 relative group transition-colors">
-              <img 
-                src={formData.logo_url || "https://via.placeholder.com/150"} 
-                alt="Club Logo" 
-                className="w-28 h-28 md:w-40 md:h-40 rounded-xl object-cover bg-gray-100 dark:bg-gray-800 border border-gray-100 dark:border-gray-800 transition-colors"
+            <div className="bg-white dark:bg-gray-900 vibrant:bg-white/90 p-1.5 rounded-2xl shadow-lg shrink-0 relative group transition-colors">
+              <img
+                src={resolveImageUrl(formData.logo_url) || `https://ui-avatars.com/api/?name=${encodeURIComponent(club.clubName)}&background=random&size=160`}
+                alt="Club Logo"
+                className="w-28 h-28 md:w-40 md:h-40 rounded-xl object-cover bg-gray-100 dark:bg-gray-800 vibrant:bg-purple-50 border border-gray-100 dark:border-gray-800 vibrant:border-purple-200 transition-colors"
               />
               {/* EDIT: Logo Upload Button */}
               {isEditing && (
@@ -206,22 +251,28 @@ export default function ClubProfileClient({ initialClub, events }: { initialClub
             <div className="flex-1 w-full pt-2 md:pt-0 md:mb-1">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                        <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 uppercase tracking-wide transition-colors">
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                        <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 vibrant:bg-purple-100 vibrant:text-purple-700 uppercase tracking-wide transition-colors">
                             {club.category || "Club"}
                         </span>
+                        {isUnverified && (
+                          <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 vibrant:bg-yellow-100/80 vibrant:text-yellow-700 uppercase tracking-wide">
+                            <ShieldAlert className="w-3 h-3" />
+                            Unverified
+                          </span>
+                        )}
                     </div>
-                    
+
                     {/* EDIT: Title Input vs Text */}
                     {isEditing ? (
-                        <input 
+                        <input
                             type="text"
                             value={formData.clubName}
                             onChange={(e) => setFormData({...formData, clubName: e.target.value})}
-                            className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white border-b-2 border-blue-500 focus:outline-none bg-transparent w-full transition-colors"
+                            className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900 border-b-2 border-blue-500 vibrant:border-purple-500 focus:outline-none bg-transparent w-full transition-colors"
                         />
                     ) : (
-                        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white leading-tight transition-colors">
+                        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900 leading-tight transition-colors">
                             {club.clubName}
                         </h1>
                     )}
@@ -231,18 +282,18 @@ export default function ClubProfileClient({ initialClub, events }: { initialClub
                 <div className="flex items-center gap-2">
                     {isEditing ? (
                         <>
-                            <button 
+                            <button
                                 onClick={handleCancel}
                                 disabled={isSaving}
-                                className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 px-5 py-2.5 rounded-xl font-bold transition-all hover:bg-gray-50 dark:hover:bg-gray-700"
+                                className="flex items-center gap-2 bg-white dark:bg-gray-800 vibrant:bg-white/80 border border-gray-200 dark:border-gray-700 vibrant:border-purple-200 text-gray-700 dark:text-gray-200 vibrant:text-purple-700 px-5 py-2.5 rounded-xl font-bold transition-all hover:bg-gray-50 dark:hover:bg-gray-700 vibrant:hover:bg-white"
                             >
                                 <X className="w-4 h-4" />
                                 Cancel
                             </button>
-                            <button 
+                            <button
                                 onClick={handleSave}
                                 disabled={isSaving}
-                                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-sm"
+                                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 vibrant:bg-purple-600 vibrant:hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-sm"
                             >
                                 <Save className="w-4 h-4" />
                                 {isSaving ? "Saving..." : "Save Changes"}
@@ -253,31 +304,25 @@ export default function ClubProfileClient({ initialClub, events }: { initialClub
                             {/* OWNER ONLY: Edit Button */}
                             {isOwner && (
                                 <>
-                                <button 
+                                <button
                                     onClick={() => setIsEditing(true)}
-                                    className="flex items-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 px-4 py-2.5 rounded-xl font-bold transition-colors mr-2"
+                                    className="flex items-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 vibrant:bg-purple-100 vibrant:text-purple-700 vibrant:hover:bg-purple-200 px-4 py-2.5 rounded-xl font-bold transition-colors mr-2"
                                 >
                                     <Edit3 className="w-4 h-4" />
                                     Edit Profile
                                 </button>
-                                <Link 
-                                    href={`/event/create?preselect=${club.id}`}
-                                    className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 px-4 py-2.5 rounded-xl font-bold transition-all hover:bg-gray-50 dark:hover:bg-gray-700 ml-2"
-                                >
-                                    <Plus className="w-4 h-4" />
-                                    <span className="hidden sm:inline">Post Event</span>
-                                </Link>
                             </>
-                            
+
                             )}
 
                             {club.socials?.instagram && <SocialButton icon={Instagram} href={club.socials.instagram} label="Instagram" />}
                             {/* Add other socials... */}
-                            
-                            
-                            <a 
-                                href={`mailto:${club.email}`} 
-                                className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 px-4 py-2.5 rounded-xl font-bold transition-all hover:bg-gray-50 dark:hover:bg-gray-700 ml-2"
+
+                            <ClubSubscribeButton clubId={club.id} clubName={club.name} />
+
+                            <a
+                                href={`mailto:${club.email}`}
+                                className="flex items-center gap-2 bg-white dark:bg-gray-800 vibrant:bg-white/80 border border-gray-200 dark:border-gray-700 vibrant:border-purple-200 text-gray-700 dark:text-gray-200 vibrant:text-purple-700 px-4 py-2.5 rounded-xl font-bold transition-all hover:bg-gray-50 dark:hover:bg-gray-700 vibrant:hover:bg-white ml-2"
                             >
                                 <Mail className="w-4 h-4" />
                                 <span className="hidden sm:inline">Contact</span>
@@ -294,100 +339,210 @@ export default function ClubProfileClient({ initialClub, events }: { initialClub
       {/* --- CONTENT GRID --- */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* LEFT: About & Events */}
-          <div className="lg:col-span-2 space-y-8">
-            
-            {/* About Section */}
-            <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 md:p-8 shadow-sm border border-gray-100 dark:border-gray-800 relative transition-colors">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 transition-colors">About Us</h2>
-                {isEditing ? (
-                    <textarea 
-                        value={formData.description || ""}
-                        onChange={(e) => setFormData({...formData, description: e.target.value})}
-                        className="w-full h-48 p-4 rounded-xl border border-gray-200 dark:border-gray-700 
-                                   focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-                                   text-lg leading-relaxed text-gray-700 dark:text-gray-200
-                                   bg-white dark:bg-gray-800 transition-colors"
-                        placeholder="Describe your club..."
-                    />
-                ) : (
-                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-line text-lg transition-colors">
-                        {club.description}
-                    </p>
-                )}
-            </div>
 
-            {/* Events List (Read Only) */}
-            <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-5 flex items-center gap-2 transition-colors">
-                    <Calendar className="w-6 h-6 text-blue-600 dark:text-blue-500" />
-                    Hosted Events
-                </h3>
-                
-                {upcomingEvents.length > 0 ? (
-                    <div className="space-y-4 mb-8">
-                        {upcomingEvents.map(event => (
-                            <EventCard key={event.id} event={event} isPast={false} />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 text-center border border-dashed border-gray-300 dark:border-gray-700 mb-8 transition-colors">
-                        <p className="text-gray-500 dark:text-gray-400 font-medium">No upcoming events scheduled.</p>
-                    </div>
-                )}
+          {/* LEFT: About, Events & Announcements */}
+<div className="lg:col-span-2 space-y-8">
 
-                {pastEvents.length > 0 && (
-                    <div className="opacity-75 hover:opacity-100 transition-opacity">
-                        <h3 className="text-lg font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4 flex items-center gap-2 border-t border-gray-200 dark:border-gray-800 pt-8 transition-colors">
-                            <Clock className="w-5 h-5" />
-                            Past Events
-                        </h3>
-                        <div className="space-y-4">
-                            {pastEvents.map(event => (
-                                <EventCard key={event.id} event={event} isPast={true} />
-                            ))}
-                        </div>
-                    </div>
-                )}
-            </div>
+  {/* About Section */}
+  <div className="bg-white dark:bg-gray-900 vibrant:bg-white/70 vibrant:backdrop-blur-sm rounded-2xl p-6 md:p-8 shadow-sm border border-gray-100 dark:border-gray-800 vibrant:border-purple-200 relative transition-colors">
+      <h2 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-4 transition-colors">About Us</h2>
+      {isEditing ? (
+          <textarea
+              value={formData.description || ""}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              className="w-full h-48 p-4 rounded-xl border border-gray-200 dark:border-gray-700 vibrant:border-purple-200
+                         focus:ring-2 focus:ring-blue-500 focus:border-blue-500 vibrant:focus:ring-purple-500 vibrant:focus:border-purple-400
+                         text-lg leading-relaxed text-gray-700 dark:text-gray-200 vibrant:text-purple-900
+                         bg-white dark:bg-gray-800 vibrant:bg-white/80 transition-colors"
+              placeholder="Describe your club..."
+          />
+      ) : (
+          <p className="text-gray-600 dark:text-gray-300 vibrant:text-purple-700 leading-relaxed whitespace-pre-line text-lg transition-colors">
+              {club.description}
+          </p>
+      )}
+  </div>
+
+  {/* Content Tabs Navigation */}
+  <div className="flex gap-6 border-b border-gray-200 dark:border-gray-800 vibrant:border-purple-200 mb-6 transition-colors">
+      <button
+          onClick={() => setActiveTab('events')}
+          className={`pb-4 text-lg font-bold flex items-center gap-2 transition-all border-b-2 ${
+              activeTab === 'events'
+                  ? 'border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-500 vibrant:border-purple-600 vibrant:text-purple-700'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 vibrant:text-purple-400 vibrant:hover:text-purple-600'
+          }`}
+      >
+          <Calendar className="w-5 h-5" />
+          Events
+          {upcomingEvents.length > 0 && (
+              <span className={`text-xs px-2 py-0.5 rounded-full ml-1 transition-colors ${
+                  activeTab === 'events' 
+                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 vibrant:bg-purple-200 vibrant:text-purple-800'
+                    : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 vibrant:bg-purple-100/50 vibrant:text-purple-500'
+              }`}>
+                  {upcomingEvents.length}
+              </span>
+          )}
+      </button>
+      <button
+          onClick={() => setActiveTab('announcements')}
+          className={`pb-4 text-lg font-bold flex items-center gap-2 transition-all border-b-2 ${
+              activeTab === 'announcements'
+                  ? 'border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-500 vibrant:border-purple-600 vibrant:text-purple-700'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 vibrant:text-purple-400 vibrant:hover:text-purple-600'
+          }`}
+      >
+          <Megaphone className="w-5 h-5" />
+          Announcements
+          {/* Optional Badge for count */}
+          {visibleAnnouncements.length > 0 && (
+              <span className={`text-xs px-2 py-0.5 rounded-full ml-1 transition-colors ${
+                  activeTab === 'announcements'
+                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 vibrant:bg-purple-200 vibrant:text-purple-800'
+                    : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 vibrant:bg-purple-100/50 vibrant:text-purple-500'
+              }`}>
+                  {visibleAnnouncements.length}
+              </span>
+          )}
+      </button>
+  </div>
+
+  {/* Tab Content Area */}
+  <div className="min-h-[300px]">
+      
+      {/* EVENTS TAB */}
+      {activeTab === 'events' && (
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+              {upcomingEvents.length > 0 ? (
+                  <div className="space-y-4 mb-8">
+                      {upcomingEvents.map(event => (
+                          <EventCard key={event.id} event={event} isPast={false} />
+                      ))}
+                  </div>
+              ) : (
+                  <div className="bg-white dark:bg-gray-900 vibrant:bg-white/60 vibrant:backdrop-blur-sm rounded-2xl p-8 text-center border border-dashed border-gray-300 dark:border-gray-700 vibrant:border-purple-300 mb-8 transition-colors">
+                      <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-500 font-medium">No upcoming events scheduled.</p>
+                  </div>
+              )}
+
+              {pastEvents.length > 0 && (
+                  <div className="opacity-75 hover:opacity-100 transition-opacity">
+                      <h3 className="text-lg font-bold text-gray-400 dark:text-gray-500 vibrant:text-purple-400 uppercase tracking-wider mb-4 flex items-center gap-2 border-t border-gray-200 dark:border-gray-800 vibrant:border-purple-200 pt-8 transition-colors">
+                          <Clock className="w-5 h-5" />
+                          Past Events
+                      </h3>
+                      <div className="space-y-4">
+                          {pastEvents.map(event => (
+                              <EventCard key={event.id} event={event} isPast={true} />
+                          ))}
+                      </div>
+                  </div>
+              )}
           </div>
+      )}
+
+      {/* ANNOUNCEMENTS TAB */}
+      {activeTab === 'announcements' && (
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+              {visibleAnnouncements.length > 0 ? (
+                  <div className="space-y-3">
+                      {visibleAnnouncements.map((a) => {
+                          const expired = isAnnouncementExpired(a);
+                          return (
+                          <Link
+                              key={a.id}
+                              href={`/announcements/${a.id}`}
+                              className={`group block bg-white dark:bg-gray-900 vibrant:bg-white/70 vibrant:backdrop-blur-sm p-4 rounded-xl border hover:shadow-md transition-all ${
+                                  expired
+                                    ? 'opacity-60 border-gray-100 dark:border-gray-800 vibrant:border-purple-100 hover:opacity-100'
+                                    : 'border-gray-200 dark:border-gray-800 vibrant:border-purple-200 hover:border-blue-400 dark:hover:border-blue-500 vibrant:hover:border-purple-400 vibrant:hover:shadow-purple-200/30'
+                              }`}
+                          >
+                              <div className="flex items-start gap-3">
+                                  <div className={`shrink-0 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase ${
+                                      expired
+                                        ? 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500 vibrant:bg-purple-50 vibrant:text-purple-300'
+                                        : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 vibrant:bg-purple-100 vibrant:text-purple-700'
+                                  }`}>
+                                      {a.category}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                      <h4 className="font-bold text-gray-900 dark:text-gray-100 vibrant:text-purple-900 group-hover:text-blue-600 dark:group-hover:text-blue-400 vibrant:group-hover:text-purple-600 truncate transition-colors">
+                                          {a.title}
+                                      </h4>
+                                      <p className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-purple-500 mt-1 line-clamp-1">
+                                          {a.body}
+                                      </p>
+                                  </div>
+                                  {expired ? (
+                                      <span className="shrink-0 flex items-center gap-1 text-[10px] text-red-400 dark:text-red-500 vibrant:text-red-400 font-medium">
+                                          <Clock className="w-3 h-3" />
+                                          Expired
+                                      </span>
+                                  ) : a.expiresAt ? (
+                                      <span className="shrink-0 flex items-center gap-1 text-[10px] text-gray-400 dark:text-gray-500 vibrant:text-purple-400">
+                                          <Clock className="w-3 h-3" />
+                                          {new Date(a.expiresAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                                      </span>
+                                  ) : null}
+                              </div>
+                          </Link>
+                          );
+                      })}
+                      <Link
+                          href={`/announcements`}
+                          className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-blue-600 dark:text-blue-400 vibrant:text-purple-600 vibrant:hover:text-pink-600 hover:underline"
+                      >
+                          View all announcements
+                      </Link>
+                  </div>
+              ) : (
+                  <div className="bg-white dark:bg-gray-900 vibrant:bg-white/60 vibrant:backdrop-blur-sm rounded-2xl p-8 text-center border border-dashed border-gray-300 dark:border-gray-700 vibrant:border-purple-300 transition-colors">
+                      <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-500 font-medium">No announcements posted yet.</p>
+                  </div>
+              )}
+          </div>
+      )}
+
+  </div>
+</div>
 
           {/* RIGHT: Sidebar Info */}
           <div className="lg:col-span-1">
-             <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 sticky top-8 transition-colors">
-                <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-6 transition-colors">Club Details</h3>
+             <div className="bg-white dark:bg-gray-900 vibrant:bg-white/70 vibrant:backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 vibrant:border-purple-200 sticky top-8 transition-colors">
+                <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 vibrant:text-purple-400 uppercase tracking-wider mb-6 transition-colors">Club Details</h3>
                 <div className="space-y-5">
-                    
+
                     {/* Email Input */}
                     <div className="flex items-start gap-3">
-                        <div className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg text-blue-600 dark:text-blue-400 transition-colors">
+                        <div className="bg-blue-50 dark:bg-blue-900/20 vibrant:bg-purple-100 p-2 rounded-lg text-blue-600 dark:text-blue-400 vibrant:text-purple-600 transition-colors">
                             <Mail className="w-4 h-4" />
                         </div>
                         <div className="w-full">
-                            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-0.5 transition-colors">Email</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-purple-500 font-medium mb-0.5 transition-colors">Email</p>
                             {isEditing ? (
-                                <input 
+                                <input
                                     type="email"
                                     value={formData.email}
                                     onChange={(e) => setFormData({...formData, email: e.target.value})}
-                                    className="w-full p-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-semibold bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-colors"
+                                    className="w-full p-2 border border-gray-200 dark:border-gray-700 vibrant:border-purple-200 rounded-lg text-sm font-semibold bg-white dark:bg-gray-800 vibrant:bg-white/80 text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors"
                                 />
                             ) : (
-                                <a href={`mailto:${club.email}`} className="text-sm font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 break-all transition-colors">
+                                <a href={`mailto:${club.email}`} className="text-sm font-semibold text-gray-900 dark:text-white vibrant:text-purple-900 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-purple-600 break-all transition-colors">
                                     {club.email}
                                 </a>
                             )}
                         </div>
                     </div>
-                    
+
                     <div className="flex items-start gap-3">
-                        <div className="bg-purple-50 dark:bg-purple-900/20 p-2 rounded-lg text-purple-600 dark:text-purple-400 transition-colors">
+                        <div className="bg-purple-50 dark:bg-purple-900/20 vibrant:bg-pink-100 p-2 rounded-lg text-purple-600 dark:text-purple-400 vibrant:text-pink-600 transition-colors">
                             <Users className="w-4 h-4" />
                         </div>
                         <div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-0.5 transition-colors">Membership</p>
-                            <p className="text-sm font-semibold text-gray-900 dark:text-white transition-colors">Open to all students</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-purple-500 font-medium mb-0.5 transition-colors">Membership</p>
+                            <p className="text-sm font-semibold text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors">Open to all students</p>
                         </div>
                     </div>
                 </div>
@@ -395,10 +550,10 @@ export default function ClubProfileClient({ initialClub, events }: { initialClub
 
              {/* 2. OWNER ACTIONS (Moved here) */}
              {isOwner && (
-                 <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 mt-5 border border-gray-100 dark:border-gray-800 transition-colors">
-                     <button 
+                 <div className="bg-gray-50 dark:bg-gray-800/50 vibrant:bg-white/50 vibrant:backdrop-blur-sm rounded-2xl p-6 mt-5 border border-gray-100 dark:border-gray-800 vibrant:border-purple-200 transition-colors">
+                     <button
                          onClick={logout}
-                         className="w-full flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-900 hover:bg-red-50 dark:hover:bg-red-900/10 text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 border border-gray-200 dark:border-gray-700 hover:border-red-100 dark:hover:border-red-900/30 rounded-xl font-semibold transition-all group"
+                         className="w-full flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-900 vibrant:bg-white/80 hover:bg-red-50 dark:hover:bg-red-900/10 vibrant:hover:bg-red-50/80 text-gray-700 dark:text-gray-300 vibrant:text-purple-700 hover:text-red-600 dark:hover:text-red-400 vibrant:hover:text-red-600 border border-gray-200 dark:border-gray-700 vibrant:border-purple-200 hover:border-red-100 dark:hover:border-red-900/30 vibrant:hover:border-red-200 rounded-xl font-semibold transition-all group"
                          title="Sign Out"
                      >
                         <span>Sign Out</span>

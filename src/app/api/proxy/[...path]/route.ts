@@ -1,23 +1,42 @@
 // app/api/proxy/[...path]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { getProcessor } from "../processors";
+import { revalidateTag } from "next/cache";
 
 const PYTHON_API = process.env.BACKEND_URL || "http://127.0.0.1:8000";
 const API_SECRET = process.env.API_SECRET_KEY;
 
-// --- HELPER: Get Auth Header ---
-// Prepares the header for all requests
+// --- HELPERS ---
+function getClientIp(request: NextRequest): string {
+  return (
+    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+    request.headers.get("x-real-ip") ||
+    "unknown"
+  );
+}
+
+// Resolves the visitor UUID: explicit header (from SSR) > cookie (from browser)
+function getVisitorId(request: NextRequest): string {
+  return (
+    request.headers.get("x-visitor-id") ||
+    request.cookies.get("visitor_id")?.value ||
+    "unknown"
+  );
+}
+
 function getForwardedHeaders(request: NextRequest) {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     "x-api-key": API_SECRET || "",
+    "X-Forwarded-For": getClientIp(request),
+    "X-Visitor-Id": getVisitorId(request),
   };
 
   const authHeader = request.headers.get("authorization");
   if (authHeader) {
     headers["Authorization"] = authHeader;
   }
-  
+
   return headers;
 }
 
@@ -58,7 +77,18 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     if (path.includes("events")) {
       tags = ["events"]; 
     }
-  } 
+  }
+  // Rule D: Announcement routes = Tag "announcements"
+  else if (section === "announcements") {
+    tags = ["announcements"];
+    if (path.length === 2 && path[1]) {
+      revalidateTime = 0; // Don't cache single announcement fetches
+    }
+  }
+  // Rule E: Subscription routes = No cache
+  else if (section === "subscriptions") {
+    revalidateTime = 0;
+  }
 
   // Specific check: User profile should never be cached
   if (pathString === "users/me") {
@@ -106,17 +136,18 @@ async function handleMutation(
   method: string
 ) {
   const { path } = await params;
+  const pathString = path.join("/"); // e.g., "announcements" or "events/123"
   const targetUrl = `${PYTHON_API}/${path.join("/")}`;
 
   console.log(`🔀 ${method} Proxy to: ${targetUrl}`);
 
   try {
     
-    const rawBody = await request.text();
-
     // 2. Prepare headers
     const headers: Record<string, string> = {
       "x-api-key": API_SECRET || "",
+      "X-Forwarded-For": getClientIp(request),
+      "X-Visitor-Id": getVisitorId(request),
     };
 
     // Forward Authorization Header (Crucial for protected actions)
@@ -125,17 +156,40 @@ async function handleMutation(
       headers["Authorization"] = authHeader;
     }
 
-    // Forward Content-Type (Crucial for Login Form Data vs JSON)
+    // Forward Content-Type — but skip for multipart so fetch sets it with the boundary
     const contentType = request.headers.get("content-type");
-    if (contentType) {
+    const isMultipart = contentType?.includes("multipart/form-data");
+    if (contentType && !isMultipart) {
       headers["Content-Type"] = contentType;
     }
-    
+
+    // Use arrayBuffer for binary uploads (multipart), text for everything else
+    let body: BodyInit | undefined;
+    if (isMultipart) {
+      body = await request.arrayBuffer();
+    } else {
+      const rawBody = await request.text();
+      body = rawBody || undefined;
+    }
+
     const res = await fetch(targetUrl, {
       method: method,
-      headers: headers,
-      body: rawBody || undefined, // Pass the raw body directly
+      headers: isMultipart
+        ? { ...headers, "Content-Type": contentType! }
+        : headers,
+      body,
     });
+
+    if (res.ok) {
+      if (pathString.startsWith("announcements")) {
+        revalidateTag("announcements", {expire: 0});
+        console.log("Cache cleared for tag: announcements");
+      }
+      // You can easily add more rules here later!
+      // else if (pathString.startsWith("events")) {
+      //   revalidateTag("events");
+      // }
+    }
 
     // 4. Handle Response
     let data;

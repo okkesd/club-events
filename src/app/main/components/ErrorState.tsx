@@ -8,7 +8,7 @@ interface ErrorStateProps {
 
 export function ErrorState({ message, retry }: ErrorStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 text-center h-full bg-gray-50/50 dark:bg-gray-900/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 transition-colors">
+    <div className="flex flex-col items-center justify-center py-16 px-4 text-center h-full bg-gray-50/50 dark:bg-gray-900/50 vibrant:bg-purple-50/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 vibrant:border-purple-300 transition-colors">
       
       {/* Icon Background: Light Red -> Dark Transparent Red */}
       <div className="bg-red-50 dark:bg-red-900/20 rounded-full p-4 mb-4 animate-in zoom-in-50 duration-300">

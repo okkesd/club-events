@@ -115,7 +115,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       router.push("/main"); // Redirect after success
     } catch (error: any) {
-      console.error("Login Failed:", error);
       throw error; // Throw to UI to show error message
     } finally {
       setIsLoading(false);

@@ -44,7 +44,7 @@ export default function AnnouncementsPage() {
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<AnnouncementCategory | "">("");
+  const [selectedCategories, setSelectedCategories] = useState<AnnouncementCategory[]>([]);
   const [showExpired, setShowExpired] = useState(false);
   const [page, setPage] = useState(1);
 
@@ -53,7 +53,7 @@ export default function AnnouncementsPage() {
     try {
       const res = await fetchAnnouncements({
         search: search || undefined,
-        category: selectedCategory || undefined,
+        category: selectedCategories.length > 0 ? selectedCategories : undefined,
         include_expired: showExpired,
         page,
         pageSize: 12,
@@ -65,7 +65,7 @@ export default function AnnouncementsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [search, selectedCategory, showExpired, page]);
+  }, [search, selectedCategories, showExpired, page]);
 
   useEffect(() => {
     const timer = setTimeout(() => load(), 300);
@@ -74,16 +74,16 @@ export default function AnnouncementsPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [search, selectedCategory, showExpired]);
+  }, [search, selectedCategories, showExpired]);
 
   const clearFilters = () => {
     setSearch("");
-    setSelectedCategory("");
+    setSelectedCategories([]);
     setShowExpired(false);
     setPage(1);
   };
 
-  const hasFilters = search || selectedCategory || showExpired;
+  const hasFilters = search || selectedCategories.length > 0 || showExpired;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 vibrant:bg-transparent pb-20 transition-colors duration-300">
@@ -141,9 +141,11 @@ export default function AnnouncementsPage() {
             {CATEGORIES.map((cat) => (
               <button
                 key={cat.value}
-                onClick={() => setSelectedCategory(selectedCategory === cat.value ? "" : cat.value)}
+                onClick={() => setSelectedCategories((prev) =>
+                  prev.includes(cat.value) ? prev.filter((c) => c !== cat.value) : [...prev, cat.value]
+                )}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  selectedCategory === cat.value
+                  selectedCategories.includes(cat.value)
                     ? cat.color + " ring-2 ring-offset-1 ring-blue-400 dark:ring-blue-500 vibrant:ring-purple-400"
                     : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 vibrant:bg-purple-50 vibrant:text-purple-400 hover:bg-gray-200 dark:hover:bg-gray-700 vibrant:hover:bg-purple-100"
                 }`}
@@ -220,9 +222,9 @@ export default function AnnouncementsPage() {
             Stay updated
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400 vibrant:text-purple-500 mb-4 transition-colors">
-            Get notified about new announcements via email.
+            Get a <strong>weekly email</strong> with last week&apos;s announcements and upcoming events for the next week.
           </p>
-          <SubscribeForm />
+          <SubscribeForm selectedCategories={selectedCategories} />
         </div>
       </div>
     </div>

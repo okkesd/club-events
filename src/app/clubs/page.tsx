@@ -18,7 +18,7 @@ export default function ClubsDirectory() {
     setIsLoading(true);
     try {
       const res = await fetchClubsPaginated(search || undefined, page, 12);
-      setClubs(res.data);
+      setClubs(res.data.filter(c => c.isVerified));
       setPagination(res.pagination);
     } catch (err) {
       console.error(err);

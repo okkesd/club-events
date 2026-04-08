@@ -29,6 +29,21 @@ async function handleApiError(res: Response): Promise<never> {
   let body: any = {};
   try { body = await res.json(); } catch {}
 
+  // Handling expired sessions
+  if (res.status === 401) {
+    if (typeof window !== "undefined") {
+      // 1. Clear any stored tokens/auth state (adjust the key to match your app)
+      localStorage.removeItem("token"); 
+      
+      // 2. Force navigation to the login or main page
+      window.location.href = "/login";
+    }
+    
+    // 3. Still throw an error to halt the current function's execution 
+    // while the browser handles the navigation
+    throw new ApiError("Session expired. Redirecting to login...", 401);
+  }
+
   if (res.status === 422) {
     // FastAPI validation: { detail: [{ loc: [...], msg: "...", type: "..." }] }
     const detail = body.detail;
@@ -69,6 +84,17 @@ const formatDateToLocalISO = (date: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
+// Backend may return snake_case fields (e.g. has_liked, view_count) that
+// the frontend IEvent interface expects in camelCase. Normalize them here.
+function normalizeEvent(raw: any): IEvent {
+  if (!raw) return raw;
+  return {
+    ...raw,
+    hasLiked: raw.hasLiked ?? raw.has_liked ?? false,
+    viewCount: raw.viewCount ?? raw.view_count ?? 0,
+  };
+}
+
 const getBaseUrl = () => {
   if (typeof window !== "undefined") {
     // We are in the Browser -> Relative URL is fine
@@ -100,7 +126,7 @@ export const fetchEventsForWeek = async (currentDate: Date): Promise<IEvent[]|nu
     })
     if (response.ok){
       let raw_data = await response.json()
-      data = raw_data["data"]
+      data = (raw_data["data"] as any[])?.map(normalizeEvent) ?? [];
       console.log(data)
       console.log(typeof(data))
       return data;
@@ -120,36 +146,40 @@ export const fetchEventsForWeek = async (currentDate: Date): Promise<IEvent[]|nu
  * Simulates an API call to fetch a single event by its ID.
  * @param eventId - The unique ID of the event.
  */
-export const fetchEventById = async (eventId: string): Promise<IEvent | null> => {
+// Accepts an optional visitorId (UUID cookie) for like/view deduplication
+export const fetchEventById = async (eventId: string, visitorId?: string): Promise<IEvent | null> => {
   if (!eventId) return null;
-  console.log(`Fetching event with ID: ${eventId}`);
-  const BASE_URL = getBaseUrl();
-  //let functionURL = URL + `events/${eventId}`
-  let functionURL = `${BASE_URL}/api/proxy/events/${eventId}`;
-  console.log(`Fetching from: ${functionURL}`); // Debugging
-  
 
-  let data
+  const BASE_URL = getBaseUrl();
+  let functionURL = `${BASE_URL}/api/proxy/events/${eventId}`;
+
+  const fetchHeaders: HeadersInit = {
+    "Content-Type": "application/json",
+  };
+
+  // Forward the visitor UUID so the proxy can pass it to the backend
+  if (visitorId) {
+    fetchHeaders["x-visitor-id"] = visitorId;
+  }
+
   try {
-    const response = await fetch(functionURL)
+    const response = await fetch(functionURL, {
+      method: "GET",
+      headers: fetchHeaders, // <-- Attach the headers here
+      cache: "no-store"      // Ensuring we don't cache user-specific state
+    });
+
     if (response.ok){
       const raw_data = await response.json()
-      data = raw_data["data"]
-      return data as IEvent;
-      
+      return normalizeEvent(raw_data["data"]);
     } else {
-      if (!response.ok) {
-        // Handle 404 specifically if you want to show "Event not found" vs "Server Error"
-        if (response.status === 404) console.warn(`Event ${eventId} not found`);
-        throw new Error(`Failed to get event`);
-      }
-      throw new Error(`failed to get event ${eventId}`)
+      if (response.status === 404) console.warn(`Event ${eventId} not found`);
+      throw new Error(`Failed to get event ${eventId}`);
     }
   } catch (error) {
     console.error("error ", error)
     return null
   }
-  
 };
 
 export const fetchClubById = async (clubId: string): Promise<ClubData | null> => {
@@ -177,16 +207,21 @@ export const fetchClubById = async (clubId: string): Promise<ClubData | null> =>
   }
 }
 
-export const fetchEventsByClubId = async (clubId: string) :Promise<IEvent[]|null> => {
+export const fetchEventsByClubId = async (clubId: string, visitorId?: string) :Promise<IEvent[]|null> => {
   console.log(`Fetching events by club id ${clubId}`)
   const BASE_URL = getBaseUrl();
   let functionURL = `${BASE_URL}/api/proxy/clubs/` + clubId + "/events"
 
+  const fetchHeaders: HeadersInit = {};
+  if (visitorId) {
+    fetchHeaders["x-visitor-id"] = visitorId;
+  }
+
   try {
-    const response = await fetch(functionURL, {"cache": "no-store"})
+    const response = await fetch(functionURL, { cache: "no-store", headers: fetchHeaders })
     if (response.ok){
       const raw_data = await response.json()
-      return raw_data.data
+      return (raw_data.data as any[])?.map(normalizeEvent) ?? [];
     } else {
       throw new Error(`Failed to fetch events by club, club id: ${clubId}`)
     }
@@ -260,6 +295,13 @@ export async function getAllClubs(): Promise<ClubData[] | null> {
     return null
   }
 }
+/*
+test_club@gmail.com
+test_club
+
+verified_club@gmail.com
+verified_club
+*/
 
 export async function updateClub(clubId: string, updateData: IClubUpdate): Promise<IApiResponse<ClubData>> {
 
@@ -380,7 +422,11 @@ export async function toggleEventLike(eventId: string): Promise<{ likes: number;
   if (!res.ok) throw new Error("Failed to like")
 
   const json = await res.json()
-  return json.data
+  const data = json.data;
+  return {
+    likes: data.likes ?? data.like_count ?? 0,
+    hasLiked: data.hasLiked ?? data.has_liked ?? false,
+  };
 }
 
 
@@ -528,7 +574,10 @@ export async function fetchAnnouncements(filters?: IAnnouncementFilters): Promis
   const BASE_URL = getBaseUrl();
   const params = new URLSearchParams();
 
-  if (filters?.category) params.set("category", filters.category);
+  if (filters?.category) {
+    const cats = Array.isArray(filters.category) ? filters.category : [filters.category];
+    cats.forEach((c) => params.append("category", c));
+  }
   if (filters?.club_id) params.set("club_id", filters.club_id);
   if (filters?.tag) params.set("tag", filters.tag);
   if (filters?.search) params.set("search", filters.search);
@@ -626,6 +675,7 @@ export async function fetchEvents(filters?: IEventFilters): Promise<PaginatedRes
   if (filters?.date_from) params.set("date_from", filters.date_from);
   if (filters?.date_to) params.set("date_to", filters.date_to);
   if (filters?.page) params.set("page", String(filters.page));
+  if (filters?.sort_order) params.set("sort_order", filters.sort_order);
   if (filters?.pageSize) params.set("page_size", String(filters.pageSize));
 
   const query = params.toString() ? `?${params.toString()}` : "";
@@ -634,7 +684,11 @@ export async function fetchEvents(filters?: IEventFilters): Promise<PaginatedRes
 
   if (!res.ok) throw new Error("Failed to fetch events");
 
-  return res.json();
+  const json = await res.json();
+  return {
+    ...json,
+    data: (json.data as any[])?.map(normalizeEvent) ?? [],
+  };
 }
 
 // ============================================
@@ -665,7 +719,7 @@ export async function fetchClubsPaginated(search?: string, page?: number, pageSi
 export async function subscribe(data: ISubscribeRequest): Promise<IApiResponse<ISubscription>> {
   const BASE_URL = getBaseUrl();
 
-  const res = await fetch(`${BASE_URL}/api/proxy/subscriptions`, {
+  const res = await fetch(`${BASE_URL}/api/proxy/subscribe`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -676,11 +730,25 @@ export async function subscribe(data: ISubscribeRequest): Promise<IApiResponse<I
   return res.json();
 }
 
+export async function subscribeToClub(clubId: string, email: string) {
+  const BASE_URL = getBaseUrl();
+
+  const res = await fetch(`${BASE_URL}/api/proxy/clubs/${clubId}/subscribe`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!res.ok) await handleApiError(res);
+
+  return res.json();
+}
+
 export async function unsubscribe(token: string): Promise<IApiResponse<null>> {
   const BASE_URL = getBaseUrl();
 
-  const res = await fetch(`${BASE_URL}/api/proxy/subscriptions/unsubscribe/${token}`, {
-    method: "POST",
+  const res = await fetch(`${BASE_URL}/api/proxy/unsubscribe/${token}`, {
+    method: "DELETE",
   });
 
   if (!res.ok) await handleApiError(res);
@@ -700,4 +768,14 @@ export async function getAdminSubscriptions(): Promise<ISubscription[]> {
 
   const json = await res.json();
   return json.data;
+}
+
+export async function cleanupStorage(): Promise<{ success: boolean; total_in_storage: number; orphans_found: number; deleted: number }> {
+  const BASE_URL = getBaseUrl();
+  const res = await fetch(`${BASE_URL}/api/proxy/admin/cleanup-storage`, {
+    method: "POST",
+    headers: getAuthHeader(),
+  });
+  if (!res.ok) throw new Error("Cleanup failed");
+  return res.json();
 }

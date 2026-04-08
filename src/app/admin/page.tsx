@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { 
-    Shield, CheckCircle2, XCircle, Clock, Search, 
+import {
+    Shield, CheckCircle2, XCircle, Clock, Search,
     MoreHorizontal, ExternalLink, Loader2,
-    AlertTriangle, X, Ban, Mail // ✅ Added Mail Icon
+    AlertTriangle, X, Ban, Mail, Trash2
 } from 'lucide-react';
-import { getAdminClubs, setClubVerification, getContacts, getAdminSubscriptions } from '@/app/lib/api';
+import { getAdminClubs, setClubVerification, getContacts, getAdminSubscriptions, cleanupStorage } from '@/app/lib/api';
 import { ClubData, ISubscription } from '@/app/lib/types';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -34,6 +34,11 @@ export default function AdminDashboard() {
   const [selectedClubId, setSelectedClubId] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Cleanup State
+  const [showCleanupConfirm, setShowCleanupConfirm] = useState(false);
+  const [isCleaningUp, setIsCleaningUp] = useState(false);
+  const [cleanupResult, setCleanupResult] = useState<{ total_in_storage: number; orphans_found: number; deleted: number } | null>(null);
 
   const { user, isLoading } = useAuth();
   const router = useRouter();
@@ -92,6 +97,7 @@ export default function AdminDashboard() {
     setIsLoadingPage(true);
     try {
       const data = await getAdminSubscriptions();
+      console.log(data)
       setSubscribers(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Failed to fetch subscribers:", err);
@@ -152,6 +158,20 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleCleanup = async () => {
+    setShowCleanupConfirm(false);
+    setIsCleaningUp(true);
+    setCleanupResult(null);
+    try {
+      const result = await cleanupStorage();
+      setCleanupResult(result);
+    } catch {
+      alert("Storage cleanup failed.");
+    } finally {
+      setIsCleaningUp(false);
+    }
+  };
+
   if (isLoading || !isAuthorized) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-gray-50 dark:bg-gray-950 transition-colors">
@@ -172,7 +192,33 @@ export default function AdminDashboard() {
                 </h1>
                 <p className="text-gray-500 dark:text-gray-400 transition-colors">Manage club applications and platform safety.</p>
             </div>
+            <button
+                onClick={() => setShowCleanupConfirm(true)}
+                disabled={isCleaningUp}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors
+                           bg-red-50 text-red-700 hover:bg-red-100 border border-red-200
+                           dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40 dark:border-red-900/40
+                           disabled:opacity-50"
+            >
+                {isCleaningUp ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                {isCleaningUp ? "Cleaning..." : "Clean Storage"}
+            </button>
         </header>
+
+        {/* Cleanup Result Banner */}
+        {cleanupResult && (
+            <div className="mb-6 p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center justify-between transition-colors">
+                <div className="flex items-center gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 shrink-0" />
+                    <p className="text-sm font-medium text-green-700 dark:text-green-300">
+                        Storage cleaned — <strong>{cleanupResult.orphans_found}</strong> orphan(s) found, <strong>{cleanupResult.deleted}</strong> deleted. Total files: {cleanupResult.total_in_storage}.
+                    </p>
+                </div>
+                <button onClick={() => setCleanupResult(null)} className="text-green-500 hover:text-green-700 dark:hover:text-green-300">
+                    <X className="w-4 h-4" />
+                </button>
+            </div>
+        )}
 
         {/* --- TABS --- */}
         <div className="flex gap-4 border-b border-gray-200 dark:border-gray-800 mb-6 overflow-x-auto transition-colors">
@@ -256,8 +302,16 @@ export default function AdminDashboard() {
                                     {subscribers.map((sub) => (
                                         <tr key={sub.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                                             <td className="p-5 text-sm font-semibold text-gray-900 dark:text-gray-200">{sub.email}</td>
-                                            <td className="p-5 text-sm text-gray-500 dark:text-gray-400">{sub.clubId || "All"}</td>
-                                            <td className="p-5 text-sm text-gray-500 dark:text-gray-400 capitalize">{sub.category || "All"}</td>
+                                            <td className="p-5 text-sm text-gray-500 dark:text-gray-400">
+                                                {sub.clubs.length > 0
+                                                    ? sub.clubs.map(c => c.clubName).join(", ")
+                                                    : "—"}
+                                            </td>
+                                            <td className="p-5 text-sm text-gray-500 dark:text-gray-400 capitalize">
+                                                {sub.categories.length > 0
+                                                    ? sub.categories.map(c => c.category).join(", ")
+                                                    : "—"}
+                                            </td>
                                             <td className="p-5">
                                                 <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${
                                                     sub.isActive
@@ -474,6 +528,39 @@ export default function AdminDashboard() {
                         className="px-4 py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 dark:hover:bg-red-500 disabled:opacity-50 transition-colors"
                     >
                         {isSubmitting ? "Processing..." : "Block Club"}
+                    </button>
+                </div>
+            </div>
+        </div>
+      )}
+
+      {/* --- CLEANUP CONFIRMATION MODAL --- */}
+      {showCleanupConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200 transition-colors border border-transparent dark:border-gray-700">
+                <div className="p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
+                            <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400" />
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">Clean Up Storage</h3>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                        This will delete unused images from storage. Orphaned files that are no longer referenced by any club, event, or announcement will be removed.
+                    </p>
+                </div>
+                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 flex justify-end gap-3">
+                    <button
+                        onClick={() => setShowCleanupConfirm(false)}
+                        className="px-4 py-2 text-gray-700 dark:text-gray-300 font-bold hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors text-sm"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={handleCleanup}
+                        className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition-colors text-sm shadow-sm"
+                    >
+                        Continue
                     </button>
                 </div>
             </div>

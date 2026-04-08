@@ -2,7 +2,8 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom'; // Import this
+import { createPortal } from 'react-dom';
+import Image from 'next/image';
 import { X, ZoomIn } from 'lucide-react';
 
 export function EventBrochure({ src, alt }: { src: string; alt: string }) {
@@ -39,9 +40,11 @@ export function EventBrochure({ src, alt }: { src: string; alt: string }) {
       onClick={() => setIsOpen(true)}
       className="group relative cursor-zoom-in w-full h-auto bg-gray-100 border border-gray-100 overflow-hidden"
     >
-      <img 
-        src={src} 
-        alt={alt} 
+      <Image
+        src={src}
+        alt={alt}
+        width={800}
+        height={600}
         className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
       />
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
@@ -65,11 +68,13 @@ export function EventBrochure({ src, alt }: { src: string; alt: string }) {
         <X className="w-8 h-8" />
       </button>
 
-      <img 
-        src={src} 
+      <Image
+        src={src}
         alt={alt}
+        width={1200}
+        height={900}
         className="max-w-full max-h-full object-contain shadow-2xl rounded-lg animate-in zoom-in-95 duration-300 select-none"
-        onClick={(e) => e.stopPropagation()} 
+        onClick={(e) => e.stopPropagation()}
       />
     </div>
   ) : null;

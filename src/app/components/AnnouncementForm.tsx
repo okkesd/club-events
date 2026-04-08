@@ -51,6 +51,15 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
 
   const [isUploading, setIsUploading] = useState(false);
   const [tagInput, setTagInput] = useState("");
+  const [expiryMode, setExpiryMode] = useState<"duration" | "date">("duration");
+  const [duration, setDuration] = useState<"1d" | "3d" | "1w" | "2w">("1w"); // Default to 1 week
+
+  const today = new Date();
+  const maxDate = new Date();
+  maxDate.setDate(today.getDate() + 14); // 14 days from today
+
+  const minDateStr = today.toISOString().split('T')[0];
+  const maxDateStr = maxDate.toISOString().split('T')[0];
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
@@ -59,6 +68,18 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
       if (url) setFormData((prev) => ({ ...prev, coverImage: url }));
       setIsUploading(false);
     }
+  };
+
+  const calculateExpirationDate = (duration: "1d" | "3d" | "1w" | "2w"): string => {
+    const date = new Date();
+    
+    if (duration === "1d") date.setDate(date.getDate() + 1);
+    else if (duration === "3d") date.setDate(date.getDate() + 3);
+    else if (duration === "1w") date.setDate(date.getDate() + 7);
+    else if (duration === "2w") date.setDate(date.getDate() + 14);
+  
+    // Format as YYYY-MM-DD
+    return date.toISOString().split('T')[0];
   };
 
   const addTag = (tag: string) => {
@@ -89,12 +110,26 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (titleOverLimit || bodyOverLimit) return;
+  
+    // 1. Calculate the exact YYYY-MM-DD date using your new helper and the 'duration' state
+    // Grab the date based on whichever mode the user had active
+    let finalExpiresAt;
+    if (expiryMode === "duration") {
+      finalExpiresAt = calculateExpirationDate(duration);
+    } else {
+      // If they chose 'date' but left it blank, fallback to 7 days
+      finalExpiresAt = formData.expiresAt ? formData.expiresAt : calculateExpirationDate("1w");
+    }
+  
+    // 2. Inject it into the payload
     const payload = {
       ...formData,
-      expiresAt: formData.expiresAt || undefined,
+      expiresAt: finalExpiresAt, // <-- Overwrite with the calculated date
       link: formData.link || undefined,
       coverImage: formData.coverImage || undefined,
     };
+    
+    // 3. Send the perfectly formatted payload up to the parent page
     onSubmit(payload);
   };
 
@@ -219,22 +254,76 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
         />
       </div>
 
-      {/* Expiry Date */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-2 transition-colors">
-          Deadline / Expiry Date (optional)
+      {/* Expiration Settings */}
+      <div className="space-y-4">
+        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 vibrant:text-purple-900 transition-colors">
+          How long should this be visible?
         </label>
-        <input
-          type="date"
-          value={formData.expiresAt}
-          onChange={(e) => setFormData({ ...formData, expiresAt: e.target.value })}
-          className="w-full p-3 rounded-xl border transition-colors outline-none
-            border-gray-200 dark:border-gray-700 vibrant:border-purple-200
-            bg-white dark:bg-gray-800 vibrant:bg-white/80
-            text-gray-900 dark:text-white vibrant:text-purple-900
-            focus:ring-2 focus:ring-blue-500 vibrant:focus:ring-purple-500
-            focus:border-blue-500 vibrant:focus:border-purple-500"
-        />
+
+        {/* The Switch (Segmented Control) */}
+        <div className="flex bg-gray-100 dark:bg-gray-800 vibrant:bg-purple-100/50 p-1 rounded-xl w-full max-w-sm transition-colors">
+          <button
+            type="button"
+            onClick={() => setExpiryMode("duration")}
+            className={`flex-1 py-2 px-3 text-sm font-bold rounded-lg transition-all ${
+              expiryMode === "duration"
+                ? "bg-white dark:bg-gray-700 vibrant:bg-white text-gray-900 dark:text-white vibrant:text-purple-900 shadow-sm"
+                : "text-gray-500 dark:text-gray-400 vibrant:text-purple-600 hover:text-gray-700 dark:hover:text-gray-200"
+            }`}
+          >
+            Quick Presets
+          </button>
+          <button
+            type="button"
+            onClick={() => setExpiryMode("date")}
+            className={`flex-1 py-2 px-3 text-sm font-bold rounded-lg transition-all ${
+              expiryMode === "date"
+                ? "bg-white dark:bg-gray-700 vibrant:bg-white text-gray-900 dark:text-white vibrant:text-purple-900 shadow-sm"
+                : "text-gray-500 dark:text-gray-400 vibrant:text-purple-600 hover:text-gray-700 dark:hover:text-gray-200"
+            }`}
+          >
+            Custom Date
+          </button>
+        </div>
+
+        {/* Conditional Rendering based on the switch */}
+        {expiryMode === "duration" ? (
+          <div className="animate-in fade-in slide-in-from-top-1 duration-200">
+            <select
+              value={duration}
+              onChange={(e) => setDuration(e.target.value as any)}
+              className="w-full px-4 py-3 rounded-xl border transition-all outline-none
+                         bg-white border-gray-200 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20
+                         dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:border-blue-500
+                         vibrant:bg-white/80 vibrant:border-purple-200 vibrant:text-purple-900 vibrant:focus:border-purple-500"
+            >
+              <option value="1d">1 Day (Quick update)</option>
+              <option value="3d">3 Days (Short notice)</option>
+              <option value="1w">1 Week (Standard)</option>
+              <option value="2w">2 Weeks (Maximum visibility)</option>
+            </select>
+            <p className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-purple-500 mt-2">
+              Announcements auto-hide after this period to keep the feed fresh.
+            </p>
+          </div>
+        ) : (
+          <div className="animate-in fade-in slide-in-from-top-1 duration-200">
+            <input
+              type="date"
+              min={minDateStr} // Prevent selecting past dates
+              max={maxDateStr} // Prevent selecting past 14 days
+              value={formData.expiresAt || ""}
+              onChange={(e) => setFormData({ ...formData, expiresAt: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl border transition-all outline-none
+                         bg-white border-gray-200 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20
+                         dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:border-blue-500
+                         vibrant:bg-white/80 vibrant:border-purple-200 vibrant:text-purple-900 vibrant:focus:border-purple-500"
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-purple-500 mt-2">
+              Custom expiration date cannot exceed 14 days from today.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Tags */}

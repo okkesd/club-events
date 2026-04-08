@@ -90,7 +90,7 @@ export default function Navbar() {
               </Link>
               <Link href="/announcements" className={navLinkClass("/announcements")}>
                 <Megaphone className="w-4 h-4" />
-                <span className="hidden md:inline">Board</span>
+                <span className="hidden md:inline">Announcements</span>
               </Link>
             </div>
           )}
@@ -133,6 +133,14 @@ export default function Navbar() {
                       >
                         <Plus className="w-4 h-4" />
                         <span>Create Event</span>
+                      </Link>
+
+                      <Link
+                        href="/announcements/create"
+                        className="hidden md:flex items-center gap-2 border border-gray-200 dark:border-gray-700 vibrant:border-purple-300 text-gray-700 dark:text-gray-200 vibrant:text-purple-700 hover:bg-gray-50 dark:hover:bg-gray-800 vibrant:hover:bg-purple-50 px-4 py-2 rounded-xl font-bold text-sm transition-all"
+                      >
+                        <Megaphone className="w-4 h-4" />
+                        <span>Post</span>
                       </Link>
 
                       <Link
@@ -206,6 +214,10 @@ export default function Navbar() {
                 <Link href="/event/create" className={navLinkClass("/event/create")}>
                   <Plus className="w-4 h-4" />
                   Create Event
+                </Link>
+                <Link href="/announcements/create" className={navLinkClass("/announcements/create")}>
+                  <Megaphone className="w-4 h-4" />
+                  Post Announcement
                 </Link>
                 <Link
                   href={user.role === 'admin' ? '/admin' : `/club/${user.id}`}

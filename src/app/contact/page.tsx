@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState, FormEvent, useEffect } from 'react';
+import Link from 'next/link';
 import { Mail, MessageSquare, Send, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { contactApi } from '../lib/api';
@@ -16,6 +17,7 @@ export default function ContactPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSent, setIsSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
 
   const { user } = useAuth()
 
@@ -167,10 +169,27 @@ export default function ContactPage() {
               </div>
             )}
 
+            {/* Privacy Checkbox */}
+            <div className="flex items-start gap-2">
+              <input
+                id="contact-privacy"
+                type="checkbox"
+                checked={agreedToPrivacy}
+                onChange={(e) => setAgreedToPrivacy(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 vibrant:text-purple-600 vibrant:focus:ring-purple-500"
+              />
+              <label htmlFor="contact-privacy" className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-purple-500 transition-colors">
+                I have read and accept the{" "}
+                <Link href="/legal/privacy" className="text-blue-600 dark:text-blue-400 vibrant:text-pink-600 hover:underline">
+                  Privacy Policy
+                </Link>
+              </label>
+            </div>
+
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || !agreedToPrivacy}
               className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white
                          bg-blue-600 hover:bg-blue-700
                          dark:bg-blue-600 dark:hover:bg-blue-500

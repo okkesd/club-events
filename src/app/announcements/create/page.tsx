@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, Megaphone } from "lucide-react";
+import { ChevronLeft, Megaphone, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 import { createAnnouncement } from "@/app/lib/api";
 import { useAuth } from "@/app/context/AuthContext";
@@ -33,6 +33,21 @@ export default function CreateAnnouncementPage() {
         <h2 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900">Login required</h2>
         <Link href="/login" className="text-blue-600 dark:text-blue-400 vibrant:text-purple-600 font-semibold hover:underline">
           Go to Login
+        </Link>
+      </div>
+    );
+  }
+
+  if (!user.isVerified && user.role !== 'admin') {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 vibrant:bg-transparent flex flex-col items-center justify-center gap-4 transition-colors">
+        <div className="mx-auto w-16 h-16 bg-yellow-100 dark:bg-yellow-900/30 vibrant:bg-yellow-100/80 rounded-full flex items-center justify-center">
+          <ShieldAlert className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
+        </div>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900">Verification Required</h2>
+        <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-600 text-center max-w-md">Only verified clubs can post announcements. Your club is pending verification by an admin.</p>
+        <Link href="/announcements" className="text-blue-600 dark:text-blue-400 vibrant:text-purple-600 font-semibold hover:underline">
+          Back to Announcements
         </Link>
       </div>
     );

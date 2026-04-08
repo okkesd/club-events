@@ -3,12 +3,12 @@ export default function CookiesPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors">
       <div className="max-w-3xl mx-auto bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Cookie &amp; Local Storage Policy</h1>
-        <p className="text-gray-500 dark:text-gray-400 mb-8">Last Updated: March 24, 2026</p>
+        <p className="text-gray-500 dark:text-gray-400 mb-8">Last Updated: March 26, 2026</p>
 
         <div className="space-y-6 text-gray-700 dark:text-gray-300 leading-relaxed">
           <section>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">What We Store in Your Browser</h2>
-            <p>UniEvents uses your browser&apos;s <strong>local storage</strong> (not traditional cookies) to provide core functionality. Local storage is similar to cookies but the data stays on your device and is not automatically sent to our servers with every request.</p>
+            <p>UniEvents uses your browser&apos;s <strong>local storage</strong> and one <strong>essential cookie</strong> to provide core functionality. Local storage data stays on your device and is not automatically sent to our servers with every request. The cookie described below is required for the site to function correctly.</p>
           </section>
 
           <section>
@@ -18,6 +18,15 @@ export default function CookiesPage() {
               <li><strong>Theme preference</strong> — Remembers whether you chose light, dark, or vibrant mode. This data never leaves your device.</li>
               <li><strong>Privacy banner preference</strong> — Remembers whether you have acknowledged this notice so we do not show it again.</li>
             </ul>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Essential Cookie</h2>
+            <p>We set one HTTP cookie on your device:</p>
+            <ul className="list-disc pl-5 mt-2 space-y-3">
+              <li><strong>visitor_id</strong> — A randomly generated anonymous identifier (UUID). This cookie is used solely to prevent duplicate event likes and inflate of view counts. It contains no personal information, is not linked to any account, and is not used for tracking or advertising. It expires after one year or when you clear your browser cookies.</li>
+            </ul>
+            <p className="mt-2">This cookie is classified as <strong>strictly necessary</strong> for the site to function correctly. It is set automatically and does not require consent under KVKK or GDPR as it is essential for core functionality.</p>
           </section>
 
           <section>
@@ -31,8 +40,8 @@ export default function CookiesPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Server-Side Data for Likes</h2>
-            <p>When you like an event, your IP address is stored on our servers to prevent duplicate likes. This data is used solely for deduplication — it is not linked to any account, not used for tracking, and is deleted when the event is removed. See our <a href="/legal/privacy" className="text-blue-600 dark:text-blue-400 hover:underline">Privacy Policy</a> for more details.</p>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Server-Side Data for Likes &amp; Views</h2>
+            <p>When you like an event or view an event page, your anonymous visitor ID (from the <strong>visitor_id</strong> cookie) is stored on our servers to prevent duplicate counting. This data is used solely for deduplication — it is not linked to any account, not used for tracking, and is deleted when the event is removed. See our <a href="/legal/privacy" className="text-blue-600 dark:text-blue-400 hover:underline">Privacy Policy</a> for more details.</p>
           </section>
         </div>
       </div>

@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Calendar, Clock, MapPin, Upload, Image as ImageIcon, Type, Map 
+import {
+  Calendar, Clock, MapPin, Upload, Image as ImageIcon, Type, Map, Users, Link2
 } from 'lucide-react';
 import { uploadImage, resolveImageUrl } from '@/app/lib/api';
 
@@ -24,8 +24,11 @@ export default function EventForm({ initialData, onSubmit, onCancel, isSubmittin
         duration: initialData?.duration || 1.0,
         locationType: initialData?.locationType || "on-campus",
         location: initialData?.location || "",
+        isRegistrationOpen: initialData?.isRegistrationOpen ?? false,
+        registrationLink: initialData?.registrationLink || "",
+        capacity: initialData?.capacity ?? 0,
         // Assuming timeMode is derived for edits, or default to duration
-        timeMode: "duration" as "duration" | "endTime", 
+        timeMode: "duration" as "duration" | "endTime",
     });
 
     const [isUploading, setIsUploading] = useState(false);
@@ -123,7 +126,89 @@ export default function EventForm({ initialData, onSubmit, onCancel, isSubmittin
 
             <div className="grid grid-cols-2 gap-4">
                 <input type="number" step="0.5" value={formData.duration} onChange={e => setFormData({...formData, duration: parseFloat(e.target.value)})} className="p-3 border rounded-xl" placeholder="Duration (hrs)" />
-                <input type="text" value={formData.location} onChange={e => setFormData({...formData, location: e.target.value})} className="p-3 border rounded-xl" placeholder="Location" />
+            </div>
+
+            {/* Location Type */}
+            <div>
+                <div className="flex gap-4 mb-3">
+                    <button
+                        type="button"
+                        onClick={() => setFormData({...formData, locationType: 'on-campus'})}
+                        className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all cursor-pointer border ${
+                            formData.locationType === 'on-campus'
+                            ? 'bg-blue-100 text-blue-700 border-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-900/50'
+                            : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700'
+                        }`}
+                    >
+                        On Campus
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setFormData({...formData, locationType: 'off-campus'})}
+                        className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all cursor-pointer border ${
+                            formData.locationType === 'off-campus'
+                            ? 'bg-blue-100 text-blue-700 border-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-900/50'
+                            : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700'
+                        }`}
+                    >
+                        Off Campus
+                    </button>
+                </div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {formData.locationType === 'on-campus' ? "Room / Building" : "Address / Venue"}
+                </label>
+                <input
+                    type="text" required value={formData.location}
+                    onChange={e => setFormData({...formData, location: e.target.value})}
+                    placeholder={formData.locationType === 'on-campus' ? "e.g. Room 101, Tech Hall" : "e.g. 123 Main St, Downtown"}
+                    className="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-white"
+                />
+            </div>
+
+            {/* Registration */}
+            <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                    <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                            type="checkbox"
+                            checked={formData.isRegistrationOpen}
+                            onChange={(e) => setFormData({...formData, isRegistrationOpen: e.target.checked})}
+                            className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:ring-2 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:after:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+                    </label>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Enable registration</span>
+                </div>
+
+                {formData.isRegistrationOpen && (
+                    <div className="space-y-4 animate-in fade-in slide-in-from-top-1 duration-200">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Registration Link</label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <Link2 className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                                </div>
+                                <input
+                                    type="url"
+                                    placeholder="https://forms.google.com/..."
+                                    value={formData.registrationLink}
+                                    onChange={(e) => setFormData({...formData, registrationLink: e.target.value})}
+                                    className="w-full pl-10 p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-white dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 transition-colors"
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Capacity <span className="text-gray-400 font-normal">(0 = unlimited)</span></label>
+                            <input
+                                type="number"
+                                min="0"
+                                value={formData.capacity}
+                                onChange={(e) => setFormData({...formData, capacity: parseInt(e.target.value) || 0})}
+                                className="w-40 p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 transition-colors"
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Actions */}

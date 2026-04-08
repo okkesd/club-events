@@ -127,6 +127,8 @@ export interface IAnnouncement {
   updatedAt: string;     // ISO datetime
 }
 
+
+
 export interface IAnnouncementCreate {
   clubId: string;
   title: string;
@@ -149,7 +151,7 @@ export interface IAnnouncementUpdate {
 }
 
 export interface IAnnouncementFilters {
-  category?: AnnouncementCategory;
+  category?: AnnouncementCategory | AnnouncementCategory[];
   club_id?: string;
   tag?: string;
   search?: string;
@@ -177,19 +179,30 @@ export interface PaginatedResponse<T> {
 /**
  * --- SUBSCRIPTIONS ---
  */
+export interface ISubscriptionClub {
+  clubId: string;
+  clubName: string;
+  isActive: boolean;
+}
+
+export interface ISubscriptionCategory {
+  category: AnnouncementCategory;
+  isActive: boolean;
+}
+
 export interface ISubscription {
   id: string;
   email: string;
-  clubId?: string;
-  category?: AnnouncementCategory;
+  clubs: ISubscriptionClub[];
+  categories: ISubscriptionCategory[];
   isActive: boolean;
   createdAt: string;
 }
 
 export interface ISubscribeRequest {
   email: string;
-  clubId?: string;
-  category?: AnnouncementCategory;
+  clubIds?: string[];
+  categories?: AnnouncementCategory[];
 }
 
 /**
@@ -204,4 +217,5 @@ export interface IEventFilters {
   date_to?: string;
   page?: number;
   pageSize?: number;
+  sort_order?: "asc" | "desc";
 }

@@ -14,6 +14,14 @@ const LOCATION_TYPES = [
   { value: "off-campus", label: "Off Campus" },
 ] as const;
 
+// Helper to get YYYY-MM-DD in local time
+const getLocalDateString = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
+
 export default function EventsBrowsePage() {
   const [events, setEvents] = useState<IEvent[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
@@ -22,9 +30,55 @@ export default function EventsBrowsePage() {
   // Filters
   const [search, setSearch] = useState("");
   const [locationType, setLocationType] = useState<"on-campus" | "off-campus" | "">("");
-  const [dateFrom, setDateFrom] = useState("");
+  const [dateFrom, setDateFrom] = useState(getLocalDateString(new Date()));
   const [dateTo, setDateTo] = useState("");
   const [page, setPage] = useState(1);
+  const [activePreset, setActivePreset] = useState<"upcoming" | "1d" | "7d" | "1m" | "all" | "">("upcoming");
+
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
+  const handleDatePreset = (preset: "upcoming" | "1d" | "7d" | "1m" | "all") => {
+    setActivePreset(preset);
+    
+    if (preset === "all") {
+      setDateFrom("");
+      setDateTo("");
+      setSortOrder("desc");
+      return;
+    }
+
+    // For all other presets, the start date is always today
+    const today = new Date();
+    setDateFrom(getLocalDateString(today));
+    setSortOrder("asc");
+
+    // Determine the end date based on the preset
+    if (preset === "upcoming") {
+      // No end date limit, just everything from today onward
+      setDateTo(""); 
+    } else {
+      const targetDate = new Date(today);
+      if (preset === "1d") {
+        setDateTo(getLocalDateString(targetDate));
+      } else if (preset === "7d") {
+        targetDate.setDate(today.getDate() + 7);
+        setDateTo(getLocalDateString(targetDate));
+      } else if (preset === "1m") {
+        targetDate.setMonth(today.getMonth() + 1);
+        setDateTo(getLocalDateString(targetDate));
+      }
+    }
+  };
+
+  /*const handleManualDateFrom = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDateFrom(e.target.value);
+    setActivePreset("");
+  };
+
+  const handleManualDateTo = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDateTo(e.target.value);
+    setActivePreset("");
+  };*/
 
   const load = useCallback(async () => {
     setIsLoading(true);
@@ -34,6 +88,7 @@ export default function EventsBrowsePage() {
         location_type: locationType || undefined,
         date_from: dateFrom || undefined,
         date_to: dateTo || undefined,
+        sort_order: sortOrder,
         page,
         pageSize: 12,
       };
@@ -45,7 +100,7 @@ export default function EventsBrowsePage() {
     } finally {
       setIsLoading(false);
     }
-  }, [search, locationType, dateFrom, dateTo, page]);
+  }, [search, locationType, dateFrom, dateTo, page, sortOrder]);
 
   // Debounced search, immediate for other filters
   useEffect(() => {
@@ -147,6 +202,29 @@ export default function EventsBrowsePage() {
                 title="To date"
               />
             </div>
+
+            {/* Quick Presets */}
+  <div className="flex items-center gap-1.5 pl-4 border-l border-gray-200 dark:border-gray-700 vibrant:border-purple-200">
+    {[
+      { id: "upcoming", label: "Upcoming" },
+      { id: "1d", label: "Today" },
+      { id: "7d", label: "This Week" },
+      { id: "1m", label: "This Month" },
+      { id: "all", label: "All" },
+    ].map((preset) => (
+      <button
+        key={preset.id}
+        onClick={() => handleDatePreset(preset.id as any)}
+        className={`px-2.5 py-1 text-xs font-bold rounded-md transition-all ${
+          activePreset === preset.id
+            ? "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 vibrant:bg-purple-200 vibrant:text-purple-800 shadow-sm"
+            : "text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-300 vibrant:text-purple-500 vibrant:hover:bg-purple-100"
+        }`}
+      >
+        {preset.label}
+      </button>
+    ))}
+  </div>
 
             {hasFilters && (
               <button onClick={clearFilters} className="px-3 py-1.5 rounded-lg text-xs font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center gap-1">

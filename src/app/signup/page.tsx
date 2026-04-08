@@ -308,7 +308,7 @@ export default function SignupPage() {
 
         <p className="text-gray-500 dark:text-gray-400 pt-2">
           Read the full terms at <Link href="/legal/terms" className="text-blue-600 dark:text-blue-400 hover:underline">/legal/terms</Link>.
-          Contact: <a href="mailto:okkesdonbaloglu25@gmail.com" className="text-blue-600 dark:text-blue-400 hover:underline">okkesdonbaloglu25@gmail.com</a>
+          Contact: <a href="mailto:evenementsadmin@gmail.com" className="text-blue-600 dark:text-blue-400 hover:underline">evenementsadmin@gmail.com</a>
         </p>
       </div>
       

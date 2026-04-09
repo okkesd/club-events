@@ -8,12 +8,12 @@ export default function TermsPage() {
         <div className="space-y-6 text-gray-700 dark:text-gray-300 leading-relaxed">
           <section>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">1. Acceptance of Terms</h2>
-            <p>By accessing and using UniEvents, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by these terms, please do not use this service.</p>
+            <p>By accessing and using Evenements, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by these terms, please do not use this service.</p>
           </section>
 
           <section>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">2. Student Project Disclaimer</h2>
-            <p><strong>UniEvents is an independent student project developed by computer science students at Galatasaray University.</strong> It is not affiliated with, endorsed by, or officially connected to the Galatasaray University administration. The service is provided &quot;as is&quot; without any guarantees or warranty. We are not responsible for data loss, service interruptions, or the accuracy of event information posted by clubs.</p>
+            <p><strong>Evenements is an independent student project developed by computer science students at Galatasaray University.</strong> It is not affiliated with, endorsed by, or officially connected to the Galatasaray University administration. The service is provided &quot;as is&quot; without any guarantees or warranty. We are not responsible for data loss, service interruptions, or the accuracy of event information posted by clubs.</p>
           </section>
 
           <section>
@@ -40,12 +40,12 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">6. Content Ownership</h2>
-            <p>Clubs retain all rights to the images and text they upload. By uploading content, you grant UniEvents a non-exclusive license to display and distribute this content on the platform for as long as the content remains on the service.</p>
+            <p>Clubs retain all rights to the images and text they upload. By uploading content, you grant Evenements a non-exclusive license to display and distribute this content on the platform for as long as the content remains on the service.</p>
           </section>
 
           <section>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">7. Limitation of Liability</h2>
-            <p>To the fullest extent permitted by applicable law, UniEvents and its developers shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of data, use, or profits, arising out of or in connection with your use of the service.</p>
+            <p>To the fullest extent permitted by applicable law, Evenements and its developers shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of data, use, or profits, arising out of or in connection with your use of the service.</p>
           </section>
 
           <section>

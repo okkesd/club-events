@@ -76,6 +76,9 @@ export default function Navbar() {
           >
             <CalendarDays className="w-6 h-6 text-blue-600 dark:text-blue-500 vibrant:text-purple-600" />
             <span className="vibrant-gradient-text">Evenements</span>
+            <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 vibrant:bg-purple-100 vibrant:text-purple-700 border border-blue-200 dark:border-blue-800 vibrant:border-purple-300">
+              Beta
+            </span>
           </Link>
 
           {/* Desktop nav links (hidden on mobile) */}

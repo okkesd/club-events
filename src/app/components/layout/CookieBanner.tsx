@@ -39,7 +39,7 @@ export default function CookieBanner() {
           <div className="space-y-1">
             <h3 className="font-bold text-gray-900 dark:text-white">We value your privacy</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-              UniEvents uses your browser&apos;s local storage to keep you logged in and remember your theme preference, plus one essential cookie to prevent duplicate likes and views. We do not use tracking cookies or analytics.
+              Evenements uses your browser&apos;s local storage to keep you logged in and remember your theme preference, plus one essential cookie to prevent duplicate likes and views. We do not use tracking cookies or analytics.
               Learn more in our <Link href="/legal/cookies" className="text-blue-600 hover:underline dark:text-blue-400">Cookie &amp; Local Storage Policy</Link>.
             </p>
           </div>

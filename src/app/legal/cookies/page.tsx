@@ -8,7 +8,7 @@ export default function CookiesPage() {
         <div className="space-y-6 text-gray-700 dark:text-gray-300 leading-relaxed">
           <section>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">What We Store in Your Browser</h2>
-            <p>UniEvents uses your browser&apos;s <strong>local storage</strong> and one <strong>essential cookie</strong> to provide core functionality. Local storage data stays on your device and is not automatically sent to our servers with every request. The cookie described below is required for the site to function correctly.</p>
+            <p>Evenements uses your browser&apos;s <strong>local storage</strong> and one <strong>essential cookie</strong> to provide core functionality. Local storage data stays on your device and is not automatically sent to our servers with every request. The cookie described below is required for the site to function correctly.</p>
           </section>
 
           <section>
@@ -36,7 +36,7 @@ export default function CookiesPage() {
 
           <section>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Your Choices</h2>
-            <p>You can clear local storage data at any time through your browser settings. Clearing this data will log you out and reset your theme preference. You can also use your browser&apos;s developer tools to inspect exactly what UniEvents stores.</p>
+            <p>You can clear local storage data at any time through your browser settings. Clearing this data will log you out and reset your theme preference. You can also use your browser&apos;s developer tools to inspect exactly what Evenements stores.</p>
           </section>
 
           <section>

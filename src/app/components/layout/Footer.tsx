@@ -21,7 +21,7 @@ export default function Footer() {
               className="flex items-center gap-2 text-xl font-bold transition-colors mb-2 text-gray-900 hover:text-blue-600 dark:text-white dark:hover:text-blue-400 vibrant:text-purple-700 vibrant:hover:text-pink-600"
             >
               <CalendarDays className="w-6 h-6 text-blue-600 dark:text-blue-500 vibrant:text-purple-600" />
-              UniEvents
+              Evenements
             </Link>
 
             {/* Links */}
@@ -48,7 +48,7 @@ export default function Footer() {
           {/* Right Side: Copyright */}
           <div className="text-center md:text-right">
             <p className="text-sm font-medium text-gray-900 dark:text-gray-200 vibrant:text-purple-900">
-              © {currentYear} UniEvents
+              © {currentYear} Evenements
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-500 vibrant:text-purple-400 mt-1">
               Made for students, by students.

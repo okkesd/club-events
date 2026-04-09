@@ -26,7 +26,7 @@ const nunito = Nunito({
 
 // 2. I updated the metadata to be more descriptive
 export const metadata: Metadata = {
-  title: "University Events",
+  title: "Evenements",
   description: "Find and manage all your club events in one place.",
 };
 

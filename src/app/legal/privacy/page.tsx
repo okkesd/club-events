@@ -8,7 +8,7 @@ export default function PrivacyPage() {
         <div className="space-y-6 text-gray-700 dark:text-gray-300 leading-relaxed">
           <section>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">1. Who We Are</h2>
-            <p>UniEvents is an independent student project developed by computer science students at Galatasaray University. It is not affiliated with or endorsed by the university administration. For any questions about your data, you can reach us at <a href="mailto:evenementsadmin@gmail.com" className="text-blue-600 dark:text-blue-400 hover:underline">evenementsadmin@gmail.com</a>.</p>
+            <p>Evenements is an independent student project developed by computer science students at Galatasaray University. It is not affiliated with or endorsed by the university administration. For any questions about your data, you can reach us at <a href="mailto:evenementsadmin@gmail.com" className="text-blue-600 dark:text-blue-400 hover:underline">evenementsadmin@gmail.com</a>.</p>
           </section>
 
           <section>
@@ -56,7 +56,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">6. Cross-Border Data Transfers</h2>
-            <p>Our servers are hosted by Amazon Web Services (AWS), which may store data in data centers located outside of Turkey. By using UniEvents, you consent to the transfer of your data to AWS infrastructure in accordance with KVKK Article 9. AWS provides industry-standard security measures and complies with international data protection frameworks.</p>
+            <p>Our servers are hosted by Amazon Web Services (AWS), which may store data in data centers located outside of Turkey. By using Evenements, you consent to the transfer of your data to AWS infrastructure in accordance with KVKK Article 9. AWS provides industry-standard security measures and complies with international data protection frameworks.</p>
           </section>
 
           <section>
@@ -82,7 +82,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">9. Minimum Age</h2>
-            <p>UniEvents is designed for university students and club representatives. You must be at least 18 years old to create an account. We do not knowingly collect personal data from individuals under 18.</p>
+            <p>Evenements is designed for university students and club representatives. You must be at least 18 years old to create an account. We do not knowingly collect personal data from individuals under 18.</p>
           </section>
 
           <section>

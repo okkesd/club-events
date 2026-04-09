@@ -260,7 +260,7 @@ export default function SignupPage() {
         <section>
           <h4 className="font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-1">1. Student Project Disclaimer</h4>
           <p>
-            UniEvents is an independent student project developed by computer science students at Galatasaray University.
+            Evenements is an independent student project developed by computer science students at Galatasaray University.
             It is not affiliated with, endorsed by, or officially connected to the Galatasaray University administration.
             The service is provided &quot;as is&quot; without any guarantees or warranty. We are not responsible for data loss, service interruptions, or the accuracy of event information posted by clubs.
           </p>
@@ -281,14 +281,14 @@ export default function SignupPage() {
         <section>
           <h4 className="font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-1">3. Content Ownership</h4>
           <p>
-            Clubs retain all rights to the images and text they upload. By uploading content, you grant UniEvents a non-exclusive license to display and distribute this content on the platform for as long as the content remains on the service.
+            Clubs retain all rights to the images and text they upload. By uploading content, you grant Evenements a non-exclusive license to display and distribute this content on the platform for as long as the content remains on the service.
           </p>
         </section>
 
         <section>
           <h4 className="font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-1">4. Limitation of Liability</h4>
           <p>
-            To the fullest extent permitted by applicable law, UniEvents and its developers shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of data, use, or profits, arising out of or in connection with your use of the service.
+            To the fullest extent permitted by applicable law, Evenements and its developers shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of data, use, or profits, arising out of or in connection with your use of the service.
           </p>
         </section>
 

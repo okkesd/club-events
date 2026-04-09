@@ -78,7 +78,7 @@ export default function AboutPage() {
             </span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 vibrant:text-purple-700 max-w-3xl mx-auto font-medium leading-relaxed">
-            UniEvents is brought to you by a massive*, globally distributed** team of highly intelligent*** experts.
+            Evenements is brought to you by a massive*, globally distributed** team of highly intelligent*** experts.
           </p>
 
 

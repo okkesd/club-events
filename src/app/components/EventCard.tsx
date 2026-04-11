@@ -4,32 +4,46 @@ import Link from 'next/link';
 import { Clock } from "lucide-react";
 import { CALENDAR_START_HOUR, calculateEndTime } from '@/app/lib/timeUtils';
 
+const ROW_HEIGHT_REM = 5; // Matches the parent container's row height
+
 // Helper to parse time
 function parseTime(time: string): number {
     const [hours, minutes] = time.split(':').map(Number);
     return hours + (minutes / 60);
 }
 
-export function EventCard({ event, showHourLabels }: { event: IEvent, showHourLabels: boolean }) {
+export function EventCard({ 
+    event, 
+    showHourLabels, 
+    columnIndex = 0, 
+    totalColumns = 1, 
+    colSpan = 1 
+}: { 
+    event: IEvent, 
+    showHourLabels: boolean, 
+    columnIndex?: number, 
+    totalColumns?: number, 
+    colSpan?: number 
+}) {
+    // 1. Calculate numerical times
+    const start = parseTime(event.startTime);
     
-    // Grid Position Calculation
-    const start = parseTime(event.startTime); 
-    const end = start + event.duration; 
+    // 2. Calculate Absolute Vertical Positioning (Top and Height)
+    const topPositionRem = (start - CALENDAR_START_HOUR) * ROW_HEIGHT_REM;
+    const heightRem = event.duration * ROW_HEIGHT_REM;
 
-    // Convert time to Grid Row Index
-    // +1 is needed because CSS Grid lines are 1-indexed
-    const gridRowStart = (start - CALENDAR_START_HOUR) + 1;
-    const gridRowEnd = (end - CALENDAR_START_HOUR) + 1;
+    // 3. Calculate Absolute Horizontal Positioning (Left and Width)
+    const leftPercentage = (columnIndex / totalColumns) * 100;
+    const widthPercentage = (colSpan / totalColumns) * 100;
 
-    // We can support partial hours (e.g. 10:30) via decimals if the parent grid supports it,
-    // otherwise this snaps to the hour.
-    // Given the previous setup (repeat rows), this allows decimal mapping if we used calc() or standard grid lines.
-    // However, standard CSS grid-row integer syntax requires whole numbers usually unless we use top/height %.
-    // To keep it simple based on your prompt's logic:
-    const gridStyle: React.CSSProperties = {
-        gridRowStart: gridRowStart, 
-        gridRowEnd: gridRowEnd,
-        gridColumn: '1 / -1', // Span full width of the day column
+    const absoluteStyle: React.CSSProperties = {
+        position: 'absolute',
+        top: `${topPositionRem}rem`,
+        height: `${heightRem}rem`,
+        left: `${leftPercentage}%`,
+        width: `${widthPercentage}%`,
+        padding: '2px',
+        zIndex: 10, // Ensure events float above the background grid lines
     };
 
     const eventEndTime = calculateEndTime(event.startTime, event.duration);
@@ -37,8 +51,8 @@ export function EventCard({ event, showHourLabels }: { event: IEvent, showHourLa
     return (
         <Link
             href={`/event/${event.id}`}
-            className="m-1 relative group block hover:z-10 transition-all duration-200"
-            style={gridStyle}
+            className="group block hover:z-20 transition-all duration-200"
+            style={absoluteStyle}
         >
             <div className={`
                 h-full w-full rounded-md border-l-4 p-2 shadow-sm text-xs overflow-hidden flex flex-col gap-1 transition-colors
@@ -46,12 +60,12 @@ export function EventCard({ event, showHourLabels }: { event: IEvent, showHourLa
                 dark:bg-blue-900/20 dark:border-blue-500 dark:hover:bg-blue-900/40
                 vibrant:bg-violet-50 vibrant:border-purple-500 vibrant:hover:bg-violet-100 vibrant:hover:shadow-md
             `}>
-                {/* Title: Blue-900 (Light) -> Blue-100 (Dark) */}
+                {/* Title */}
                 <div className="font-bold text-blue-900 dark:text-blue-100 vibrant:text-purple-900 truncate leading-tight">
                     {event.title}
                 </div>
                 
-                {/* Time: Blue-700 (Light) -> Blue-300 (Dark) */}
+                {/* Time */}
                 <div className="flex items-center text-blue-700 dark:text-blue-300 vibrant:text-purple-700 gap-1 opacity-90">
                     <Clock size={12} />
                     <span className="truncate">
@@ -59,8 +73,8 @@ export function EventCard({ event, showHourLabels }: { event: IEvent, showHourLa
                     </span>
                 </div>
     
-                {/* Description */}
-                {event.duration >= 1 && (
+                {/* Description - only show if there is enough vertical space (e.g., duration > 0.5 hours) */}
+                {event.duration > 0.5 && (
                     <p className="text-blue-800/70 dark:text-blue-200/60 vibrant:text-purple-800/70 line-clamp-2 mt-1">
                         {event.description || "No description"}
                     </p>

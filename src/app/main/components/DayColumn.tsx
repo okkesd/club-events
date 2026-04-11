@@ -11,6 +11,90 @@ interface DayColumnProps {
     isFirstDay: boolean;
 }
 
+function parseTime(time: string): number {
+    const [hours, minutes] = time.split(':').map(Number);
+    return hours + (minutes / 60);
+}
+
+interface LayoutInfo {
+    columnIndex: number;
+    totalColumns: number;
+    colSpan: number;
+}
+
+/**
+ * Compute side-by-side layout for overlapping events.
+ * Events expand rightward into free columns when possible.
+ */
+function computeOverlapLayout(events: IEvent[]): Map<string, LayoutInfo> {
+    const result = new Map<string, LayoutInfo>();
+    if (events.length === 0) return result;
+
+    // Sort by start time, then by duration descending (longer events first)
+    const sorted = [...events].sort((a, b) => {
+        const startA = parseTime(a.startTime);
+        const startB = parseTime(b.startTime);
+        if (startA !== startB) return startA - startB;
+        return b.duration - a.duration;
+    });
+
+    // Group overlapping events into isolated clusters
+    const clusters: { event: IEvent; start: number; end: number; col: number }[][] = [];
+    let currentCluster: { event: IEvent; start: number; end: number; col: number }[] = [];
+    let clusterMaxEnd = -1;
+
+    for (const event of sorted) {
+        const start = parseTime(event.startTime);
+        const end = start + event.duration;
+
+        // If the current event starts after the cluster's max end time, start a new cluster
+        if (currentCluster.length > 0 && start >= clusterMaxEnd) {
+            clusters.push(currentCluster);
+            currentCluster = [];
+            clusterMaxEnd = -1;
+        }
+
+        // Greedy column assignment within the current cluster
+        let col = 0;
+        while (currentCluster.some(p => p.col === col && start < p.end && end > p.start)) {
+            col++;
+        }
+
+        currentCluster.push({ event, start, end, col });
+        clusterMaxEnd = Math.max(clusterMaxEnd, end);
+    }
+    
+    if (currentCluster.length > 0) {
+        clusters.push(currentCluster);
+    }
+
+    // Process layout logic per cluster instead of globally
+    for (const cluster of clusters) {
+        // Find max columns just for this specific time block
+        const clusterMaxCol = Math.max(...cluster.map(p => p.col)) + 1;
+
+        for (const item of cluster) {
+            let span = 1;
+            // Expand rightward into free columns within the cluster's bounds
+            for (let nextCol = item.col + 1; nextCol < clusterMaxCol; nextCol++) {
+                const blocked = cluster.some(
+                    p => p.col === nextCol && p.start < item.end && p.end > item.start
+                );
+                if (blocked) break;
+                span++;
+            }
+
+            result.set(item.event.id, {
+                columnIndex: item.col,
+                totalColumns: clusterMaxCol,
+                colSpan: span,
+            });
+        }
+    }
+
+    return result;
+}
+
 export function DayColumn({ day, events, isFirstDay }: DayColumnProps) {
     const today = new Date();
     const isToday =
@@ -29,6 +113,8 @@ export function DayColumn({ day, events, isFirstDay }: DayColumnProps) {
         const startHour = parseInt(event.startTime.split(':')[0], 10);
         return startHour >= CALENDAR_START_HOUR && startHour < CALENDAR_END_HOUR;
     });
+
+    const overlapLayout = computeOverlapLayout(validEvents);
 
     return (
         <div className="flex flex-col flex-1 h-full min-w-0 bg-white dark:bg-gray-950 vibrant:bg-white/50 border-r border-slate-200 dark:border-gray-800 vibrant:border-purple-200 last:border-r-0 transition-colors">
@@ -79,13 +165,19 @@ export function DayColumn({ day, events, isFirstDay }: DayColumnProps) {
                 ))}
     
                 {/* Layer 2: The Events */}
-                {validEvents.map((event) => (
-                    <EventCard 
-                        key={event.id} 
-                        event={event} 
-                        showHourLabels={isFirstDay} 
-                    />
-                ))}
+                {validEvents.map((event) => {
+                    const layout = overlapLayout.get(event.id);
+                    return (
+                        <EventCard
+                            key={event.id}
+                            event={event}
+                            showHourLabels={isFirstDay}
+                            columnIndex={layout?.columnIndex ?? 0}
+                            totalColumns={layout?.totalColumns ?? 1}
+                            colSpan={layout?.colSpan ?? 1}
+                        />
+                    );
+                })}
             </div>
         </div>
     );

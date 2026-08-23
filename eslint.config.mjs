@@ -12,8 +12,6 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // Build-time CommonJS helpers consumed by the Dockerfile, not app code.
-    "docker/**",
   ]),
 ]);
 

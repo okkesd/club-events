@@ -21,11 +21,20 @@ RUN npm run build
 # Next vendors a pre-bundled tar 6.2.1 at next/dist/compiled/tar which rides
 # into the standalone output and trips CVE-2026-59873 (fixed in 7.5.19). Only
 # lib/download-swc.js uses it, and only during a build, so swap in a patched
-# tar rather than dropping it. See docker/compiled-tar-shim.js.
+# tar rather than dropping it.
+#
+# download-swc.js loads the bundle through SWC's `_interop_require_default` and
+# then reads `.default`. tar v7 marks itself `__esModule` but exports no
+# default, so the shim below exposes one pointing back at the API.
 RUN mkdir -p /tmp/tar \
  && npm install --no-save --prefix /tmp/tar tar@^7.5.22 \
  && cp -R /tmp/tar/node_modules/. ./.next/standalone/node_modules/ \
- && cp docker/compiled-tar-shim.js ./.next/standalone/node_modules/next/dist/compiled/tar/index.js \
+ && printf '%s\n' \
+      "const tar = require('tar')" \
+      "const api = { ...tar }" \
+      "api.default = api" \
+      "module.exports = api" \
+      > ./.next/standalone/node_modules/next/dist/compiled/tar/index.js \
  && rm -rf /tmp/tar \
  && node -e "const t=require('./.next/standalone/node_modules/next/dist/compiled/tar');if(typeof t.default.x!=='function')throw new Error('tar shim did not resolve')"
 

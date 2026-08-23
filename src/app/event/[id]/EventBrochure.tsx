@@ -57,8 +57,11 @@ export function EventBrochure({ src, alt }: { src: string; alt: string }) {
 
   // The Modal uses a Portal to jump to the <body>
   const modalContent = isOpen ? (
-    <div 
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-sm animate-in fade-in duration-200 p-4"
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={alt}
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-sm animate-in fade-in duration-200 p-4 cursor-zoom-out"
       onClick={() => setIsOpen(false)}
     >
       <button 
@@ -73,8 +76,7 @@ export function EventBrochure({ src, alt }: { src: string; alt: string }) {
         alt={alt}
         width={1200}
         height={900}
-        className="max-w-full max-h-full object-contain shadow-2xl rounded-lg animate-in zoom-in-95 duration-300 select-none"
-        onClick={(e) => e.stopPropagation()}
+        className="w-auto h-auto max-w-full max-h-full object-contain shadow-2xl rounded-lg animate-in zoom-in-95 duration-300 select-none"
       />
     </div>
   ) : null;

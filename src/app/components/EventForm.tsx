@@ -66,7 +66,10 @@ export default function EventForm({ initialData, onSubmit, onCancel, isSubmittin
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (titleOverLimit || descOverLimit) return;
-        onSubmit(formData);
+        // timeMode only drives the endTime calculation above — it isn't part of
+        // the API schema, so keep it out of the request body.
+        const { timeMode, ...payload } = formData;
+        onSubmit(payload);
     };
 
     return (

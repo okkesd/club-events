@@ -42,8 +42,10 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
   const handleUpdate = async (formData: any) => {
     setIsSubmitting(true);
     try {
-        const updated = await updateEvent(currentEvent.id, formData);
-        setCurrentEvent(updated);
+        const res = await updateEvent(currentEvent.id, formData);
+        // The API returns an envelope; the event itself is under .data.
+        if (!res.data) throw new Error(res.errorMsg || "Update returned no event");
+        setCurrentEvent(res.data);
         setIsEditing(false);
         router.refresh();
     } catch (err) {

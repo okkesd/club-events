@@ -7,12 +7,22 @@ const PYTHON_API = process.env.BACKEND_URL || "http://127.0.0.1:8000";
 const API_SECRET = process.env.API_SECRET_KEY;
 
 // --- HELPERS ---
-function getClientIp(request: NextRequest): string {
-  return (
-    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
-    request.headers.get("x-real-ip") ||
-    "unknown"
-  );
+// The backend rate-limits on the real client address, which it reads out of the
+// forwarded chain. Pass the chain through verbatim rather than collapsing it to
+// one entry: the backend picks the rightmost non-trusted hop, and a single-entry
+// chain would hand it a client-controlled value instead.
+//
+// Returns null when the caller sent nothing — an absent header makes the backend
+// fall back to the peer address, whereas a fabricated one silently becomes a
+// rate-limit bucket of its own.
+function getForwardedChain(request: NextRequest): string | null {
+  const chain = request.headers.get("x-forwarded-for")?.trim();
+  if (chain) return chain;
+
+  const realIp = request.headers.get("x-real-ip")?.trim();
+  if (realIp) return realIp;
+
+  return null;
 }
 
 // Resolves the visitor UUID: explicit header (from SSR) > cookie (from browser)
@@ -28,9 +38,13 @@ function getForwardedHeaders(request: NextRequest) {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     "x-api-key": API_SECRET || "",
-    "X-Forwarded-For": getClientIp(request),
     "X-Visitor-Id": getVisitorId(request),
   };
+
+  const forwardedFor = getForwardedChain(request);
+  if (forwardedFor) {
+    headers["X-Forwarded-For"] = forwardedFor;
+  }
 
   const authHeader = request.headers.get("authorization");
   if (authHeader) {
@@ -146,9 +160,13 @@ async function handleMutation(
     // 2. Prepare headers
     const headers: Record<string, string> = {
       "x-api-key": API_SECRET || "",
-      "X-Forwarded-For": getClientIp(request),
       "X-Visitor-Id": getVisitorId(request),
     };
+
+    const forwardedFor = getForwardedChain(request);
+    if (forwardedFor) {
+      headers["X-Forwarded-For"] = forwardedFor;
+    }
 
     // Forward Authorization Header (Crucial for protected actions)
     const authHeader = request.headers.get("authorization");
@@ -184,6 +202,11 @@ async function handleMutation(
       if (pathString.startsWith("announcements")) {
         revalidateTag("announcements", {expire: 0});
         console.log("Cache cleared for tag: announcements");
+      }
+      // Approving a scraped event publishes a real Event -> bust the events cache
+      else if (pathString.startsWith("admin/scraped-events") && pathString.endsWith("/approve")) {
+        revalidateTag("events", {expire: 0});
+        console.log("Cache cleared for tag: events");
       }
       // You can easily add more rules here later!
       // else if (pathString.startsWith("events")) {

@@ -25,6 +25,9 @@ export interface ClubData {
   role: 'admin' | 'club';
   isVerified: boolean;
   rejectionReason?: string;
+
+  // Instagram handle used to auto-match scraped events to this club (admin-editable)
+  igUsername?: string | null;
 }
 
 // For updating a club profile
@@ -34,6 +37,7 @@ export interface IClubUpdate {
   description?: string;
   logoUrl?: string;
   bannerUrl?: string;
+  igUsername?: string | null; // admin only — 403 when a club edits itself
 }
 
 /**
@@ -218,4 +222,94 @@ export interface IEventFilters {
   page?: number;
   pageSize?: number;
   sort_order?: "asc" | "desc";
+}
+
+/**
+ * --- SCRAPED EVENTS (admin approval inbox) ---
+ *
+ * Candidate events extracted from clubs' Instagram posts. They live in a staging
+ * table and only become real Events once an admin approves them.
+ */
+export type ScrapedEventStatus = 'pending' | 'approved' | 'rejected';
+
+export interface IScrapedEvent {
+  id: string;
+  source: string;
+  sourceEventId: string;
+
+  // Source post
+  clubUsername: string;
+  postShortcode: string;
+  postUrl: string;
+  postCaption?: string | null;
+  postImageUrl?: string | null;
+  postedAt: string;
+
+  // Extracted content (all editable, all nullable)
+  title?: string | null;
+  date?: string | null;      // ISO datetime
+  location?: string | null;
+  description?: string | null;
+  confidence: number;        // 0..1
+
+  // Review state
+  status: ScrapedEventStatus;
+  rejectionReason?: string | null;
+  reviewedAt?: string | null;
+  clubId?: string | null;    // null when the IG handle isn't linked to a club
+  clubName?: string | null;
+  clubIsRemembered: boolean; // club came from a stored handle->publisher mapping, not a fresh match
+  createdEventId?: string | null;
+  createdAt: string;
+}
+
+export interface IScrapedEventFilters {
+  status?: ScrapedEventStatus | 'all';
+  clubId?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+// PATCH /admin/scraped-events/{id} — fix the extraction before approving
+export interface IScrapedEventUpdate {
+  title?: string;
+  date?: string;
+  location?: string;
+  description?: string;
+  clubId?: string;
+}
+
+// POST /admin/scraped-events/{id}/approve — all optional overrides
+export interface IScrapedEventApprove {
+  clubId?: string;
+  publishAsAdmin?: boolean;  // publish under the admin account; clubId is ignored when true
+  title?: string;
+  description?: string;
+  date?: string;            // "YYYY-MM-DD"
+  startTime?: string;       // "HH:MM"
+  endTime?: string;         // "HH:MM"
+  duration?: number;
+  locationType?: 'on-campus' | 'off-campus';
+  location?: string;
+  coverImage?: string;
+  tags?: string[];
+  isRegistrationOpen?: boolean;
+  registrationLink?: string | null;
+  capacity?: number | null;
+}
+
+export interface IScrapedImportResult {
+  imported: number;
+  skipped: number;
+  matchedClubs: number;
+}
+
+// Admin's routing decision: which account a scraped Instagram handle publishes under.
+// Distinct from a club's own ClubData.igUsername — the mapping wins.
+export interface IIgClubMapping {
+  clubUsername: string;
+  userId: string;
+  userName: string;
+  isAdmin: boolean;
+  updatedAt: string;
 }

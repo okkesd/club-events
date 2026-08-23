@@ -4,10 +4,11 @@ import React, { useState, useEffect } from 'react';
 import {
     Shield, CheckCircle2, XCircle, Clock, Search,
     MoreHorizontal, ExternalLink, Loader2,
-    AlertTriangle, X, Ban, Mail, Trash2
+    AlertTriangle, X, Ban, Mail, Trash2, Instagram, Check
 } from 'lucide-react';
-import { getAdminClubs, setClubVerification, getContacts, getAdminSubscriptions, cleanupStorage } from '@/app/lib/api';
+import { getAdminClubs, setClubVerification, getContacts, getAdminSubscriptions, cleanupStorage, getScrapedEvents, updateClub } from '@/app/lib/api';
 import { ClubData, ISubscription } from '@/app/lib/types';
+import ScrapedEventsPanel from '@/app/components/ScrapedEventsPanel';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
 
@@ -19,8 +20,64 @@ interface ContactMsg {
     date: string;
 }
 
+/**
+ * Instagram handle for a club — admin-only (PATCH /clubs/{id} 403s for a club editing itself).
+ * Without it, scraped Instagram posts can't auto-match to this club.
+ */
+function IgHandleCell({ club }: { club: ClubData }) {
+    const [value, setValue] = useState(club.igUsername || "");
+    const [saved, setSaved] = useState<string>(club.igUsername || "");
+    const [isSaving, setIsSaving] = useState(false);
+    const [failed, setFailed] = useState(false);
+
+    const isDirty = value.trim() !== saved;
+
+    const save = async () => {
+        const next = value.trim();
+        setIsSaving(true);
+        setFailed(false);
+        try {
+            await updateClub(club.id, { igUsername: next || null });
+            setSaved(next);
+        } catch {
+            setFailed(true);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    return (
+        <div className="flex items-center gap-1.5">
+            <span className="text-gray-400 dark:text-gray-500 text-sm">@</span>
+            <input
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && isDirty) save(); }}
+                placeholder="handle"
+                className={`w-32 px-2 py-1 text-sm rounded-lg border transition-colors outline-none
+                            focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:text-gray-200
+                            ${failed ? "border-red-400 dark:border-red-700" : "border-gray-200 dark:border-gray-700"}`}
+            />
+            {isDirty && (
+                <button
+                    onClick={save}
+                    disabled={isSaving}
+                    className="p-1.5 text-green-600 hover:bg-green-50 dark:text-green-500 dark:hover:bg-green-900/30 rounded-lg transition-colors"
+                    title="Save handle"
+                >
+                    {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                </button>
+            )}
+            {failed && <span className="text-xs text-red-500">failed</span>}
+        </div>
+    );
+}
+
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'pending' | 'verified' | 'blocked' | 'contacts' | 'subscribers'>('pending');
+  const [activeTab, setActiveTab] = useState<'pending' | 'verified' | 'blocked' | 'contacts' | 'subscribers' | 'scraped'>('pending');
+
+  // Pending-count badge for the Scraped Events tab
+  const [scrapedPending, setScrapedPending] = useState<number | null>(null);
 
   const [clubs, setClubs] = useState<ClubData[]>([]);
   const [contacts, setContacts] = useState<ContactMsg[]>([]);
@@ -61,10 +118,20 @@ export default function AdminDashboard() {
         fetchMessages();
     } else if (activeTab === 'subscribers') {
         fetchSubscribers();
+    } else if (activeTab === 'scraped') {
+        setIsLoadingPage(false); // the panel loads its own data
     } else {
         fetchClubs();
     }
   }, [activeTab, isAuthorized]);
+
+  // Pending scraped-event count for the tab badge
+  useEffect(() => {
+    if (!isAuthorized) return;
+    getScrapedEvents({ status: 'pending', pageSize: 1 })
+      .then(res => setScrapedPending(res.pagination?.total ?? 0))
+      .catch(() => setScrapedPending(null));
+  }, [isAuthorized]);
 
   // --- FETCHERS ---
   const fetchClubs = async () => {
@@ -267,12 +334,32 @@ export default function AdminDashboard() {
                 <Mail className="w-4 h-4" />
                 Subscribers
             </button>
+
+            {/* Scraped Events Tab */}
+            <button
+                onClick={() => setActiveTab('scraped')}
+                className={`pb-3 px-4 text-sm font-bold flex items-center gap-2 transition-colors border-b-2 whitespace-nowrap ${
+                    activeTab === 'scraped'
+                    ? 'border-pink-600 text-pink-700 dark:text-pink-400'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                }`}
+            >
+                <Instagram className="w-4 h-4" />
+                Scraped Events
+                {!!scrapedPending && (
+                    <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400">
+                        {scrapedPending}
+                    </span>
+                )}
+            </button>
         </div>
 
         {/* --- CONTENT AREA --- */}
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden transition-colors">
             
-            {isLoadingPage ? (
+            {activeTab === 'scraped' ? (
+                <ScrapedEventsPanel onPendingCountChange={setScrapedPending} />
+            ) : isLoadingPage ? (
                 <div className="p-12 text-center text-gray-400 dark:text-gray-500 flex flex-col items-center gap-2">
                     <Loader2 className="w-6 h-6 animate-spin" />
                     <span>Loading...</span>
@@ -383,6 +470,7 @@ export default function AdminDashboard() {
                                 <tr>
                                     <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Club Name</th>
                                     <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Instagram</th>
                                     {activeTab === 'blocked' && (
                                         <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Reason</th>
                                     )}
@@ -412,6 +500,11 @@ export default function AdminDashboard() {
                                                     <Clock className="w-3 h-3" /> Pending
                                                 </span>
                                             )}
+                                        </td>
+
+                                        {/* IG handle — enables scraped-event auto-matching */}
+                                        <td className="p-5">
+                                            <IgHandleCell key={club.id} club={club} />
                                         </td>
 
                                         {activeTab === 'blocked' && (

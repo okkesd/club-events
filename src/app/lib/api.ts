@@ -1,4 +1,4 @@
-import { IEvent, ClubData, IApiResponse, IClubUpdate, IEventUpdate, SignUpData, IAnnouncement, IAnnouncementCreate, IAnnouncementUpdate, IAnnouncementFilters, PaginatedResponse, IEventFilters, ISubscribeRequest, ISubscription } from './types';
+import { IEvent, ClubData, IApiResponse, IClubUpdate, IEventUpdate, SignUpData, IAnnouncement, IAnnouncementCreate, IAnnouncementUpdate, IAnnouncementFilters, PaginatedResponse, IEventFilters, ISubscribeRequest, ISubscription, IIgClubMapping, IScrapedEvent, IScrapedEventFilters, IScrapedEventUpdate, IScrapedEventApprove, IScrapedImportResult } from './types';
 import { getWeekStartDate } from './dateUtils';
 
 const URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4444";
@@ -385,7 +385,7 @@ export async function deleteEvent(eventId: string): Promise<IApiResponse<IEvent>
 }
 
 // to update an event by its owner
-export async function updateEvent(eventId: string, data: IEventUpdate) {
+export async function updateEvent(eventId: string, data: IEventUpdate): Promise<IApiResponse<IEvent>> {
   const BASE_URL = getBaseUrl();
 
     const res = await fetch(`${BASE_URL}/api/proxy/events/${eventId}`, {
@@ -395,7 +395,11 @@ export async function updateEvent(eventId: string, data: IEventUpdate) {
     });
 
     if (!res.ok) await handleApiError(res);
-    return res.json();
+
+    // Returns the standard envelope — the event is under .data, and needs the
+    // same snake_case normalization as every other event response.
+    const json = await res.json();
+    return { ...json, data: json.data ? normalizeEvent(json.data) : json.data };
 }
 
 export async function getAllClubsUser(search?: string): Promise<ClubData[]> {
@@ -777,5 +781,141 @@ export async function cleanupStorage(): Promise<{ success: boolean; total_in_sto
     headers: getAuthHeader(),
   });
   if (!res.ok) throw new Error("Cleanup failed");
+  return res.json();
+}
+/**
+ * --- SCRAPED EVENTS (admin approval inbox) ---
+ * All routes require an admin JWT; the proxy adds x-api-key.
+ * 400/409 bodies carry an admin-readable `detail` string — handleApiError surfaces it verbatim.
+ */
+
+// List candidates, highest confidence first.
+export async function getScrapedEvents(
+  filters: IScrapedEventFilters = {}
+): Promise<PaginatedResponse<IScrapedEvent>> {
+  const BASE_URL = getBaseUrl();
+  const params = new URLSearchParams();
+
+  if (filters.status) params.set("status", filters.status);
+  if (filters.clubId) params.set("clubId", filters.clubId);
+  params.set("page", String(filters.page ?? 1));
+  params.set("pageSize", String(filters.pageSize ?? 20));
+
+  const res = await fetch(`${BASE_URL}/api/proxy/admin/scraped-events?${params}`, {
+    headers: getAuthHeader(),
+    cache: "no-store",
+  });
+
+  if (!res.ok) await handleApiError(res);
+  return res.json();
+}
+
+export async function getScrapedEvent(id: string): Promise<IApiResponse<IScrapedEvent>> {
+  const BASE_URL = getBaseUrl();
+  const res = await fetch(`${BASE_URL}/api/proxy/admin/scraped-events/${id}`, {
+    headers: getAuthHeader(),
+    cache: "no-store",
+  });
+
+  if (!res.ok) await handleApiError(res);
+  return res.json();
+}
+
+// Fix what the extractor got wrong before approving. 409 if already approved.
+export async function updateScrapedEvent(
+  id: string,
+  data: IScrapedEventUpdate
+): Promise<IApiResponse<IScrapedEvent>> {
+  const BASE_URL = getBaseUrl();
+  const res = await fetch(`${BASE_URL}/api/proxy/admin/scraped-events/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...getAuthHeader() },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) await handleApiError(res);
+  return res.json();
+}
+
+// Publishes the candidate — returns the created event. 400 if club/date/title/location missing.
+export async function approveScrapedEvent(
+  id: string,
+  overrides: IScrapedEventApprove = {}
+): Promise<IApiResponse<IEvent>> {
+  const BASE_URL = getBaseUrl();
+  const res = await fetch(`${BASE_URL}/api/proxy/admin/scraped-events/${id}/approve`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...getAuthHeader() },
+    body: JSON.stringify(overrides),
+  });
+
+  if (!res.ok) await handleApiError(res);
+  const json = await res.json();
+  return { ...json, data: json.data ? normalizeEvent(json.data) : json.data };
+}
+
+export async function rejectScrapedEvent(
+  id: string,
+  rejectionReason?: string
+): Promise<IApiResponse<IScrapedEvent>> {
+  const BASE_URL = getBaseUrl();
+  const res = await fetch(`${BASE_URL}/api/proxy/admin/scraped-events/${id}/reject`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...getAuthHeader() },
+    body: JSON.stringify({ rejectionReason }),
+  });
+
+  if (!res.ok) await handleApiError(res);
+  return res.json();
+}
+
+// Removes the staging row only — a published event, if any, is left alone.
+export async function deleteScrapedEvent(id: string): Promise<IApiResponse<null>> {
+  const BASE_URL = getBaseUrl();
+  const res = await fetch(`${BASE_URL}/api/proxy/admin/scraped-events/${id}`, {
+    method: "DELETE",
+    headers: getAuthHeader(),
+  });
+
+  if (!res.ok) await handleApiError(res);
+  return res.json();
+}
+
+// "Refresh inbox" — pulls newly extracted candidates from the pipeline DB.
+export async function importScrapedEvents(): Promise<IApiResponse<IScrapedImportResult>> {
+  const BASE_URL = getBaseUrl();
+  const res = await fetch(`${BASE_URL}/api/proxy/admin/scraped-events/import`, {
+    method: "POST",
+    headers: getAuthHeader(),
+  });
+
+  if (!res.ok) await handleApiError(res);
+  return res.json();
+}
+
+/**
+ * --- INSTAGRAM HANDLE -> PUBLISHER MAPPINGS ---
+ * Learned whenever an admin assigns a club to a candidate or approves one.
+ * Separate from a club's self-declared ClubData.igUsername; the mapping wins.
+ */
+export async function getIgClubMappings(): Promise<IApiResponse<IIgClubMapping[]>> {
+  const BASE_URL = getBaseUrl();
+  const res = await fetch(`${BASE_URL}/api/proxy/admin/ig-club-mappings`, {
+    headers: getAuthHeader(),
+    cache: "no-store",
+  });
+
+  if (!res.ok) await handleApiError(res);
+  return res.json();
+}
+
+export async function deleteIgClubMapping(clubUsername: string): Promise<IApiResponse<null>> {
+  const BASE_URL = getBaseUrl();
+  const res = await fetch(
+    `${BASE_URL}/api/proxy/admin/ig-club-mappings/${encodeURIComponent(clubUsername)}`,
+    { method: "DELETE", headers: getAuthHeader() }
+  );
+
+  if (!res.ok) await handleApiError(res);
   return res.json();
 }

@@ -45,6 +45,11 @@ FROM node:22-alpine AS runner
 # (openssl CVE-2026-34182 needs 3.5.7-r0).
 RUN apk upgrade --no-cache
 
+# The base image ships npm, which vendors its own tar (CVE-2026-59873) that no
+# fix of ours can reach. The container only ever runs `node server.js`, so drop
+# npm entirely rather than chase whichever tar the bundled npm happens to pin.
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
+
 WORKDIR /app
 
 ENV NODE_ENV=production

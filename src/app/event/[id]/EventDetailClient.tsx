@@ -1,5 +1,6 @@
 "use client";
 
+import SourcePostButton from "@/app/components/SourcePostButton";
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -184,6 +185,7 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                 <div className="prose prose-blue prose-sm md:prose-base dark:prose-invert text-gray-600 dark:text-gray-300 vibrant:text-purple-700 whitespace-pre-line leading-relaxed max-w-none transition-colors">
                     {currentEvent.description}
                 </div>
+                <SourcePostButton url={currentEvent.sourcePostUrl} />
             </div>
           </div>
 

@@ -1,5 +1,7 @@
 "use client";
 
+import SourcePostButton from "@/app/components/SourcePostButton";
+import { EventBrochure } from "@/app/event/[id]/EventBrochure";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -123,9 +125,10 @@ export default function AnnouncementDetailPage() {
         <article className="bg-white dark:bg-gray-900 vibrant:bg-white/80 rounded-2xl border border-gray-200 dark:border-gray-800 vibrant:border-purple-200 shadow-sm overflow-hidden transition-colors">
           {/* Cover image */}
           {announcement.coverImage && (
-            <div className="w-full h-56 md:h-72 bg-gray-100 dark:bg-gray-800">
-              <img src={resolveImageUrl(announcement.coverImage)} alt={announcement.title} className="w-full h-full object-cover" />
-            </div>
+            <EventBrochure
+              src={resolveImageUrl(announcement.coverImage)}
+              alt={announcement.title}
+            />
           )}
 
           <div className="p-6 md:p-8">
@@ -181,6 +184,7 @@ export default function AnnouncementDetailPage() {
             <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 vibrant:text-purple-800 whitespace-pre-line leading-relaxed mb-6 transition-colors">
               {announcement.body}
             </div>
+                <SourcePostButton url={announcement.sourcePostUrl} />
 
             {/* Tags */}
             {announcement.tags.length > 0 && (

@@ -232,10 +232,15 @@ export interface IEventFilters {
  */
 export type ScrapedEventStatus = 'pending' | 'approved' | 'rejected';
 
+// The extractor classifies each post; a candidate publishes as an Event or an
+// Announcement depending on this. Admins can flip it before approving.
+export type ScrapedEventKind = 'event' | 'announcement';
+
 export interface IScrapedEvent {
   id: string;
   source: string;
   sourceEventId: string;
+  kind: ScrapedEventKind;
 
   // Source post
   clubUsername: string;
@@ -247,10 +252,17 @@ export interface IScrapedEvent {
 
   // Extracted content (all editable, all nullable)
   title?: string | null;
-  date?: string | null;      // ISO datetime
-  location?: string | null;
   description?: string | null;
   confidence: number;        // 0..1
+
+  // Event-only — null on announcement candidates
+  date?: string | null;      // ISO datetime
+  location?: string | null;
+
+  // Announcement-only — null on event candidates
+  category?: AnnouncementCategory | null;
+  link?: string | null;
+  expiresAt?: string | null; // "YYYY-MM-DD"
 
   // Review state
   status: ScrapedEventStatus;
@@ -260,23 +272,30 @@ export interface IScrapedEvent {
   clubName?: string | null;
   clubIsRemembered: boolean; // club came from a stored handle->publisher mapping, not a fresh match
   createdEventId?: string | null;
+  createdAnnouncementId?: string | null;
   createdAt: string;
 }
 
 export interface IScrapedEventFilters {
   status?: ScrapedEventStatus | 'all';
+  kind?: ScrapedEventKind | 'all';
   clubId?: string;
   page?: number;
   pageSize?: number;
 }
 
-// PATCH /admin/scraped-events/{id} — fix the extraction before approving
+// PATCH /admin/scraped-events/{id} — fix the extraction before approving,
+// including reclassifying a misjudged candidate via `kind`.
 export interface IScrapedEventUpdate {
+  kind?: ScrapedEventKind;
   title?: string;
   date?: string;
   location?: string;
   description?: string;
   clubId?: string;
+  category?: AnnouncementCategory;
+  link?: string;
+  expiresAt?: string;
 }
 
 // POST /admin/scraped-events/{id}/approve — all optional overrides
@@ -296,6 +315,21 @@ export interface IScrapedEventApprove {
   isRegistrationOpen?: boolean;
   registrationLink?: string | null;
   capacity?: number | null;
+}
+
+// POST /admin/scraped-events/{id}/approve-announcement — all optional overrides.
+// title and body are required by the backend; the panel enforces them first.
+export interface IScrapedAnnouncementApprove {
+  clubId?: string;
+  publishAsAdmin?: boolean;  // publish under the admin account; clubId is ignored when true
+  title?: string;
+  body?: string;
+  category?: AnnouncementCategory;
+  link?: string;
+  coverImage?: string;
+  tags?: string[];
+  isPinned?: boolean;
+  expiresAt?: string;        // "YYYY-MM-DD"
 }
 
 export interface IScrapedImportResult {

@@ -203,10 +203,15 @@ async function handleMutation(
         revalidateTag("announcements", {expire: 0});
         console.log("Cache cleared for tag: announcements");
       }
-      // Approving a scraped event publishes a real Event -> bust the events cache
+      // Approving a scraped candidate publishes a real Event or Announcement
+      // -> bust whichever cache the approve endpoint just wrote to.
       else if (pathString.startsWith("admin/scraped-events") && pathString.endsWith("/approve")) {
         revalidateTag("events", {expire: 0});
         console.log("Cache cleared for tag: events");
+      }
+      else if (pathString.startsWith("admin/scraped-events") && pathString.endsWith("/approve-announcement")) {
+        revalidateTag("announcements", {expire: 0});
+        console.log("Cache cleared for tag: announcements");
       }
       // You can easily add more rules here later!
       // else if (pathString.startsWith("events")) {

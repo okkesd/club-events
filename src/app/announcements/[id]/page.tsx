@@ -86,7 +86,7 @@ export default function AnnouncementDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 vibrant:bg-transparent py-8 px-4 transition-colors">
-      <div className="max-w-3xl mx-auto">
+      <div className={`${announcement.coverImage ? "max-w-6xl" : "max-w-3xl"} mx-auto`}>
         {/* Top nav */}
         <div className="flex justify-between items-center mb-6">
           <Link
@@ -121,16 +121,19 @@ export default function AnnouncementDetailPage() {
           )}
         </div>
 
-        {/* Main card */}
-        <article className="bg-white dark:bg-gray-900 vibrant:bg-white/80 rounded-2xl border border-gray-200 dark:border-gray-800 vibrant:border-purple-200 shadow-sm overflow-hidden transition-colors">
+        <div className={`grid grid-cols-1 gap-8 items-start ${announcement.coverImage ? "lg:grid-cols-3" : ""}`}>
           {/* Cover image */}
           {announcement.coverImage && (
-            <EventBrochure
-              src={resolveImageUrl(announcement.coverImage)}
-              alt={announcement.title}
-            />
+            <div className="lg:sticky lg:top-8 rounded-2xl border border-gray-200 dark:border-gray-800 vibrant:border-purple-200 bg-white dark:bg-gray-900 vibrant:bg-white/80 shadow-sm overflow-hidden transition-colors">
+              <EventBrochure
+                src={resolveImageUrl(announcement.coverImage)}
+                alt={announcement.title}
+              />
+            </div>
           )}
 
+        {/* Announcement content */}
+        <article className={`${announcement.coverImage ? "lg:col-span-2" : ""} min-w-0 break-words bg-white dark:bg-gray-900 vibrant:bg-white/80 rounded-2xl border border-gray-200 dark:border-gray-800 vibrant:border-purple-200 shadow-sm overflow-hidden transition-colors`}>
           <div className="p-6 md:p-8">
             {/* Badges */}
             <div className="flex items-center gap-2 flex-wrap mb-4">
@@ -215,6 +218,7 @@ export default function AnnouncementDetailPage() {
             )}
           </div>
         </article>
+        </div>
       </div>
 
       {/* Delete confirmation modal */}

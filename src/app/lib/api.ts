@@ -1,4 +1,4 @@
-import { IEvent, ClubData, IApiResponse, IClubUpdate, IEventUpdate, SignUpData, IAnnouncement, IAnnouncementCreate, IAnnouncementUpdate, IAnnouncementFilters, PaginatedResponse, IEventFilters, ISubscribeRequest, ISubscription, IIgClubMapping, IScrapedEvent, IScrapedEventFilters, IScrapedEventUpdate, IScrapedEventApprove, IScrapedImportResult } from './types';
+import { IEvent, ClubData, IApiResponse, IClubUpdate, IEventUpdate, SignUpData, IAnnouncement, IAnnouncementCreate, IAnnouncementUpdate, IAnnouncementFilters, PaginatedResponse, IEventFilters, ISubscribeRequest, ISubscription, IIgClubMapping, IScrapedEvent, IScrapedEventFilters, IScrapedEventUpdate, IScrapedEventApprove, IScrapedAnnouncementApprove, IScrapedImportResult } from './types';
 import { getWeekStartDate } from './dateUtils';
 
 const URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4444";
@@ -797,6 +797,7 @@ export async function getScrapedEvents(
   const params = new URLSearchParams();
 
   if (filters.status) params.set("status", filters.status);
+  if (filters.kind && filters.kind !== "all") params.set("kind", filters.kind);
   if (filters.clubId) params.set("clubId", filters.clubId);
   params.set("page", String(filters.page ?? 1));
   params.set("pageSize", String(filters.pageSize ?? 20));
@@ -852,6 +853,23 @@ export async function approveScrapedEvent(
   if (!res.ok) await handleApiError(res);
   const json = await res.json();
   return { ...json, data: json.data ? normalizeEvent(json.data) : json.data };
+}
+
+// Publishes an announcement candidate — returns the created announcement.
+// 400 if title/body missing, or if the row is an event (the detail names /approve).
+export async function approveScrapedAnnouncement(
+  id: string,
+  overrides: IScrapedAnnouncementApprove = {}
+): Promise<IApiResponse<IAnnouncement>> {
+  const BASE_URL = getBaseUrl();
+  const res = await fetch(`${BASE_URL}/api/proxy/admin/scraped-events/${id}/approve-announcement`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...getAuthHeader() },
+    body: JSON.stringify(overrides),
+  });
+
+  if (!res.ok) await handleApiError(res);
+  return res.json();
 }
 
 export async function rejectScrapedEvent(

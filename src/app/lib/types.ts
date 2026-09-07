@@ -44,6 +44,7 @@ export interface IClubUpdate {
  * --- EVENTS ---
  */
 export interface IEvent {
+  sourcePostUrl?: string | null;
   id: string;
   clubId: string;
   clubName: string; // Flattened for display
@@ -116,6 +117,7 @@ export type AnnouncementCategory =
   | 'recruitment' | 'academic' | 'workshop' | 'general';
 
 export interface IAnnouncement {
+  sourcePostUrl?: string | null;
   id: string;
   clubId: string;
   clubName: string;

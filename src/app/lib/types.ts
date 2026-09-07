@@ -123,7 +123,7 @@ export interface IAnnouncement {
   clubName: string;
   title: string;
   body: string;
-  coverImage?: string;
+  coverImage?: string | null;
   link?: string;
   tags: string[];
   category: AnnouncementCategory;
@@ -139,7 +139,7 @@ export interface IAnnouncementCreate {
   clubId: string;
   title: string;
   body: string;
-  coverImage?: string;
+  coverImage?: string | null;
   link?: string;
   tags?: string[];
   category?: AnnouncementCategory;
@@ -149,7 +149,7 @@ export interface IAnnouncementCreate {
 export interface IAnnouncementUpdate {
   title?: string;
   body?: string;
-  coverImage?: string;
+  coverImage?: string | null;
   link?: string;
   tags?: string[];
   category?: AnnouncementCategory;

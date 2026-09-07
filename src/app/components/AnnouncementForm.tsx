@@ -27,7 +27,7 @@ interface AnnouncementFormProps {
   initialData?: {
     title?: string;
     body?: string;
-    coverImage?: string;
+    coverImage?: string | null;
     link?: string;
     tags?: string[];
     category?: AnnouncementCategory;
@@ -109,7 +109,7 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (titleOverLimit || bodyOverLimit) return;
+    if (titleOverLimit || bodyOverLimit || isUploading) return;
   
     // 1. Calculate the exact YYYY-MM-DD date using your new helper and the 'duration' state
     // Grab the date based on whichever mode the user had active
@@ -126,7 +126,7 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
       ...formData,
       expiresAt: finalExpiresAt, // <-- Overwrite with the calculated date
       link: formData.link || undefined,
-      coverImage: formData.coverImage || undefined,
+      coverImage: formData.coverImage || null,
     };
     
     // 3. Send the perfectly formatted payload up to the parent page
@@ -213,6 +213,7 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
               <img src={resolveImageUrl(formData.coverImage)} alt="Cover" className="w-full h-full object-cover" />
               <button
                 type="button"
+                disabled={isUploading || isSubmitting}
                 onClick={() => setFormData({ ...formData, coverImage: "" })}
                 className="absolute inset-0 bg-black/50 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-xs font-bold cursor-pointer"
               >
@@ -392,7 +393,7 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
         )}
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isUploading}
           className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 vibrant:bg-purple-600 vibrant:hover:bg-purple-700 text-white font-bold rounded-xl disabled:opacity-50 transition-colors"
         >
           {isSubmitting ? "Saving..." : initialData ? "Save Changes" : "Publish"}

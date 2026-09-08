@@ -1,3 +1,5 @@
+"use client";
+import {useUI} from "@/i18n/useUI";
 import React from "react";
 import Link from "next/link";
 import { IEvent } from "@/app/lib/types";
@@ -10,14 +12,15 @@ interface ListViewDayProps {
 }
 
 export function ListViewDay({ day, events }: ListViewDayProps) {
+  const {t, locale} = useUI();
     const today = new Date();
     const isToday =
         day.getDate() === today.getDate() &&
         day.getMonth() === today.getMonth() &&
         day.getFullYear() === today.getFullYear();
 
-    const dayName = day.toLocaleDateString("en-US", { weekday: "long" });
-    const monthDay = day.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    const dayName = day.toLocaleDateString(locale, { weekday: "long" });
+    const monthDay = day.toLocaleDateString(locale, { month: "short", day: "numeric" });
 
     return (
         <div>
@@ -51,9 +54,9 @@ export function ListViewDay({ day, events }: ListViewDayProps) {
                             href={`/event/${event.id}`}
                             className="group block bg-white dark:bg-gray-900 vibrant:bg-white/80 border border-gray-200 dark:border-gray-800 vibrant:border-purple-200 rounded-xl p-4 hover:border-blue-400 dark:hover:border-blue-500 vibrant:hover:border-purple-400 hover:shadow-md vibrant:hover:shadow-purple-200/50 transition-all"
                         >
-                            <div className="flex items-start gap-3">
+                            <div className="flex flex-col md:flex-row items-start gap-2 md:gap-3">
                                 {/* Time badge */}
-                                <div className="shrink-0 text-center min-w-[56px]">
+                                <div className="hidden md:block shrink-0 text-center min-w-[56px]">
                                     <p className="text-sm font-bold text-blue-600 dark:text-blue-400 vibrant:text-purple-600">{event.startTime}</p>
                                     <p className="text-[10px] text-gray-400 dark:text-gray-500">
                                         {calculateEndTime(event.startTime, event.duration)}
@@ -61,18 +64,20 @@ export function ListViewDay({ day, events }: ListViewDayProps) {
                                 </div>
 
                                 {/* Divider */}
-                                <div className="w-px self-stretch bg-blue-300 dark:bg-blue-700 vibrant:bg-purple-300 rounded-full" />
+                                <div className="hidden md:block w-px self-stretch bg-blue-300 dark:bg-blue-700 vibrant:bg-purple-300 rounded-full" />
 
                                 {/* Content */}
-                                <div className="flex-1 min-w-0">
-                                    <h4 className="font-bold text-gray-900 dark:text-gray-100 vibrant:text-purple-900 group-hover:text-blue-600 dark:group-hover:text-blue-400 vibrant:group-hover:text-pink-600 truncate transition-colors">
+                                <div className="w-full md:w-auto flex-1 min-w-0">
+                                    <p className="md:hidden mb-2 text-sm font-semibold text-blue-600 dark:text-blue-400 vibrant:text-purple-600">
+                                        {event.startTime} - {calculateEndTime(event.startTime, event.duration)}
+                                    </p>
+                                    <h4 className="font-bold text-gray-900 dark:text-gray-100 vibrant:text-purple-900 group-hover:text-blue-600 dark:group-hover:text-blue-400 vibrant:group-hover:text-pink-600 [overflow-wrap:anywhere] md:truncate transition-colors">
                                         {event.title}
                                     </h4>
                                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-xs text-gray-500 dark:text-gray-400">
                                         <span className="flex items-center gap-1">
                                             <Clock className="w-3 h-3" />
-                                            {event.duration}h
-                                        </span>
+                                            {event.duration}{t("h")}</span>
                                         <span className="flex items-center gap-1">
                                             <MapPin className="w-3 h-3" />
                                             <span className="truncate max-w-[150px]">{event.location}</span>
@@ -90,8 +95,7 @@ export function ListViewDay({ day, events }: ListViewDayProps) {
                 </div>
             ) : (
                 <p className="ml-[52px] text-sm text-gray-400 dark:text-gray-600 vibrant:text-purple-300 italic transition-colors">
-                    No events
-                </p>
+                    {t("No events")}</p>
             )}
         </div>
     );

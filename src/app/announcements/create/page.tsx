@@ -1,4 +1,6 @@
 "use client";
+import {useUI} from "@/i18n/useUI";
+
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -9,6 +11,7 @@ import { useAuth } from "@/app/context/AuthContext";
 import AnnouncementForm from "@/app/components/AnnouncementForm";
 
 export default function CreateAnnouncementPage() {
+  const {t} = useUI();
   const router = useRouter();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -20,7 +23,7 @@ export default function CreateAnnouncementPage() {
       await createAnnouncement({ ...data, clubId: user.id });
       router.push("/announcements");
     } catch (err: any) {
-      alert(err.message || "Failed to create announcement");
+      alert(t("Failed to create announcement"));
     } finally {
       setIsSubmitting(false);
     }
@@ -30,10 +33,9 @@ export default function CreateAnnouncementPage() {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 vibrant:bg-transparent flex flex-col items-center justify-center gap-4 transition-colors">
         <Megaphone className="w-12 h-12 text-gray-300 dark:text-gray-700" />
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900">Login required</h2>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900">{t("Login required")}</h2>
         <Link href="/login" className="text-blue-600 dark:text-blue-400 vibrant:text-purple-600 font-semibold hover:underline">
-          Go to Login
-        </Link>
+          {t("Go to Login")}</Link>
       </div>
     );
   }
@@ -44,11 +46,10 @@ export default function CreateAnnouncementPage() {
         <div className="mx-auto w-16 h-16 bg-yellow-100 dark:bg-yellow-900/30 vibrant:bg-yellow-100/80 rounded-full flex items-center justify-center">
           <ShieldAlert className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
         </div>
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900">Verification Required</h2>
-        <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-600 text-center max-w-md">Only verified clubs can post announcements. Your club is pending verification by an admin.</p>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900">{t("Verification Required")}</h2>
+        <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-600 text-center max-w-md">{t("Only verified clubs can post announcements. Your club is pending verification by an admin.")}</p>
         <Link href="/announcements" className="text-blue-600 dark:text-blue-400 vibrant:text-purple-600 font-semibold hover:underline">
-          Back to Announcements
-        </Link>
+          {t("Back to Announcements")}</Link>
       </div>
     );
   }
@@ -61,13 +62,11 @@ export default function CreateAnnouncementPage() {
           className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 vibrant:text-purple-600 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600 transition-colors mb-6"
         >
           <ChevronLeft className="w-4 h-4" />
-          Back to Announcements
-        </Link>
+          {t("Back to Announcements")}</Link>
 
         <div className="bg-white dark:bg-gray-900 vibrant:bg-white/80 rounded-2xl border border-gray-200 dark:border-gray-800 vibrant:border-purple-200 shadow-sm p-6 md:p-8 transition-colors">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-6 transition-colors">
-            Post Announcement
-          </h1>
+            {t("Post Announcement")}</h1>
           <AnnouncementForm
             onSubmit={handleSubmit}
             onCancel={() => router.back()}

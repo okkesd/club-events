@@ -1,4 +1,6 @@
 "use client";
+import {useUI} from "@/i18n/useUI";
+
 
 import React, { useState, useEffect, useCallback } from "react";
 import {
@@ -32,10 +34,11 @@ const ANNOUNCEMENT_CATEGORIES: AnnouncementCategory[] = [
 // A candidate publishes as an Event or an Announcement; the two take different
 // forms and different approve endpoints, so the kind is on every row.
 function KindBadge({ kind }: { kind: ScrapedEventKind }) {
+  const {t} = useUI();
     const isAnnouncement = kind === "announcement";
     return (
         <span
-            title={isAnnouncement ? "Publishes as an announcement" : "Publishes as an event"}
+            title={isAnnouncement ? t("Publishes as an announcement") : t("Publishes as an event")}
             className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold ${
                 isAnnouncement
                     ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
@@ -43,7 +46,7 @@ function KindBadge({ kind }: { kind: ScrapedEventKind }) {
             }`}
         >
             {isAnnouncement ? <Megaphone className="w-3 h-3" /> : <CalendarDays className="w-3 h-3" />}
-            {kind}
+            {t(kind)}
         </span>
     );
 }
@@ -63,11 +66,12 @@ function addHours(time: string, hours: number): string {
 }
 
 function ConfidenceBadge({ value }: { value: number }) {
+  const {t} = useUI();
     const pct = Math.round(value * 100);
     const low = value < LOW_CONFIDENCE;
     return (
         <span
-            title={low ? "Low confidence — review carefully" : "Extractor confidence"}
+            title={low ? t("Low confidence — review carefully") : t("Extractor confidence")}
             className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold ${
                 low
                     ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
@@ -81,9 +85,10 @@ function ConfidenceBadge({ value }: { value: number }) {
 }
 
 function MissingPill({ label }: { label: string }) {
+  const {t} = useUI();
     return (
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
-            No {label}
+            {t("Missing field: {field}", {field: t(label)})}
         </span>
     );
 }
@@ -94,6 +99,7 @@ const inputClass =
 const labelClass = "block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5";
 
 export default function ScrapedEventsPanel({ onPendingCountChange }: { onPendingCountChange?: (n: number) => void }) {
+  const {t, locale} = useUI();
     const [rows, setRows] = useState<IScrapedEvent[]>([]);
     const [pagination, setPagination] = useState<Pagination | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -159,7 +165,7 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
             const d = res.data;
             setBanner({
                 text: d
-                    ? `Imported ${d.imported} candidate(s), skipped ${d.skipped}, matched ${d.matchedClubs} club(s).`
+                    ? t("Imported {imported} candidates, skipped {skipped}, matched {clubs} clubs.", {imported: d.imported, skipped: d.skipped, clubs: d.matchedClubs})
                     : "Inbox refreshed.",
             });
             await fetchRows();
@@ -177,7 +183,7 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
         removeRow(row.id);
         setSelected(null);
         setBanner({
-            text: `"${row.title || "Candidate"}" published as ${kind === "announcement" ? "an announcement" : "an event"}.`,
+            text: t("“{title}” published as {kind}.", {title: row.title || t("Candidate"), kind: t(kind === "announcement" ? "an announcement" : "an event")}),
             href: publishedId
                 ? kind === "announcement" ? `/announcements/${publishedId}` : `/event/${publishedId}`
                 : undefined,
@@ -191,7 +197,7 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
         setSelected(null);
         try {
             await rejectScrapedEvent(row.id, reason || undefined);
-            setBanner({ text: `"${row.title || "Candidate"}" rejected.` });
+            setBanner({ text: t("“{title}” rejected.", {title: row.title || t("Candidate")}) });
         } catch (err: any) {
             setError(err?.message || "Reject failed.");
             fetchRows();
@@ -199,7 +205,7 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
     };
 
     const handleDelete = async (row: IScrapedEvent) => {
-        if (!confirm("Delete this candidate permanently? A published event, if any, is kept.")) return;
+        if (!confirm(t("Delete this candidate permanently? A published event, if any, is kept."))) return;
         removeRow(row.id);
         setSelected(null);
         try {
@@ -225,7 +231,7 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
                                     : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                             }`}
                         >
-                            {s}
+                            {t(s)}
                         </button>
                     ))}
                 </div>
@@ -243,7 +249,7 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
                         >
                             {k === "event" && <CalendarDays className="w-3 h-3" />}
                             {k === "announcement" && <Megaphone className="w-3 h-3" />}
-                            {k === "all" ? "All kinds" : `${k}s`}
+                            {k === "all" ? t("All kinds") : t(k === "event" ? "Events" : "Announcements")}
                         </button>
                     ))}
                 </div>
@@ -253,7 +259,7 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
                     onChange={(e) => setClubFilter(e.target.value)}
                     className="p-2 rounded-xl border text-sm border-gray-200 text-gray-700 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-200"
                 >
-                    <option value="">All clubs</option>
+                    <option value="">{t("All clubs")}</option>
                     {clubs.map((c) => (
                         <option key={c.id} value={c.id}>{c.clubName}</option>
                     ))}
@@ -265,8 +271,7 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
                                text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                 >
                     <Link2 className="w-4 h-4" />
-                    Instagram handles
-                </button>
+                    {t("Instagram handles")}</button>
 
                 <button
                     onClick={handleImport}
@@ -276,7 +281,7 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
                                dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/40 dark:border-blue-900/40 disabled:opacity-50"
                 >
                     {isImporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                    {isImporting ? "Refreshing..." : "Refresh inbox"}
+                    {isImporting ? t("Refreshing...") : t("Refresh inbox")}
                 </button>
             </div>
 
@@ -286,10 +291,10 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
             {banner && (
                 <div className="m-5 mb-0 p-3 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center justify-between gap-3">
                     <p className="text-sm font-medium text-green-700 dark:text-green-300">
-                        {banner.text}{" "}
+                        {t(banner.text)}{" "}
                         {banner.href && (
                             <a href={banner.href} target="_blank" className="underline font-bold">
-                                {banner.linkLabel || "View"}
+                                {banner.linkLabel ? t(banner.linkLabel) : t("View")}
                             </a>
                         )}
                     </p>
@@ -298,7 +303,7 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
             )}
             {error && (
                 <div className="m-5 mb-0 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center justify-between gap-3">
-                    <p className="text-sm font-medium text-red-700 dark:text-red-300">{error}</p>
+                    <p className="text-sm font-medium text-red-700 dark:text-red-300">{t(error)}</p>
                     <button onClick={() => setError(null)}><X className="w-4 h-4 text-red-500" /></button>
                 </div>
             )}
@@ -307,14 +312,13 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
             {isLoading ? (
                 <div className="p-12 text-center text-gray-400 dark:text-gray-500 flex flex-col items-center gap-2">
                     <Loader2 className="w-6 h-6 animate-spin" />
-                    <span>Loading...</span>
+                    <span>{t("Loading...")}</span>
                 </div>
             ) : rows.length === 0 ? (
                 <div className="p-12 text-center text-gray-400 dark:text-gray-600">
                     <Instagram className="w-12 h-12 mx-auto mb-3 opacity-20" />
                     <p>
-                        No {status === "all" ? "" : status}{" "}
-                        {kindFilter === "all" ? "candidates" : `${kindFilter} candidates`}.
+                        {t("No candidates match these filters.")}
                     </p>
                 </div>
             ) : (
@@ -339,7 +343,7 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
                             <div className="min-w-0 flex-1">
                                 <div className="flex items-center gap-2 flex-wrap mb-1">
                                     <p className="font-bold text-gray-900 dark:text-gray-100 truncate">
-                                        {row.title || <span className="text-red-500 italic">Untitled</span>}
+                                        {row.title || <span className="text-red-500 italic">{t("Untitled")}</span>}
                                     </p>
                                     <KindBadge kind={row.kind} />
                                     <ConfidenceBadge value={row.confidence} />
@@ -359,18 +363,18 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
                                     {row.kind === "announcement" ? (
                                         <>
                                             <span className="inline-flex items-center gap-1 capitalize">
-                                                <Megaphone className="w-3 h-3" />{row.category || "general"}
+                                                <Megaphone className="w-3 h-3" />{t(row.category || "general")}
                                             </span>
                                             <span className="inline-flex items-center gap-1">
                                                 <Hourglass className="w-3 h-3" />
-                                                {row.expiresAt ? `expires ${row.expiresAt}` : "no expiry"}
+                                                {row.expiresAt ? t("Expires {date}", {date: new Date(row.expiresAt).toLocaleDateString(locale)}) : t("no expiry")}
                                             </span>
                                         </>
                                     ) : (
                                         <>
                                             <span className="inline-flex items-center gap-1">
                                                 <Calendar className="w-3 h-3" />
-                                                {row.date ? new Date(row.date).toLocaleString() : "—"}
+                                                {row.date ? new Date(row.date).toLocaleString(locale) : "—"}
                                             </span>
                                             <span className="inline-flex items-center gap-1">
                                                 <MapPin className="w-3 h-3" />{row.location || "—"}
@@ -382,7 +386,7 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
                                         {row.clubIsRemembered && (
                                             <Sparkles
                                                 className="w-3 h-3 text-blue-500"
-                                                aria-label="Club remembered from an earlier decision"
+                                                aria-label={t("Club remembered from an earlier decision")}
                                             />
                                         )}
                                     </span>
@@ -390,14 +394,14 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
                                         href={row.postUrl}
                                         target="_blank"
                                         rel="noreferrer"
-                                        title={`Open @${row.clubUsername}'s post on Instagram`}
+                                        title={t("Open @{name}'s post on Instagram", {name: row.clubUsername})}
                                         className="inline-flex items-center gap-1 font-semibold text-blue-600 dark:text-blue-400 hover:underline"
                                     >
                                         <Instagram className="w-3 h-3" />@{row.clubUsername}
                                         <ExternalLink className="w-3 h-3" />
                                     </a>
                                     {row.status !== "pending" && (
-                                        <span className="capitalize font-bold">{row.status}</span>
+                                        <span className="capitalize font-bold">{t(row.status)}</span>
                                     )}
                                 </div>
                             </div>
@@ -408,7 +412,7 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
                                     target="_blank"
                                     rel="noreferrer"
                                     className="p-2 text-gray-400 hover:text-pink-600 hover:bg-pink-50 dark:hover:text-pink-400 dark:hover:bg-pink-900/30 rounded-lg transition-colors"
-                                    title="Open the source Instagram post"
+                                    title={t("Open the source Instagram post")}
                                 >
                                     <Instagram className="w-4 h-4" />
                                 </a>
@@ -422,7 +426,7 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
                                         }
                                         target="_blank"
                                         className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
-                                        title={row.createdAnnouncementId ? "View published announcement" : "View published event"}
+                                        title={row.createdAnnouncementId ? t("View published announcement") : t("View published event")}
                                     >
                                         <ExternalLink className="w-4 h-4" />
                                     </a>
@@ -432,13 +436,12 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
                                         onClick={() => setSelected(row)}
                                         className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs shadow-sm transition-colors"
                                     >
-                                        Review
-                                    </button>
+                                        {t("Review")}</button>
                                 )}
                                 <button
                                     onClick={() => handleDelete(row)}
                                     className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-                                    title="Delete candidate"
+                                    title={t("Delete candidate")}
                                 >
                                     <Trash2 className="w-4 h-4" />
                                 </button>
@@ -485,6 +488,7 @@ function ReviewModal({
     onDelete: (row: IScrapedEvent) => void;
     onPatched: (row: IScrapedEvent) => void;
 }) {
+  const {t, locale} = useUI();
     const extracted = splitDateTime(row.date);
 
     // The server decides which approve endpoint a row accepts, so a
@@ -639,7 +643,7 @@ function ReviewModal({
                 {/* Header */}
                 <div className="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">Review candidate</h3>
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t("Review candidate")}</h3>
                         <KindBadge kind={kind} />
                         <ConfidenceBadge value={row.confidence} />
                     </div>
@@ -652,8 +656,7 @@ function ReviewModal({
                     <div className="mx-5 mt-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center gap-2">
                         <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
                         <p className="text-sm text-amber-700 dark:text-amber-300">
-                            The extractor was unsure about this post — check every field against the caption.
-                        </p>
+                            {t("The extractor was unsure about this post — check every field against the caption.")}</p>
                     </div>
                 )}
 
@@ -661,7 +664,7 @@ function ReviewModal({
                     {/* --- LEFT: the source post --- */}
                     <div>
                         <div className="flex items-center justify-between mb-3">
-                            <span className={labelClass + " mb-0"}>Source post</span>
+                            <span className={labelClass + " mb-0"}>{t("Source post")}</span>
                             <a
                                 href={row.postUrl}
                                 target="_blank"
@@ -677,13 +680,13 @@ function ReviewModal({
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
                                 src={resolveImageUrl(row.postImageUrl)}
-                                alt="Instagram post"
+                                alt={t("Instagram post")}
                                 className="w-full rounded-xl border border-gray-200 dark:border-gray-800 mb-3"
                             />
                         )}
 
                         <p className="text-xs text-gray-400 dark:text-gray-500 mb-2">
-                            Posted {new Date(row.postedAt).toLocaleString()}
+                            {t("Posted")} {new Date(row.postedAt).toLocaleString(locale)}
                         </p>
 
                         {row.postCaption && (
@@ -699,7 +702,7 @@ function ReviewModal({
                                     onClick={() => setShowCaption((v) => !v)}
                                     className="mt-2 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline"
                                 >
-                                    {showCaption ? "Show less" : "Show full caption"}
+                                    {showCaption ? t("Show less") : t("Show full caption")}
                                 </button>
                             </div>
                         )}
@@ -711,8 +714,7 @@ function ReviewModal({
                             the approve endpoints refuse each other's rows. */}
                         <div>
                             <label className={labelClass}>
-                                Publish as
-                                {isSwitchingKind && <Loader2 className="inline w-3 h-3 ml-2 animate-spin" />}
+                                {t("Publish as")}{isSwitchingKind && <Loader2 className="inline w-3 h-3 ml-2 animate-spin" />}
                             </label>
                             <div className="flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl">
                                 {(["event", "announcement"] as ScrapedEventKind[]).map((k) => (
@@ -734,27 +736,25 @@ function ReviewModal({
                             </div>
                             <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
                                 {isAnnouncement
-                                    ? "Announcements are the \u201cact on this\u201d posts \u2014 openings, deadlines, applications, sales."
-                                    : "Events have a date and a place people show up at."}
+                                    ? t("Announcements are the “act on this” posts — openings, deadlines, applications, sales.")
+                                    : t("Events have a date and a place people show up at.")}
                             </p>
                         </div>
 
                         {/* Club picker — prominent when unmatched, muted when publishing as admin */}
                         <div className={!row.clubId && !form.publishAsAdmin ? "p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800" : ""}>
                             <label className={labelClass}>
-                                Club {!form.publishAsAdmin && <span className="text-red-500">*</span>}
+                                {t("Club")} {!form.publishAsAdmin && <span className="text-red-500">*</span>}
                                 {!row.clubId && !form.publishAsAdmin && (
                                     <span className="ml-2 normal-case font-medium text-red-600 dark:text-red-400">
-                                        @{row.clubUsername} isn&apos;t linked to a club — pick one
-                                    </span>
+                                        @{row.clubUsername}  {t("isn't linked to a club — pick one")}</span>
                                 )}
                                 {row.clubIsRemembered && !form.publishAsAdmin && (
                                     <span
-                                        title={`Learned from an earlier decision about @${row.clubUsername} — still editable`}
+                                        title={t("Learned from an earlier decision about @{name} — still editable", {name: row.clubUsername})}
                                         className="ml-2 inline-flex items-center gap-1 normal-case font-medium text-blue-600 dark:text-blue-400"
                                     >
-                                        <Sparkles className="w-3 h-3" /> remembered
-                                    </span>
+                                        <Sparkles className="w-3 h-3" />  {t("remembered")}</span>
                                 )}
                             </label>
                             <select
@@ -763,7 +763,7 @@ function ReviewModal({
                                 disabled={!!form.publishAsAdmin}
                                 className={inputClass + (form.publishAsAdmin ? " opacity-50" : "")}
                             >
-                                <option value="">Select a club…</option>
+                                <option value="">{t("Select a club…")}</option>
                                 {clubs.map((c) => (
                                     <option key={c.id} value={c.id}>{c.clubName}</option>
                                 ))}
@@ -779,33 +779,30 @@ function ReviewModal({
                                 />
                                 <span>
                                     <span className="inline-flex items-center gap-1 font-bold">
-                                        <Shield className="w-3.5 h-3.5" /> Publish as admin
-                                    </span>
+                                        <Shield className="w-3.5 h-3.5" />  {t("Publish as admin")}</span>
                                     <span className="block text-xs font-normal text-gray-500 dark:text-gray-400">
-                                        Publishes under the admin account instead of a club — for handles whose club
-                                        isn&apos;t on the platform. The club selection is ignored.
-                                    </span>
+                                        {t("Publishes under the admin account instead of a club — for handles whose club isn't on the platform. The club selection is ignored.")}</span>
                                 </span>
                             </label>
                         </div>
 
                         <div>
-                            <label className={labelClass}>Title <span className="text-red-500">*</span></label>
+                            <label className={labelClass}>{t("Title")} <span className="text-red-500">*</span></label>
                             <input
                                 value={form.title}
                                 onChange={(e) => set("title", e.target.value)}
                                 className={inputClass}
-                                placeholder={isAnnouncement ? "Announcement title" : "Event title"}
+                                placeholder={isAnnouncement ? t("Announcement title") : t("Event title")}
                             />
                         </div>
 
                         {!isAnnouncement && <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <label className={labelClass}>Date <span className="text-red-500">*</span></label>
+                                <label className={labelClass}>{t("Date")} <span className="text-red-500">*</span></label>
                                 <input type="date" value={form.date} onChange={(e) => set("date", e.target.value)} className={inputClass} />
                             </div>
                             <div>
-                                <label className={labelClass}>Duration (h)</label>
+                                <label className={labelClass}>{t("Duration (h)")}</label>
                                 <input
                                     type="number" min={0.5} step={0.5}
                                     value={form.duration}
@@ -814,29 +811,29 @@ function ReviewModal({
                                 />
                             </div>
                             <div>
-                                <label className={labelClass}>Start time</label>
+                                <label className={labelClass}>{t("Start time")}</label>
                                 <input type="time" value={form.startTime} onChange={(e) => setStart(e.target.value)} className={inputClass} />
                             </div>
                             <div>
-                                <label className={labelClass}>End time</label>
+                                <label className={labelClass}>{t("End time")}</label>
                                 <input type="time" value={form.endTime} onChange={(e) => set("endTime", e.target.value)} className={inputClass} />
                             </div>
                         </div>}
 
                         {!isAnnouncement && <div className="grid grid-cols-3 gap-3">
                             <div className="col-span-2">
-                                <label className={labelClass}>Location <span className="text-red-500">*</span></label>
+                                <label className={labelClass}>{t("Location")} <span className="text-red-500">*</span></label>
                                 <input value={form.location} onChange={(e) => set("location", e.target.value)} className={inputClass} placeholder="H402" />
                             </div>
                             <div>
-                                <label className={labelClass}>Type</label>
+                                <label className={labelClass}>{t("Type")}</label>
                                 <select
                                     value={form.locationType}
                                     onChange={(e) => set("locationType", e.target.value as "on-campus" | "off-campus")}
                                     className={inputClass}
                                 >
-                                    <option value="on-campus">On-campus</option>
-                                    <option value="off-campus">Off-campus</option>
+                                    <option value="on-campus">{t("On-campus")}</option>
+                                    <option value="off-campus">{t("Off-campus")}</option>
                                 </select>
                             </div>
                         </div>}
@@ -844,7 +841,7 @@ function ReviewModal({
                         <div>
                             <div className="flex items-end justify-between gap-2 mb-1.5">
                                 <label className={labelClass + " mb-0"}>
-                                    {isAnnouncement ? <>Body <span className="text-red-500">*</span></> : "Description"}
+                                    {isAnnouncement ? <>{t("Body")} <span className="text-red-500">*</span></> : t("Description")}
                                 </label>
                                 {/* The staged description is an LLM summary; the raw caption
                                     is sometimes the better text. Fills the field, never auto-applies. */}
@@ -859,7 +856,7 @@ function ReviewModal({
                                                    dark:disabled:text-gray-600"
                                     >
                                         <FileText className="w-3.5 h-3.5" />
-                                        {form.description === row.postCaption ? "Using caption" : "Use original caption"}
+                                        {form.description === row.postCaption ? t("Using caption") : t("Use original caption")}
                                     </button>
                                 )}
                             </div>
@@ -870,8 +867,8 @@ function ReviewModal({
                             />
                             <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
                                 {form.description === row.postCaption
-                                    ? "The post caption, verbatim — trim anything time-relative before publishing."
-                                    : "A summary of the caption. Edit freely."}
+                                    ? t("The post caption, verbatim — trim anything time-relative before publishing.")
+                                    : t("A summary of the caption. Edit freely.")}
                             </p>
                         </div>
 
@@ -879,7 +876,7 @@ function ReviewModal({
                             <>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div>
-                                        <label className={labelClass}>Category</label>
+                                        <label className={labelClass}>{t("Category")}</label>
                                         <select
                                             value={ann.category}
                                             onChange={(e) =>
@@ -888,12 +885,12 @@ function ReviewModal({
                                             className={inputClass + " capitalize"}
                                         >
                                             {ANNOUNCEMENT_CATEGORIES.map((c) => (
-                                                <option key={c} value={c} className="capitalize">{c}</option>
+                                                <option key={c} value={c} className="capitalize">{t(c)}</option>
                                             ))}
                                         </select>
                                     </div>
                                     <div>
-                                        <label className={labelClass}>Expires on</label>
+                                        <label className={labelClass}>{t("Expires on")}</label>
                                         <input
                                             type="date"
                                             value={ann.expiresAt}
@@ -901,40 +898,39 @@ function ReviewModal({
                                             className={inputClass}
                                         />
                                         <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
-                                            Optional — deadlines and application windows read better with one.
-                                        </p>
+                                            {t("Optional — deadlines and application windows read better with one.")}</p>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className={labelClass}>Link</label>
+                                    <label className={labelClass}>{t("Link")}</label>
                                     <input
                                         value={ann.link}
                                         onChange={(e) => setAnn((p) => ({ ...p, link: e.target.value }))}
                                         className={inputClass}
-                                        placeholder="Application form, listing, ticket page…"
+                                        placeholder={t("Application form, listing, ticket page…")}
                                     />
                                 </div>
                             </>
                         )}
 
                         <div>
-                            <label className={labelClass}>Cover image URL</label>
+                            <label className={labelClass}>{t("Cover image URL")}</label>
                             <input
                                 value={form.coverImage}
                                 onChange={(e) => set("coverImage", e.target.value)}
                                 className={inputClass}
-                                placeholder="Defaults to the Instagram post image"
+                                placeholder={t("Defaults to the Instagram post image")}
                             />
                             <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
                                 {isCoverOverridden
-                                    ? "Custom URL — published as-is, not copied to storage."
-                                    : "The post image is copied to storage on approval so it can't expire."}
+                                    ? t("Custom URL — published as-is, not copied to storage.")
+                                    : t("The post image is copied to storage on approval so it can't expire.")}
                             </p>
                         </div>
 
                         <div>
-                            <label className={labelClass}>Tags (comma separated)</label>
+                            <label className={labelClass}>{t("Tags (comma separated)")}</label>
                             <input
                                 value={form.tags?.join(", ") || ""}
                                 onChange={(e) =>
@@ -955,18 +951,16 @@ function ReviewModal({
                                 />
                                 <span>
                                     <span className="inline-flex items-center gap-1 font-bold">
-                                        <Pin className="w-3.5 h-3.5" /> Pin to the top
-                                    </span>
+                                        <Pin className="w-3.5 h-3.5" />  {t("Pin to the top")}</span>
                                     <span className="block text-xs font-normal text-gray-500 dark:text-gray-400">
-                                        Keeps it above other announcements until it expires.
-                                    </span>
+                                        {t("Keeps it above other announcements until it expires.")}</span>
                                 </span>
                             </label>
                         )}
 
                         {!isAnnouncement && <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <label className={labelClass}>Registration link</label>
+                                <label className={labelClass}>{t("Registration link")}</label>
                                 <input
                                     value={form.registrationLink || ""}
                                     onChange={(e) => set("registrationLink", e.target.value || null)}
@@ -974,7 +968,7 @@ function ReviewModal({
                                 />
                             </div>
                             <div>
-                                <label className={labelClass}>Capacity</label>
+                                <label className={labelClass}>{t("Capacity")}</label>
                                 <input
                                     type="number" min={1}
                                     value={form.capacity ?? ""}
@@ -992,8 +986,7 @@ function ReviewModal({
                                     onChange={(e) => set("isRegistrationOpen", e.target.checked)}
                                     className="w-4 h-4 rounded"
                                 />
-                                Registration is open
-                            </label>
+                                {t("Registration is open")}</label>
                         )}
                     </div>
                 </div>
@@ -1001,27 +994,26 @@ function ReviewModal({
                 {/* Errors from the backend, verbatim */}
                 {modalError && (
                     <div className="mx-5 mb-3 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                        <p className="text-sm font-medium text-red-700 dark:text-red-300">{modalError}</p>
+                        <p className="text-sm font-medium text-red-700 dark:text-red-300">{t(modalError)}</p>
                     </div>
                 )}
 
                 {/* Reject form */}
                 {isRejecting && (
                     <div className="mx-5 mb-3 p-3 rounded-xl border border-gray-200 dark:border-gray-800">
-                        <label className={labelClass}>Rejection reason (optional)</label>
+                        <label className={labelClass}>{t("Rejection reason (optional)")}</label>
                         <div className="flex gap-2">
                             <input
                                 value={rejectionReason}
                                 onChange={(e) => setRejectionReason(e.target.value)}
                                 className={inputClass}
-                                placeholder="not an event"
+                                placeholder={t("not an event")}
                             />
                             <button
                                 onClick={() => onReject(row, rejectionReason)}
                                 className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-sm whitespace-nowrap transition-colors"
                             >
-                                Confirm reject
-                            </button>
+                                {t("Confirm reject")}</button>
                         </div>
                     </div>
                 )}
@@ -1032,7 +1024,7 @@ function ReviewModal({
                         <button
                             onClick={() => onDelete(row)}
                             className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-                            title="Delete candidate"
+                            title={t("Delete candidate")}
                         >
                             <Trash2 className="w-4 h-4" />
                         </button>
@@ -1040,14 +1032,13 @@ function ReviewModal({
                             onClick={() => setIsRejecting((v) => !v)}
                             className="px-3 py-2 text-red-600 dark:text-red-400 font-bold text-sm rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center gap-1.5 transition-colors"
                         >
-                            <XCircle className="w-4 h-4" /> Reject
-                        </button>
+                            <XCircle className="w-4 h-4" />  {t("Reject")}</button>
                     </div>
 
                     <div className="flex items-center gap-2">
                         {missing.length > 0 && (
                             <span className="text-xs font-bold text-red-600 dark:text-red-400 mr-1">
-                                Missing: {missing.join(", ")}
+                                {t("Missing:")} {missing.map((field) => t(field)).join(", ")}
                             </span>
                         )}
                         <button
@@ -1055,16 +1046,14 @@ function ReviewModal({
                             disabled={isSubmitting || isSwitchingKind}
                             className="px-3 py-2 text-gray-600 dark:text-gray-300 font-bold text-sm rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 flex items-center gap-1.5 disabled:opacity-50 transition-colors"
                         >
-                            <Save className="w-4 h-4" /> Save fixes
-                        </button>
+                            <Save className="w-4 h-4" />  {t("Save fixes")}</button>
                         <button
                             onClick={handleApprove}
                             disabled={isSubmitting || isSwitchingKind || missing.length > 0}
                             className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl text-sm shadow-sm flex items-center gap-1.5 disabled:opacity-50 transition-colors"
                         >
                             {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                            Approve &amp; publish
-                        </button>
+                            {t("Approve & publish")}</button>
                     </div>
                 </div>
             </div>
@@ -1078,6 +1067,7 @@ function ReviewModal({
  * Distinct from a club's self-declared igUsername — this mapping wins.
  * ------------------------------------------------------------------------- */
 function IgMappingsSection() {
+  const {t, locale} = useUI();
     const [mappings, setMappings] = useState<IIgClubMapping[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -1099,7 +1089,7 @@ function IgMappingsSection() {
     useEffect(() => { load(); }, [load]);
 
     const forget = async (clubUsername: string) => {
-        if (!confirm(`Forget @${clubUsername}? Future posts from this handle will import unmatched.`)) return;
+        if (!confirm(t("Forget @{name}? Future posts from this handle will import unmatched.", {name: clubUsername}))) return;
         setMappings((prev) => prev.filter((m) => m.clubUsername !== clubUsername));
         try {
             await deleteIgClubMapping(clubUsername);
@@ -1113,14 +1103,13 @@ function IgMappingsSection() {
         <div className="m-5 mb-0 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
             <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800/50 flex items-center gap-2">
                 <Link2 className="w-4 h-4 text-gray-400" />
-                <span className="text-sm font-bold text-gray-700 dark:text-gray-200">Instagram handle → publisher</span>
+                <span className="text-sm font-bold text-gray-700 dark:text-gray-200">{t("Instagram handle → publisher")}</span>
                 <span className="text-xs text-gray-400 dark:text-gray-500">
-                    learned from your club picks and approvals
-                </span>
+                    {t("learned from your club picks and approvals")}</span>
             </div>
 
             {error && (
-                <p className="px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400">{error}</p>
+                <p className="px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400">{t(error)}</p>
             )}
 
             {isLoading ? (
@@ -1129,8 +1118,7 @@ function IgMappingsSection() {
                 </div>
             ) : mappings.length === 0 ? (
                 <p className="p-6 text-center text-sm text-gray-400 dark:text-gray-600">
-                    No mappings yet — they appear once you assign a club to a candidate or approve one.
-                </p>
+                    {t("No mappings yet — they appear once you assign a club to a candidate or approve one.")}</p>
             ) : (
                 <table className="w-full text-left">
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -1145,19 +1133,18 @@ function IgMappingsSection() {
                                         {m.userName}
                                         {m.isAdmin && (
                                             <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
-                                                admin
-                                            </span>
+                                                {t("admin")}</span>
                                         )}
                                     </span>
                                 </td>
                                 <td className="px-4 py-3 text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">
-                                    {new Date(m.updatedAt).toLocaleDateString()}
+                                    {new Date(m.updatedAt).toLocaleDateString(locale)}
                                 </td>
                                 <td className="px-4 py-3 text-right">
                                     <button
                                         onClick={() => forget(m.clubUsername)}
                                         className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-                                        title="Forget this mapping"
+                                        title={t("Forget this mapping")}
                                     >
                                         <Trash2 className="w-3.5 h-3.5" />
                                     </button>

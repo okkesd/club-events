@@ -1,9 +1,11 @@
 "use client";
+import {useUI} from "@/i18n/useUI";
+
 
 import { useState } from "react";
 import { IEvent } from "@/app/lib/types";
 import { EventCard } from "@/app/components/EventCard";
-import { getCalendarHourSlots, CALENDAR_START_HOUR, CALENDAR_END_HOUR, calculateEndTime } from '@/app/lib/timeUtils';
+import { getCalendarHourSlots, CALENDAR_START_HOUR, calculateEndTime } from '@/app/lib/timeUtils';
 import Link from 'next/link';
 import { Clock, X } from "lucide-react";
 
@@ -14,6 +16,7 @@ interface DayColumnProps {
     day: Date;
     events: IEvent[];
     isFirstDay: boolean;
+    endHour: number;
 }
 
 function parseTime(time: string): number {
@@ -137,6 +140,7 @@ function computeOverlapLayout(events: IEvent[]): { layout: Map<string, LayoutInf
 
 /** Modal that shows all events in a crowded time slot */
 function OverflowModal({ events, onClose }: { events: IEvent[]; onClose: () => void }) {
+  const {t} = useUI();
     return (
         <div
             className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
@@ -149,8 +153,7 @@ function OverflowModal({ events, onClose }: { events: IEvent[]; onClose: () => v
                 {/* Header */}
                 <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-700 vibrant:border-purple-100">
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white vibrant:text-purple-900">
-                        {events.length} Overlapping Events
-                    </h3>
+                        {t("{count} overlapping events", {count: events.length})}</h3>
                     <button
                         onClick={onClose}
                         className="p-2 rounded-full text-gray-400 hover:bg-gray-100 dark:text-gray-500 dark:hover:bg-gray-700 vibrant:hover:bg-purple-100 transition-colors"
@@ -190,7 +193,8 @@ function OverflowModal({ events, onClose }: { events: IEvent[]; onClose: () => v
     );
 }
 
-export function DayColumn({ day, events, isFirstDay }: DayColumnProps) {
+export function DayColumn({ day, events, isFirstDay, endHour }: DayColumnProps) {
+  const {t, locale} = useUI();
     const [modalCluster, setModalCluster] = useState<ClusterInfo | null>(null);
 
     const today = new Date();
@@ -200,14 +204,14 @@ export function DayColumn({ day, events, isFirstDay }: DayColumnProps) {
         day.getFullYear() === today.getFullYear();
 
     const dayOfMonth = day.getDate();
-    const dayName = day.toLocaleDateString('en-US', { weekday: 'short' });
+    const dayName = day.toLocaleDateString(locale, { weekday: 'short' });
 
-    const hourSlots = getCalendarHourSlots();
-    const totalGridRows = CALENDAR_END_HOUR - CALENDAR_START_HOUR;
+    const hourSlots = getCalendarHourSlots(endHour);
+    const totalGridRows = endHour - CALENDAR_START_HOUR;
 
     const validEvents = events.filter(event => {
         const startHour = parseInt(event.startTime.split(':')[0], 10);
-        return startHour >= CALENDAR_START_HOUR && startHour < CALENDAR_END_HOUR;
+        return startHour >= CALENDAR_START_HOUR && startHour < endHour;
     });
 
     const { layout: overlapLayout, clusters } = computeOverlapLayout(validEvents);
@@ -272,6 +276,7 @@ export function DayColumn({ day, events, isFirstDay }: DayColumnProps) {
                             columnIndex={layoutInfo?.columnIndex ?? 0}
                             totalColumns={layoutInfo?.totalColumns ?? 1}
                             colSpan={layoutInfo?.colSpan ?? 1}
+                            endHour={endHour}
                         />
                     );
                 })}
@@ -279,7 +284,7 @@ export function DayColumn({ day, events, isFirstDay }: DayColumnProps) {
                 {/* Layer 3: "+N more" buttons for crowded clusters */}
                 {crowdedClusters.map((cluster, idx) => {
                     // Position the button at the bottom of the cluster area
-                    const topRem = (cluster.maxEnd - CALENDAR_START_HOUR) * ROW_HEIGHT_REM - 1.75;
+                    const topRem = (Math.min(cluster.maxEnd, endHour) - CALENDAR_START_HOUR) * ROW_HEIGHT_REM - 1.75;
                     return (
                         <button
                             key={idx}
@@ -290,8 +295,7 @@ export function DayColumn({ day, events, isFirstDay }: DayColumnProps) {
                                 vibrant:bg-purple-600 vibrant:hover:bg-purple-500"
                             style={{ top: `${topRem}rem` }}
                         >
-                            +{cluster.hiddenCount} more
-                        </button>
+                            +{t("{count} more", {count: cluster.hiddenCount})}</button>
                     );
                 })}
             </div>

@@ -1,6 +1,6 @@
-// app/contact/page.tsx
 "use client";
-
+import {useUI} from "@/i18n/useUI";
+// app/contact/page.tsx
 import React, { useState, FormEvent, useEffect } from 'react';
 import Link from 'next/link';
 import { Mail, MessageSquare, Send, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
@@ -12,6 +12,7 @@ import { contactApi } from '../lib/api';
  */
 
 export default function ContactPage() {
+  const {t, errorText} = useUI();
   const [email, setEmail] = useState<string>('');
   const [message, setMessage] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -79,11 +80,9 @@ export default function ContactPage() {
                <Mail className="h-6 w-6 text-blue-600 dark:text-blue-400 vibrant:text-purple-600" />
             </div>
             <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors">
-              Contact Support
-            </h2>
+              {t("Contact Support")}</h2>
             <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 vibrant:text-purple-600 transition-colors">
-              Have a question or feature request? Let us know!
-            </p>
+              {t("Have a question or feature request? Let us know!")}</p>
           </div>
         )}
 
@@ -93,16 +92,14 @@ export default function ContactPage() {
             <div className="mx-auto h-16 w-16 bg-green-100 dark:bg-green-900/30 vibrant:bg-green-100/80 rounded-full flex items-center justify-center mb-4 transition-colors">
               <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400 vibrant:text-green-600" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors">Message Sent!</h3>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors">{t("Message Sent!")}</h3>
             <p className="text-gray-600 dark:text-gray-400 vibrant:text-purple-600 mt-2 transition-colors">
-              Thank you for reaching out. We'll get back to you at <span className="font-medium text-gray-900 dark:text-gray-200 vibrant:text-purple-800">{email}</span> shortly.
-            </p>
+              {t("Thank you for reaching out. We'll get back to you at {email} shortly.", {email})}</p>
             <button
               onClick={() => { setIsSent(false); setMessage(''); setEmail(''); setError(null); }}
               className="mt-6 text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 vibrant:text-purple-600 vibrant:hover:text-pink-600 font-medium text-sm cursor-pointer underline transition-colors"
             >
-              Send another message
-            </button>
+              {t("Send another message")}</button>
           </div>
         ) : (
           /* Form State */
@@ -111,8 +108,7 @@ export default function ContactPage() {
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">
-                Your Email
-              </label>
+                {t("Your Email")}</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Mail className="h-5 w-5 text-gray-400 dark:text-gray-500 vibrant:text-purple-400 transition-colors" />
@@ -136,8 +132,7 @@ export default function ContactPage() {
             {/* Message */}
             <div>
               <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">
-                Message
-              </label>
+                {t("Message")}</label>
               <div className="relative">
                 <div className="absolute top-3 left-3 pointer-events-none">
                   <MessageSquare className="h-5 w-5 text-gray-400 dark:text-gray-500 vibrant:text-purple-400 transition-colors" />
@@ -150,7 +145,7 @@ export default function ContactPage() {
                              border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                              dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder-gray-500 dark:focus:ring-blue-400
                              vibrant:bg-white/80 vibrant:border-purple-200 vibrant:text-purple-900 vibrant:placeholder-purple-400 vibrant:focus:ring-purple-500 vibrant:focus:border-purple-400"
-                  placeholder="How can we help you?"
+                  placeholder={t("How can we help you?")}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   disabled={isLoading}
@@ -165,7 +160,7 @@ export default function ContactPage() {
                               dark:bg-red-900/20 dark:text-red-300 dark:border-red-900/50
                               vibrant:bg-red-50/80 vibrant:text-red-700 vibrant:border-red-200 transition-colors">
                 <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                <span>{error}</span>
+                <span>{errorText(error)}</span>
               </div>
             )}
 
@@ -179,10 +174,9 @@ export default function ContactPage() {
                 className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 vibrant:text-purple-600 vibrant:focus:ring-purple-500"
               />
               <label htmlFor="contact-privacy" className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-purple-500 transition-colors">
-                I have read and accept the{" "}
+                {t("I have read and accept the")}{" "}
                 <Link href="/legal/privacy" className="text-blue-600 dark:text-blue-400 vibrant:text-pink-600 hover:underline">
-                  Privacy Policy
-                </Link>
+                  {t("Privacy Policy")}</Link>
               </label>
             </div>
 
@@ -200,13 +194,11 @@ export default function ContactPage() {
               {isLoading ? (
                 <>
                   <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Sending...
-                </>
+                  {t("Sending...")}</>
               ) : (
                 <>
                   <Send className="w-4 h-4 mr-2" />
-                  Send Message
-                </>
+                  {t("Send Message")}</>
               )}
             </button>
           </form>

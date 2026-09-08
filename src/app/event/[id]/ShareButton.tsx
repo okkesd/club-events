@@ -1,10 +1,11 @@
-// app/event/[id]/ShareButton.tsx
 "use client";
-
+import {useUI} from "@/i18n/useUI";
+// app/event/[id]/ShareButton.tsx
 import React, { useState } from 'react';
 import { Share2, Check } from 'lucide-react';
 
 export function ShareButton() {
+  const {t} = useUI();
   const [copied, setCopied] = useState(false);
 
   const handleShare = () => {
@@ -24,12 +25,12 @@ export function ShareButton() {
       {copied ? (
         <>
           <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
-          <span className="text-green-600 dark:text-green-400">Clipped!</span>
+          <span className="text-green-600 dark:text-green-400">{t("Clipped!")}</span>
         </>
       ) : (
         <>
           <Share2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-          <span>Share</span>
+          <span>{t("Share")}</span>
         </>
       )}
     </button>

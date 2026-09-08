@@ -1,6 +1,6 @@
-// app/event/[id]/NotifyModal.tsx
 "use client";
-
+import {useUI} from "@/i18n/useUI";
+// app/event/[id]/NotifyModal.tsx
 import React, { useState, useEffect } from 'react';
 import { Bell, X, Loader2, CheckCircle, Mail, Square, CheckSquare } from 'lucide-react';
 
@@ -14,6 +14,7 @@ const mockSubscribeApi = (email: string, eventId: string): Promise<boolean> => {
 };
 
 export function NotifyModal({ eventId, isEventInPast }: { eventId: string , isEventInPast: boolean}) {
+  const {t} = useUI();
   const [isOpen, setIsOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -65,8 +66,7 @@ export function NotifyModal({ eventId, isEventInPast }: { eventId: string , isEv
         className="flex items-center justify-center gap-2 py-2 px-3 border rounded-lg text-sm font-semibold transition-colors w-full border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
       >
         <Bell className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-        Notify Me
-      </button>}
+        {t("Notify Me")}</button>}
 
       {/* Modal Backdrop */}
       {isOpen && (
@@ -89,16 +89,14 @@ export function NotifyModal({ eventId, isEventInPast }: { eventId: string , isEv
                 <div className="mx-auto h-16 w-16 rounded-full flex items-center justify-center mb-4 transition-colors bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
                   <CheckCircle className="h-8 w-8" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">Reminder Set!</h3>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">{t("Reminder Set!")}</h3>
                 <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg transition-colors">
-                  We'll email <span className="font-semibold text-gray-900 dark:text-white">{email}</span> the day before the event.
-                </p>
+                  {t("We'll email {email} the day before the event.", {email})}</p>
                 <button 
                   onClick={handleClose}
                   className="mt-8 w-full py-3 font-bold rounded-xl transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
                 >
-                  Close
-                </button>
+                  {t("Close")}</button>
               </div>
             ) : (
               /* Form State */
@@ -107,18 +105,16 @@ export function NotifyModal({ eventId, isEventInPast }: { eventId: string , isEv
                   <div className="mx-auto h-14 w-14 rounded-full flex items-center justify-center mb-4 transition-colors bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
                     <Bell className="h-7 w-7" />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">Get Notified</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">{t("Get Notified")}</h3>
                   <p className="text-base text-gray-600 dark:text-gray-400 mt-2 transition-colors">
-                    Don't miss out! We'll send you a reminder 24 hours before the event starts.
-                  </p>
+                    {t("Don't miss out! We'll send you a reminder 24 hours before the event starts.")}</p>
                 </div>
 
                 <div className="space-y-6">
                   {/* Email Input */}
                   <div>
                     <label htmlFor="notify-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 transition-colors">
-                      Email Address
-                    </label>
+                      {t("Email Address")}</label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <Mail className="h-5 w-5 text-gray-400 dark:text-gray-500" />
@@ -148,7 +144,7 @@ export function NotifyModal({ eventId, isEventInPast }: { eventId: string , isEv
                       ) : (
                         <Square className="w-5 h-5 text-gray-400 dark:text-gray-500" />
                       )}
-                      <span>Remember my email for next time</span>
+                      <span>{t("Remember my email for next time")}</span>
                     </button>
                   </div>
 
@@ -161,7 +157,7 @@ export function NotifyModal({ eventId, isEventInPast }: { eventId: string , isEv
                     {status === 'loading' ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
                     ) : (
-                      'Set Reminder'
+                      t("Set Reminder")
                     )}
                   </button>
                 </div>

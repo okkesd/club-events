@@ -1,4 +1,6 @@
 "use client";
+import {useUI} from "@/i18n/useUI";
+
 
 import React from 'react';
 import { Terminal, Code2, Database, ServerCrash, Lightbulb } from 'lucide-react';
@@ -58,6 +60,7 @@ const teamRoles = [
 ];
 
 export default function AboutPage() {
+  const {t} = useUI();
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 vibrant:bg-transparent transition-colors duration-300 overflow-hidden">
 
@@ -71,15 +74,13 @@ export default function AboutPage() {
 
         <div className="relative max-w-4xl mx-auto text-center z-10">
           <h1 className="text-4xl md:text-6xl font-black text-gray-900 dark:text-white vibrant:text-purple-900 tracking-tight mb-6 leading-tight">
-            Meet the <span className="text-blue-600 dark:text-blue-500 vibrant:text-pink-600 relative inline-block">
-                "Team"
-                {/* Snarky underline */}
+            {t("Meet the")} <span className="text-blue-600 dark:text-blue-500 vibrant:text-pink-600 relative inline-block">
+                {t("\"Team\"")}{/* Snarky underline */}
                 <svg className="absolute -bottom-2 left-0 w-full h-3 text-blue-600/30 dark:text-blue-500/30 vibrant:text-pink-500/40" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 5 Q 25 0, 50 5 T 100 5" stroke="currentColor" strokeWidth="4" fill="none"/></svg>
             </span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 vibrant:text-purple-700 max-w-3xl mx-auto font-medium leading-relaxed">
-            Evenements is brought to you by a massive*, globally distributed** team of highly intelligent*** experts.
-          </p>
+            {t("Evenements is brought to you by a massive*, globally distributed** team of highly intelligent*** experts.")}</p>
 
 
         </div>
@@ -131,7 +132,7 @@ export default function AboutPage() {
                             <role.icon className="w-6 h-6" />
                         </div>
                         <h3 className="text-2xl font-black text-gray-900 dark:text-white vibrant:text-purple-900 mb-1 tracking-tight">
-                            {role.title}
+                            {t(role.title)}
                         </h3>
                         <p className="text-sm font-bold text-blue-600 dark:text-blue-400 vibrant:text-pink-600 mb-4 uppercase tracking-widest">
                             {THE_HUMAN_NAME}
@@ -140,7 +141,7 @@ export default function AboutPage() {
                         <div className="relative">
                             <span className="absolute -top-4 -left-2 text-4xl text-gray-200 dark:text-gray-700 vibrant:text-purple-200 opacity-50">"</span>
                             <p className="text-gray-600 dark:text-gray-300 vibrant:text-purple-700 italic leading-relaxed relative z-10 px-4">
-                                {role.bio}
+                                {t(role.bio)}
                             </p>
                             <span className="absolute -bottom-4 -right-2 text-4xl text-gray-200 dark:text-gray-700 vibrant:text-purple-200 opacity-50">"</span>
                         </div>
@@ -152,18 +153,16 @@ export default function AboutPage() {
 
 {/* The asterisk explanation */}
           <div className="text-center mt-8 text-sm text-gray-500 dark:text-gray-400 vibrant:text-purple-600 space-y-1 font-mono">
-            <p>*Massive = One person with too many browser tabs open.</p>
-            <p>**Distributed = My desk and the cloud servers.</p>
-            <p>***Intelligent = Artificial intelligence. Mostly.</p>
+            <p>{t("*Massive = One person with too many browser tabs open.")}</p>
+            <p>{t("**Distributed = My desk and the cloud servers.")}</p>
+            <p>{t("***Intelligent = Artificial intelligence. Mostly.")}</p>
           </div>
         {/* Bottom CTA */}
         <div className="text-center mt-20 animate-in fade-in slide-in-from-bottom-4 delay-300">
             <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-600 font-medium mb-4">
-                In conclusion: We have no idea what we're doing, but we do.
-            </p>
+                {t("In conclusion: We have no idea what we're doing, but we do.")}</p>
             <a href="/contact" className="inline-flex items-center justify-center px-8 py-4 font-bold rounded-2xl bg-gray-900 text-white hover:bg-black dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 vibrant:bg-purple-600 vibrant:text-white vibrant:hover:bg-purple-700 vibrant:shadow-purple-300/40 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
-                Hire the "Team"
-            </a>
+                {t("Hire the \"Team\"")}</a>
         </div>
       </div>
     </div>

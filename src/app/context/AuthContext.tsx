@@ -71,34 +71,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // 1. Load from localStorage on mount (Persistence)
   useEffect(() => {
+    let active = true;
     const initAuth = async () => {
-      const token = localStorage.getItem("access_token");
-      if (token) {
-        try {
-          const userData = await getCurrentUser();
-          
-          if (userData) {
+      try {
+        const token = localStorage.getItem("access_token");
+        if (!token) return;
 
-            setUser(userData);
-          } else {
-
-            localStorage.removeItem("access_token")
-            setUser(null)
-          }
-        } catch (error) {
-
-          console.error("Token invalid or expired", error);
-          localStorage.removeItem("access_token");
-          setUser(null);
-        } finally {
-
-          setIsLoading(false);
-        }
-      } 
-      
+        const userData = await getCurrentUser();
+        if (!active) return;
+        if (!userData) localStorage.removeItem("access_token");
+        setUser(userData);
+      } catch (error) {
+        if (!active) return;
+        console.error("Could not restore session", error);
+        setUser(null);
+      } finally {
+        if (active) setIsLoading(false);
+      }
     };
 
-    initAuth();
+    void initAuth();
+    return () => { active = false; };
   }, []);
 
   // LOGIN
@@ -107,14 +100,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       // Step A: Get Token
       const data = await loginUser(email, password);
+      if (typeof data.access_token !== "string" || !data.access_token.trim()) {
+        throw new Error("Login failed");
+      }
       localStorage.setItem("access_token", data.access_token);
 
       // Step B: Get User Details using that token
       const userData = await getCurrentUser();
+      if (!userData) throw new Error("Session expired. Redirecting to login...");
       setUser(userData);
-      
+
       router.push("/main"); // Redirect after success
-    } catch (error: any) {
+    } catch (error) {
+      localStorage.removeItem("access_token");
+      setUser(null);
       throw error; // Throw to UI to show error message
     } finally {
       setIsLoading(false);

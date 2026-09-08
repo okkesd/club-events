@@ -1,4 +1,6 @@
 "use client";
+import {useUI} from "@/i18n/useUI";
+
 
 import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
@@ -23,6 +25,7 @@ const getLocalDateString = (date: Date) => {
 };
 
 export default function EventsBrowsePage() {
+  const {t} = useUI();
   const [events, setEvents] = useState<IEvent[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -133,12 +136,10 @@ export default function EventsBrowsePage() {
               <CalendarDays className="w-6 h-6 text-blue-600 dark:text-blue-400 vibrant:text-purple-600" />
             </div>
             <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white vibrant:text-purple-900 tracking-tight transition-colors">
-              Browse Events
-            </h1>
+              {t("Browse Events")}</h1>
           </div>
           <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-500 max-w-2xl transition-colors">
-            Discover upcoming events from all campus clubs.
-          </p>
+            {t("Discover upcoming events from all campus clubs.")}</p>
         </div>
       </div>
 
@@ -150,7 +151,7 @@ export default function EventsBrowsePage() {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
-              placeholder="Search events..."
+              placeholder={t("Search events...")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-11 pr-4 py-3 rounded-xl transition-colors outline-none
@@ -178,39 +179,39 @@ export default function EventsBrowsePage() {
                 }`}
               >
                 <MapPin className="w-3 h-3 inline mr-1" />
-                {lt.label}
+                {t(lt.label)}
               </button>
             ))}
 
             <div className="h-5 w-px bg-gray-200 dark:bg-gray-700 vibrant:bg-purple-200 mx-1" />
 
             {/* Date range */}
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 max-w-full">
               <input
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
                 className="px-2 py-1.5 rounded-lg text-xs border border-gray-200 dark:border-gray-700 vibrant:border-purple-200 bg-white dark:bg-gray-900 vibrant:bg-white/80 text-gray-700 dark:text-gray-300 vibrant:text-purple-700 outline-none"
-                title="From date"
+                title={t("From date")}
               />
-              <span className="text-gray-400 text-xs">to</span>
+              <span className="text-gray-400 text-xs">{t("to")}</span>
               <input
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
                 className="px-2 py-1.5 rounded-lg text-xs border border-gray-200 dark:border-gray-700 vibrant:border-purple-200 bg-white dark:bg-gray-900 vibrant:bg-white/80 text-gray-700 dark:text-gray-300 vibrant:text-purple-700 outline-none"
-                title="To date"
+                title={t("To date")}
               />
             </div>
 
             {/* Quick Presets */}
-  <div className="flex items-center gap-1.5 pl-4 border-l border-gray-200 dark:border-gray-700 vibrant:border-purple-200">
+  <div className="flex flex-wrap items-center gap-1.5 max-w-full sm:pl-4 sm:border-l border-gray-200 dark:border-gray-700 vibrant:border-purple-200">
     {[
-      { id: "upcoming", label: "Upcoming" },
-      { id: "1d", label: "Today" },
-      { id: "7d", label: "This Week" },
-      { id: "1m", label: "This Month" },
-      { id: "all", label: "All" },
+      { id: "upcoming", label: t("Upcoming") },
+      { id: "1d", label: t("Today") },
+      { id: "7d", label: t("This Week") },
+      { id: "1m", label: t("This Month") },
+      { id: "all", label: t("All") },
     ].map((preset) => (
       <button
         key={preset.id}
@@ -228,8 +229,7 @@ export default function EventsBrowsePage() {
 
             {hasFilters && (
               <button onClick={clearFilters} className="px-3 py-1.5 rounded-lg text-xs font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center gap-1">
-                <X className="w-3 h-3" /> Clear
-              </button>
+                <X className="w-3 h-3" />  {t("Clear")}</button>
             )}
           </div>
         </div>
@@ -257,9 +257,9 @@ export default function EventsBrowsePage() {
             <div className="bg-gray-100 dark:bg-gray-800 vibrant:bg-purple-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors">
               <CalendarDays className="w-8 h-8 text-gray-400 dark:text-gray-500 vibrant:text-purple-400" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors">No events found</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors">{t("No events found")}</h3>
             <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-400 mt-2 transition-colors">
-              {hasFilters ? "Try adjusting your filters." : "Check back soon for upcoming events."}
+              {hasFilters ? t("Try adjusting your filters.") : t("Check back soon for upcoming events.")}
             </p>
           </div>
         )}
@@ -269,8 +269,9 @@ export default function EventsBrowsePage() {
 }
 
 function BrowseEventCard({ event }: { event: IEvent }) {
+  const {t, locale} = useUI();
   const eventDate = new Date(event.date + "T00:00:00");
-  const monthName = eventDate.toLocaleString("en-US", { month: "short" });
+  const monthName = eventDate.toLocaleString(locale, { month: "short" });
   const dayNumber = eventDate.getDate();
   const isPast = eventDate.getTime() < Date.now();
 
@@ -315,7 +316,7 @@ function BrowseEventCard({ event }: { event: IEvent }) {
               ? "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400"
               : "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
           }`}>
-            {event.locationType === "off-campus" ? "Off Campus" : "On Campus"}
+            {event.locationType === "off-campus" ? t("Off Campus") : t("On Campus")}
           </span>
         </div>
 
@@ -355,8 +356,7 @@ function BrowseEventCard({ event }: { event: IEvent }) {
           )}
           {event.isRegistrationOpen && (
             <span className="ml-auto text-[10px] font-bold uppercase text-green-600 dark:text-green-400 vibrant:text-green-600">
-              Open
-            </span>
+              {t("Open")}</span>
           )}
         </div>
       </div>

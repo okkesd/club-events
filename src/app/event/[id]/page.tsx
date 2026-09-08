@@ -1,4 +1,5 @@
 import React from 'react';
+import {getUI} from '@/i18n/server';
 import { Metadata } from 'next';
 import { fetchEventById, resolveImageUrl } from '@/app/lib/api';
 import { cookies, headers } from 'next/headers';
@@ -10,15 +11,16 @@ type EventPageProps = {
 };
 
 export async function generateMetadata({ params }: EventPageProps): Promise<Metadata> {
+  const {t} = await getUI();
   const { id } = await params;
   const event = await fetchEventById(id);
 
   if (!event) {
-    return { title: 'Event Not Found' };
+    return { title: t("Event Not Found") };
   }
 
   const title = event.title;
-  const description = event.description?.slice(0, 160) || 'Check out this event!';
+  const description = event.description?.slice(0, 160) || t("Check out this event!");
   const imageUrl = event.coverImage ? resolveImageUrl(event.coverImage) : undefined;
 
   return {

@@ -1,3 +1,5 @@
+"use client";
+import {useUI} from "@/i18n/useUI";
 import { RefreshCw, WifiOff } from 'lucide-react';
 
 interface ErrorStateProps {
@@ -7,6 +9,7 @@ interface ErrorStateProps {
 }
 
 export function ErrorState({ message, retry }: ErrorStateProps) {
+  const {t} = useUI();
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center h-full bg-gray-50/50 dark:bg-gray-900/50 vibrant:bg-purple-50/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 vibrant:border-purple-300 transition-colors">
       
@@ -16,14 +19,13 @@ export function ErrorState({ message, retry }: ErrorStateProps) {
       </div>
       
       <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-        Whoops! The servers tripped.
-      </h3>
+        {t("Whoops! The servers tripped.")}</h3>
       
       <p className="text-gray-500 dark:text-gray-400 max-w-md mb-8 text-sm leading-relaxed">
         {/* Fallback to humor if the backend error is generic, otherwise show specific error */}
         {message === "Failed to connect server!" 
-          ? "Our server hamsters decided to take a coffee break. We're trying to bribe them back to work." 
-          : `Something went wrong: ${message}`}
+          ? t("Our server hamsters decided to take a coffee break. We're trying to bribe them back to work.")
+          : t("Something went wrong. Please try again.")}
       </p>
 
       <button
@@ -35,8 +37,7 @@ export function ErrorState({ message, retry }: ErrorStateProps) {
         "
       >
         <RefreshCw className="w-4 h-4" />
-        Try Again
-      </button>
+        {t("Try Again")}</button>
     </div>
   );
 }

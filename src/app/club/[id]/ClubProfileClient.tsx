@@ -1,4 +1,6 @@
 "use client";
+import {useUI} from "@/i18n/useUI";
+
 
 import React, { useState } from 'react';
 import Link from 'next/link';
@@ -33,8 +35,9 @@ function SocialButton({ icon: Icon, href, label }: { icon: any, href: string, la
 }
 
 function EventCard({ event, isPast = false }: { event: any, isPast?: boolean }) {
+    const {locale} = useUI();
     const dateObj = new Date(event.date);
-    const month = dateObj.toLocaleString('default', { month: 'short' });
+    const month = dateObj.toLocaleString(locale, { month: 'short' });
     const day = dateObj.getDate();
 
     return (
@@ -86,6 +89,7 @@ function EventCard({ event, isPast = false }: { event: any, isPast?: boolean }) 
 
 // --- MAIN CLIENT COMPONENT ---
 export default function ClubProfileClient({ initialClub, events, announcements = [] }: { initialClub: any, events: any[], announcements?: IAnnouncement[] }) {
+  const {t, locale} = useUI();
   const router = useRouter();
   const { user, logout } = useAuth();
 
@@ -128,12 +132,11 @@ export default function ClubProfileClient({ initialClub, events, announcements =
           <div className="mx-auto w-16 h-16 bg-yellow-100 dark:bg-yellow-900/30 vibrant:bg-yellow-100/80 rounded-full flex items-center justify-center mb-4">
             <ShieldAlert className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
           </div>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-2">Club Not Available</h2>
-          <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-600 mb-6">This club profile is not publicly available yet. It may be pending verification.</p>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-2">{t("Club Not Available")}</h2>
+          <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-600 mb-6">{t("This club profile is not publicly available yet. It may be pending verification.")}</p>
           <Link href="/clubs" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 vibrant:bg-purple-600 vibrant:hover:bg-purple-700 transition-colors">
             <ArrowLeft className="w-4 h-4" />
-            Browse Clubs
-          </Link>
+            {t("Browse Clubs")}</Link>
         </div>
       </div>
     );
@@ -156,7 +159,7 @@ export default function ClubProfileClient({ initialClub, events, announcements =
             setIsEditing(false);
         }
     } catch (error) {
-        alert("Failed to save changes.");
+        alert(t("Failed to save changes."));
         console.error(error);
     } finally {
         setIsSaving(false);
@@ -199,7 +202,7 @@ export default function ClubProfileClient({ initialClub, events, announcements =
           {formData.banner_url ? (
             <img
               src={resolveImageUrl(formData.banner_url)}
-              alt="Club Banner"
+              alt={t("Club Banner")}
               className={`w-full h-full object-cover transition-opacity ${isEditing ? 'opacity-60' : 'opacity-90'}`}
             />
           ) : (
@@ -214,16 +217,14 @@ export default function ClubProfileClient({ initialClub, events, announcements =
                        flex items-center gap-2 transition-all shadow-sm z-10"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back
-          </Link>
+            {t("Back")}</Link>
 
           {/* EDIT: Banner Upload Button */}
           {isEditing && (
             <label className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/40 hover:bg-black/50 transition-colors z-20">
                 <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur text-gray-900 dark:text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 shadow-lg transition-colors">
                     <Camera className="w-5 h-5" />
-                    Change Banner
-                </div>
+                    {t("Change Banner")}</div>
                 <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, 'banner_url')} />
             </label>
           )}
@@ -236,7 +237,7 @@ export default function ClubProfileClient({ initialClub, events, announcements =
             <div className="bg-white dark:bg-gray-900 vibrant:bg-white/90 p-1.5 rounded-2xl shadow-lg shrink-0 relative group transition-colors">
               <img
                 src={resolveImageUrl(formData.logo_url) || `https://ui-avatars.com/api/?name=${encodeURIComponent(club.clubName)}&background=random&size=160`}
-                alt="Club Logo"
+                alt={t("Club Logo")}
                 className="w-28 h-28 md:w-40 md:h-40 rounded-xl object-cover bg-gray-100 dark:bg-gray-800 vibrant:bg-purple-50 border border-gray-100 dark:border-gray-800 vibrant:border-purple-200 transition-colors"
               />
               {/* EDIT: Logo Upload Button */}
@@ -253,13 +254,12 @@ export default function ClubProfileClient({ initialClub, events, announcements =
                 <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
                         <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 vibrant:bg-purple-100 vibrant:text-purple-700 uppercase tracking-wide transition-colors">
-                            {club.category || "Club"}
+                            {club.category || t("Club")}
                         </span>
                         {isUnverified && (
                           <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 vibrant:bg-yellow-100/80 vibrant:text-yellow-700 uppercase tracking-wide">
                             <ShieldAlert className="w-3 h-3" />
-                            Unverified
-                          </span>
+                            {t("Unverified")}</span>
                         )}
                     </div>
 
@@ -288,15 +288,14 @@ export default function ClubProfileClient({ initialClub, events, announcements =
                                 className="flex items-center gap-2 bg-white dark:bg-gray-800 vibrant:bg-white/80 border border-gray-200 dark:border-gray-700 vibrant:border-purple-200 text-gray-700 dark:text-gray-200 vibrant:text-purple-700 px-5 py-2.5 rounded-xl font-bold transition-all hover:bg-gray-50 dark:hover:bg-gray-700 vibrant:hover:bg-white"
                             >
                                 <X className="w-4 h-4" />
-                                Cancel
-                            </button>
+                                {t("Cancel")}</button>
                             <button
                                 onClick={handleSave}
                                 disabled={isSaving}
                                 className="flex items-center gap-2 bg-green-600 hover:bg-green-700 vibrant:bg-purple-600 vibrant:hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-sm"
                             >
                                 <Save className="w-4 h-4" />
-                                {isSaving ? "Saving..." : "Save Changes"}
+                                {isSaving ? t("Saving...") : t("Save Changes")}
                             </button>
                         </>
                     ) : (
@@ -309,8 +308,7 @@ export default function ClubProfileClient({ initialClub, events, announcements =
                                     className="flex items-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 vibrant:bg-purple-100 vibrant:text-purple-700 vibrant:hover:bg-purple-200 px-4 py-2.5 rounded-xl font-bold transition-colors mr-2"
                                 >
                                     <Edit3 className="w-4 h-4" />
-                                    Edit Profile
-                                </button>
+                                    {t("Edit Profile")}</button>
                             </>
 
                             )}
@@ -325,7 +323,7 @@ export default function ClubProfileClient({ initialClub, events, announcements =
                                 className="flex items-center gap-2 bg-white dark:bg-gray-800 vibrant:bg-white/80 border border-gray-200 dark:border-gray-700 vibrant:border-purple-200 text-gray-700 dark:text-gray-200 vibrant:text-purple-700 px-4 py-2.5 rounded-xl font-bold transition-all hover:bg-gray-50 dark:hover:bg-gray-700 vibrant:hover:bg-white ml-2"
                             >
                                 <Mail className="w-4 h-4" />
-                                <span className="hidden sm:inline">Contact</span>
+                                <span className="hidden sm:inline">{t("Contact")}</span>
                             </a>
                         </>
                     )}
@@ -345,7 +343,7 @@ export default function ClubProfileClient({ initialClub, events, announcements =
 
   {/* About Section */}
   <div className="bg-white dark:bg-gray-900 vibrant:bg-white/70 vibrant:backdrop-blur-sm rounded-2xl p-6 md:p-8 shadow-sm border border-gray-100 dark:border-gray-800 vibrant:border-purple-200 relative transition-colors">
-      <h2 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-4 transition-colors">About Us</h2>
+      <h2 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-4 transition-colors">{t("About Us")}</h2>
       {isEditing ? (
           <textarea
               value={formData.description || ""}
@@ -354,7 +352,7 @@ export default function ClubProfileClient({ initialClub, events, announcements =
                          focus:ring-2 focus:ring-blue-500 focus:border-blue-500 vibrant:focus:ring-purple-500 vibrant:focus:border-purple-400
                          text-lg leading-relaxed text-gray-700 dark:text-gray-200 vibrant:text-purple-900
                          bg-white dark:bg-gray-800 vibrant:bg-white/80 transition-colors"
-              placeholder="Describe your club..."
+              placeholder={t("Describe your club...")}
           />
       ) : (
           <p className="text-gray-600 dark:text-gray-300 vibrant:text-purple-700 leading-relaxed whitespace-pre-line text-lg transition-colors">
@@ -374,8 +372,7 @@ export default function ClubProfileClient({ initialClub, events, announcements =
           }`}
       >
           <Calendar className="w-5 h-5" />
-          Events
-          {upcomingEvents.length > 0 && (
+          {t("Events")}{upcomingEvents.length > 0 && (
               <span className={`text-xs px-2 py-0.5 rounded-full ml-1 transition-colors ${
                   activeTab === 'events' 
                     ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 vibrant:bg-purple-200 vibrant:text-purple-800'
@@ -394,8 +391,7 @@ export default function ClubProfileClient({ initialClub, events, announcements =
           }`}
       >
           <Megaphone className="w-5 h-5" />
-          Announcements
-          {/* Optional Badge for count */}
+          {t("Announcements")}{/* Optional Badge for count */}
           {visibleAnnouncements.length > 0 && (
               <span className={`text-xs px-2 py-0.5 rounded-full ml-1 transition-colors ${
                   activeTab === 'announcements'
@@ -422,7 +418,7 @@ export default function ClubProfileClient({ initialClub, events, announcements =
                   </div>
               ) : (
                   <div className="bg-white dark:bg-gray-900 vibrant:bg-white/60 vibrant:backdrop-blur-sm rounded-2xl p-8 text-center border border-dashed border-gray-300 dark:border-gray-700 vibrant:border-purple-300 mb-8 transition-colors">
-                      <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-500 font-medium">No upcoming events scheduled.</p>
+                      <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-500 font-medium">{t("No upcoming events scheduled.")}</p>
                   </div>
               )}
 
@@ -430,8 +426,7 @@ export default function ClubProfileClient({ initialClub, events, announcements =
                   <div className="opacity-75 hover:opacity-100 transition-opacity">
                       <h3 className="text-lg font-bold text-gray-400 dark:text-gray-500 vibrant:text-purple-400 uppercase tracking-wider mb-4 flex items-center gap-2 border-t border-gray-200 dark:border-gray-800 vibrant:border-purple-200 pt-8 transition-colors">
                           <Clock className="w-5 h-5" />
-                          Past Events
-                      </h3>
+                          {t("Past Events")}</h3>
                       <div className="space-y-4">
                           {pastEvents.map(event => (
                               <EventCard key={event.id} event={event} isPast={true} />
@@ -465,7 +460,7 @@ export default function ClubProfileClient({ initialClub, events, announcements =
                                         ? 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500 vibrant:bg-purple-50 vibrant:text-purple-300'
                                         : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 vibrant:bg-purple-100 vibrant:text-purple-700'
                                   }`}>
-                                      {a.category}
+                                      {t(a.category)}
                                   </div>
                                   <div className="flex-1 min-w-0">
                                       <h4 className="font-bold text-gray-900 dark:text-gray-100 vibrant:text-purple-900 group-hover:text-blue-600 dark:group-hover:text-blue-400 vibrant:group-hover:text-purple-600 truncate transition-colors">
@@ -478,12 +473,11 @@ export default function ClubProfileClient({ initialClub, events, announcements =
                                   {expired ? (
                                       <span className="shrink-0 flex items-center gap-1 text-[10px] text-red-400 dark:text-red-500 vibrant:text-red-400 font-medium">
                                           <Clock className="w-3 h-3" />
-                                          Expired
-                                      </span>
+                                          {t("Expired")}</span>
                                   ) : a.expiresAt ? (
                                       <span className="shrink-0 flex items-center gap-1 text-[10px] text-gray-400 dark:text-gray-500 vibrant:text-purple-400">
                                           <Clock className="w-3 h-3" />
-                                          {new Date(a.expiresAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                                          {new Date(a.expiresAt).toLocaleDateString(locale, { month: "short", day: "numeric" })}
                                       </span>
                                   ) : null}
                               </div>
@@ -494,12 +488,11 @@ export default function ClubProfileClient({ initialClub, events, announcements =
                           href={`/announcements`}
                           className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-blue-600 dark:text-blue-400 vibrant:text-purple-600 vibrant:hover:text-pink-600 hover:underline"
                       >
-                          View all announcements
-                      </Link>
+                          {t("View all announcements")}</Link>
                   </div>
               ) : (
                   <div className="bg-white dark:bg-gray-900 vibrant:bg-white/60 vibrant:backdrop-blur-sm rounded-2xl p-8 text-center border border-dashed border-gray-300 dark:border-gray-700 vibrant:border-purple-300 transition-colors">
-                      <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-500 font-medium">No announcements posted yet.</p>
+                      <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-500 font-medium">{t("No announcements posted yet.")}</p>
                   </div>
               )}
           </div>
@@ -511,7 +504,7 @@ export default function ClubProfileClient({ initialClub, events, announcements =
           {/* RIGHT: Sidebar Info */}
           <div className="lg:col-span-1">
              <div className="bg-white dark:bg-gray-900 vibrant:bg-white/70 vibrant:backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 vibrant:border-purple-200 sticky top-8 transition-colors">
-                <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 vibrant:text-purple-400 uppercase tracking-wider mb-6 transition-colors">Club Details</h3>
+                <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 vibrant:text-purple-400 uppercase tracking-wider mb-6 transition-colors">{t("Club Details")}</h3>
                 <div className="space-y-5">
 
                     {/* Email Input */}
@@ -520,7 +513,7 @@ export default function ClubProfileClient({ initialClub, events, announcements =
                             <Mail className="w-4 h-4" />
                         </div>
                         <div className="w-full">
-                            <p className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-purple-500 font-medium mb-0.5 transition-colors">Email</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-purple-500 font-medium mb-0.5 transition-colors">{t("Email")}</p>
                             {isEditing ? (
                                 <input
                                     type="email"
@@ -541,8 +534,8 @@ export default function ClubProfileClient({ initialClub, events, announcements =
                             <Users className="w-4 h-4" />
                         </div>
                         <div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-purple-500 font-medium mb-0.5 transition-colors">Membership</p>
-                            <p className="text-sm font-semibold text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors">Open to all students</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-purple-500 font-medium mb-0.5 transition-colors">{t("Membership")}</p>
+                            <p className="text-sm font-semibold text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors">{t("Open to all students")}</p>
                         </div>
                     </div>
                 </div>
@@ -554,9 +547,9 @@ export default function ClubProfileClient({ initialClub, events, announcements =
                      <button
                          onClick={logout}
                          className="w-full flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-900 vibrant:bg-white/80 hover:bg-red-50 dark:hover:bg-red-900/10 vibrant:hover:bg-red-50/80 text-gray-700 dark:text-gray-300 vibrant:text-purple-700 hover:text-red-600 dark:hover:text-red-400 vibrant:hover:text-red-600 border border-gray-200 dark:border-gray-700 vibrant:border-purple-200 hover:border-red-100 dark:hover:border-red-900/30 vibrant:hover:border-red-200 rounded-xl font-semibold transition-all group"
-                         title="Sign Out"
+                         title={t("Sign Out")}
                      >
-                        <span>Sign Out</span>
+                        <span>{t("Sign Out")}</span>
                         <LogOut className="w-4 h-4 text-gray-400 group-hover:text-red-500 transition-colors" />
                     </button>
                 </div>

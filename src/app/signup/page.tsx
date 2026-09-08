@@ -1,6 +1,6 @@
-// app/signup/page.tsx
 "use client";
-
+import {useUI} from "@/i18n/useUI";
+// app/signup/page.tsx
 import React, { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserPlus, Loader2, AlertCircle, Mail, Lock, Building2, Check, X } from 'lucide-react';
@@ -10,6 +10,7 @@ import { SignUpData } from '../lib/types';
 
 
 export default function SignupPage() {
+  const {t, errorText} = useUI();
   const router = useRouter();
   const { signUp } = useAuth()
   
@@ -70,18 +71,16 @@ export default function SignupPage() {
              <UserPlus className="h-6 w-6 text-blue-600 dark:text-blue-400 vibrant:text-purple-600" />
           </div>
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors">
-            Register Club
-          </h2>
+            {t("Register Club")}</h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 vibrant:text-purple-500 transition-colors">
-            Create an account for your university club
-          </p>
+            {t("Create an account for your university club")}</p>
         </div>
 
         <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
             
             {/* Club Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">Club Name</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">{t("Club Name")}</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Building2 className="h-5 w-5 text-gray-400 dark:text-gray-500" />
@@ -93,7 +92,7 @@ export default function SignupPage() {
                              border border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500
                              dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-400 dark:focus:border-blue-400
                              vibrant:bg-white/80 vibrant:border-purple-200 vibrant:text-purple-900 vibrant:placeholder-purple-400 vibrant:focus:ring-purple-500 vibrant:focus:border-purple-500"
-                  placeholder="e.g. Chess Society"
+                  placeholder={t("e.g. Chess Society")}
                   value={clubName}
                   onChange={(e) => setClubName(e.target.value)}
                   disabled={isLoading}
@@ -103,7 +102,7 @@ export default function SignupPage() {
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">Official Email</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">{t("Official Email")}</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Mail className="h-5 w-5 text-gray-400 dark:text-gray-500" />
@@ -127,7 +126,7 @@ export default function SignupPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Password */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">Password</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">{t("Password")}</label>
                 <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Lock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
@@ -149,7 +148,7 @@ export default function SignupPage() {
 
               {/* Confirm Password */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">Confirm</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">{t("Confirm Password")}</label>
                 <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Lock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
@@ -187,14 +186,13 @@ export default function SignupPage() {
               </div>
               <div className="ml-3 text-sm">
                 <label htmlFor="terms" className="font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 transition-colors">
-                  I agree to the{' '}
+                  {t("I agree to the")}{' '}
                   <button
                     type="button"
                     onClick={() => setIsTermsOpen(true)}
                     className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 vibrant:text-pink-600 vibrant:hover:text-pink-500 underline cursor-pointer transition-colors"
                   >
-                    Terms of Service
-                  </button>
+                    {t("Terms of Service")}</button>
                 </label>
               </div>
             </div>
@@ -206,7 +204,7 @@ export default function SignupPage() {
                                 dark:bg-red-900/20 dark:text-red-300 dark:border-red-900/50
                                 vibrant:bg-red-50 vibrant:text-red-700 vibrant:border-red-200 transition-colors">
                 <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                <span>{error}</span>
+                <span>{errorText(error)}</span>
                 </div>
             )}
 
@@ -224,10 +222,9 @@ export default function SignupPage() {
                 {isLoading ? (
                 <>
                     <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Creating Account...
-                </>
+                    {t("Creating Account...")}</>
                 ) : (
-                'Register Club'
+                t("Register Club")
                 )}
             </button>
         </form>
@@ -241,7 +238,7 @@ export default function SignupPage() {
       
       {/* Header */}
       <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-700 vibrant:border-purple-200">
-        <h3 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900">Terms of Service</h3>
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900">{t("Terms of Service")}</h3>
         <button 
           onClick={() => setIsTermsOpen(false)} 
           className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 transition-colors"
@@ -254,61 +251,52 @@ export default function SignupPage() {
       <div className="p-6 overflow-y-auto space-y-6 text-sm text-gray-600 dark:text-gray-300 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
 
         <p className="italic text-gray-500 dark:text-gray-400">
-          Last Updated: March 22, 2026
-        </p>
+          {t("Last Updated: March 22, 2026")}</p>
 
         <section>
-          <h4 className="font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-1">1. Student Project Disclaimer</h4>
+          <h4 className="font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-1">{t("1. Student Project Disclaimer")}</h4>
           <p>
-            Evenements is an independent student project developed by computer science students at Galatasaray University.
-            It is not affiliated with, endorsed by, or officially connected to the Galatasaray University administration.
-            The service is provided &quot;as is&quot; without any guarantees or warranty. We are not responsible for data loss, service interruptions, or the accuracy of event information posted by clubs.
-          </p>
+            {t("Evenements is an independent student project developed by computer science students at Galatasaray University. It is not affiliated with, endorsed by, or officially connected to the Galatasaray University administration. The service is provided \"as is\" without any guarantees or warranty. We are not responsible for data loss, service interruptions, or the accuracy of event information posted by clubs.")}</p>
         </section>
 
         <section>
-          <h4 className="font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-1">2. User Conduct</h4>
-          <p>By using this platform, you agree not to:</p>
+          <h4 className="font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-1">{t("2. User Conduct")}</h4>
+          <p>{t("By using this platform, you agree not to:")}</p>
           <ul className="list-disc pl-5 mt-1 space-y-1">
-            <li>Post content that is unlawful, harmful, threatening, or abusive.</li>
-            <li>Impersonate any person, club, or entity.</li>
-            <li>Upload viruses or malicious code.</li>
-            <li>Spam or solicit other users commercially.</li>
-            <li>Post misleading or false event information.</li>
+            <li>{t("Post content that is unlawful, harmful, threatening, or abusive.")}</li>
+            <li>{t("Impersonate any person, club, or entity.")}</li>
+            <li>{t("Upload viruses or malicious code.")}</li>
+            <li>{t("Spam or solicit other users commercially.")}</li>
+            <li>{t("Post misleading or false event information.")}</li>
           </ul>
         </section>
 
         <section>
-          <h4 className="font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-1">3. Content Ownership</h4>
+          <h4 className="font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-1">{t("3. Content Ownership")}</h4>
           <p>
-            Clubs retain all rights to the images and text they upload. By uploading content, you grant Evenements a non-exclusive license to display and distribute this content on the platform for as long as the content remains on the service.
-          </p>
+            {t("Clubs retain all rights to the images and text they upload. By uploading content, you grant Evenements a non-exclusive license to display and distribute this content on the platform for as long as the content remains on the service.")}</p>
         </section>
 
         <section>
-          <h4 className="font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-1">4. Limitation of Liability</h4>
+          <h4 className="font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-1">{t("4. Limitation of Liability")}</h4>
           <p>
-            To the fullest extent permitted by applicable law, Evenements and its developers shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of data, use, or profits, arising out of or in connection with your use of the service.
-          </p>
+            {t("To the fullest extent permitted by applicable law, Evenements and its developers shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of data, use, or profits, arising out of or in connection with your use of the service.")}</p>
         </section>
 
         <section>
-          <h4 className="font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-1">5. Termination</h4>
+          <h4 className="font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-1">{t("5. Termination")}</h4>
           <p>
-            We reserve the right to terminate or suspend your account immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach these Terms.
-          </p>
+            {t("We reserve the right to terminate or suspend your account immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach these Terms.")}</p>
         </section>
 
         <section>
-          <h4 className="font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-1">6. Governing Law</h4>
+          <h4 className="font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-1">{t("6. Governing Law")}</h4>
           <p>
-            These Terms are governed by the laws of the Republic of Turkey. Disputes shall be subject to the exclusive jurisdiction of the courts of Istanbul, Turkey.
-          </p>
+            {t("These Terms are governed by the laws of the Republic of Turkey. Disputes shall be subject to the exclusive jurisdiction of the courts of Istanbul, Turkey.")}</p>
         </section>
 
         <p className="text-gray-500 dark:text-gray-400 pt-2">
-          Read the full terms at <Link href="/legal/terms" className="text-blue-600 dark:text-blue-400 hover:underline">/legal/terms</Link>.
-          Contact: <a href="mailto:evenementsadmin@gmail.com" className="text-blue-600 dark:text-blue-400 hover:underline">evenementsadmin@gmail.com</a>
+          {t("Read the full terms at")} <Link href="/legal/terms" className="text-blue-600 dark:text-blue-400 hover:underline">/legal/terms</Link>{t(". Contact:")} <a href="mailto:evenementsadmin@gmail.com" className="text-blue-600 dark:text-blue-400 hover:underline">evenementsadmin@gmail.com</a>
         </p>
       </div>
       
@@ -318,8 +306,7 @@ export default function SignupPage() {
           onClick={() => setIsTermsOpen(false)}
           className="px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 vibrant:text-purple-600 hover:bg-gray-200 dark:hover:bg-gray-700 vibrant:hover:bg-purple-100 rounded-lg transition-colors"
         >
-          Cancel
-        </button>
+          {t("Cancel")}</button>
         <button
           onClick={() => {
             setAgreedToTerms(true);
@@ -327,8 +314,7 @@ export default function SignupPage() {
           }}
           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 vibrant:bg-purple-600 vibrant:hover:bg-purple-700 text-white text-sm font-bold rounded-lg shadow-sm hover:shadow transition-all active:scale-95"
         >
-          I Agree
-        </button>
+          {t("I Agree")}</button>
       </div>
     </div>
   </div>

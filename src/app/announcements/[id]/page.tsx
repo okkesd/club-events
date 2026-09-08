@@ -1,4 +1,6 @@
 "use client";
+import {useUI} from "@/i18n/useUI";
+
 
 import SourcePostButton from "@/app/components/SourcePostButton";
 import { EventBrochure } from "@/app/event/[id]/EventBrochure";
@@ -25,6 +27,7 @@ const CATEGORY_COLORS: Record<AnnouncementCategory, string> = {
 };
 
 export default function AnnouncementDetailPage() {
+  const {t, locale} = useUI();
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { user } = useAuth();
@@ -50,7 +53,7 @@ export default function AnnouncementDetailPage() {
       await deleteAnnouncement(announcement.id);
       router.push("/announcements");
     } catch (err: any) {
-      alert(err.message || "Failed to delete");
+      alert(t("Failed to delete"));
     } finally {
       setIsDeleting(false);
       setShowDeleteConfirm(false);
@@ -76,10 +79,9 @@ export default function AnnouncementDetailPage() {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 vibrant:bg-transparent flex flex-col items-center justify-center gap-4 transition-colors">
         <Megaphone className="w-12 h-12 text-gray-300 dark:text-gray-700" />
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Announcement not found</h2>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t("Announcement not found")}</h2>
         <Link href="/announcements" className="text-blue-600 dark:text-blue-400 vibrant:text-purple-600 font-semibold hover:underline">
-          Back to Announcements
-        </Link>
+          {t("Back to Announcements")}</Link>
       </div>
     );
   }
@@ -94,8 +96,7 @@ export default function AnnouncementDetailPage() {
             className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 vibrant:text-purple-600 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600 transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
-            Back to Announcements
-          </Link>
+            {t("Back to Announcements")}</Link>
 
           {isOwner && (
             <div className="flex items-center gap-2">
@@ -105,8 +106,7 @@ export default function AnnouncementDetailPage() {
                   bg-white text-gray-700 border border-gray-200 hover:border-blue-400 hover:text-blue-600
                   dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-700 dark:hover:text-blue-400"
               >
-                <Edit3 className="w-4 h-4" /> Edit
-              </Link>
+                <Edit3 className="w-4 h-4" />  {t("Edit")}</Link>
               <button
                 onClick={() => setShowDeleteConfirm(true)}
                 disabled={isDeleting}
@@ -115,7 +115,7 @@ export default function AnnouncementDetailPage() {
                   dark:bg-gray-800 dark:text-red-400 dark:border-gray-700 dark:hover:bg-gray-700
                   disabled:opacity-50"
               >
-                <Trash2 className="w-4 h-4" /> {isDeleting ? "..." : "Delete"}
+                <Trash2 className="w-4 h-4" /> {isDeleting ? "..." : t("Delete")}
               </button>
             </div>
           )}
@@ -139,21 +139,18 @@ export default function AnnouncementDetailPage() {
             <div className="flex items-center gap-2 flex-wrap mb-4">
               {announcement.isPinned && (
                 <span className="flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
-                  <Pin className="w-3 h-3" /> Pinned
-                </span>
+                  <Pin className="w-3 h-3" />  {t("Pinned")}</span>
               )}
               <span className={`px-2.5 py-0.5 rounded-md text-xs font-bold uppercase ${CATEGORY_COLORS[announcement.category]}`}>
-                {announcement.category}
+                {t(announcement.category)}
               </span>
               {expiring && (
                 <span className="flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-bold bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300">
-                  <Clock className="w-3 h-3" /> Expiring Soon
-                </span>
+                  <Clock className="w-3 h-3" />  {t("Expiring Soon")}</span>
               )}
               {expired && (
                 <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400">
-                  Expired
-                </span>
+                  {t("Expired")}</span>
               )}
             </div>
 
@@ -173,12 +170,12 @@ export default function AnnouncementDetailPage() {
               </Link>
               <span className="flex items-center gap-1.5">
                 <CalendarDays className="w-4 h-4" />
-                {new Date(announcement.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                {new Date(announcement.createdAt).toLocaleDateString(locale, { month: "long", day: "numeric", year: "numeric" })}
               </span>
               {announcement.expiresAt && (
                 <span className="flex items-center gap-1.5">
                   <Clock className="w-4 h-4" />
-                  Deadline: {new Date(announcement.expiresAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                  {t("Deadline:")} {new Date(announcement.expiresAt).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" })}
                 </span>
               )}
             </div>
@@ -213,8 +210,7 @@ export default function AnnouncementDetailPage() {
                   bg-blue-600 hover:bg-blue-700 vibrant:bg-purple-600 vibrant:hover:bg-purple-700 text-white"
               >
                 <ExternalLink className="w-4 h-4" />
-                Visit Link
-              </a>
+                {t("Visit Link")}</a>
             )}
           </div>
         </article>
@@ -225,10 +221,9 @@ export default function AnnouncementDetailPage() {
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
           <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 max-w-sm w-full transition-colors">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Delete Announcement</h3>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{t("Delete Announcement")}</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-              Are you sure? This cannot be undone.
-            </p>
+              {t("Are you sure? This cannot be undone.")}</p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
@@ -236,14 +231,13 @@ export default function AnnouncementDetailPage() {
                 className="px-4 py-2 text-sm font-semibold rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50
                   dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
               >
-                Cancel
-              </button>
+                {t("Cancel")}</button>
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}
                 className="px-4 py-2 text-sm font-semibold rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50"
               >
-                {isDeleting ? "Deleting..." : "Yes, Delete"}
+                {isDeleting ? t("Deleting...") : t("Yes, Delete")}
               </button>
             </div>
           </div>

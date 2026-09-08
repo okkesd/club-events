@@ -1,3 +1,5 @@
+"use client";
+import {useUI} from "@/i18n/useUI";
 import React from 'react';
 import { IEvent } from "@/app/lib/types";
 import Link from 'next/link';
@@ -17,20 +19,26 @@ export function EventCard({
     showHourLabels, 
     columnIndex = 0, 
     totalColumns = 1, 
-    colSpan = 1 
+    colSpan = 1,
+    endHour,
 }: { 
     event: IEvent, 
     showHourLabels: boolean, 
     columnIndex?: number, 
     totalColumns?: number, 
-    colSpan?: number 
+    colSpan?: number,
+    endHour?: number,
 }) {
+  const {t} = useUI();
     // 1. Calculate numerical times
     const start = parseTime(event.startTime);
     
     // 2. Calculate Absolute Vertical Positioning (Top and Height)
     const topPositionRem = (start - CALENDAR_START_HOUR) * ROW_HEIGHT_REM;
-    const heightRem = event.duration * ROW_HEIGHT_REM;
+    const visibleDuration = endHour === undefined
+        ? event.duration
+        : Math.max(0, Math.min(event.duration, endHour - start));
+    const heightRem = visibleDuration * ROW_HEIGHT_REM;
 
     // 3. Calculate Absolute Horizontal Positioning (Left and Width)
     const leftPercentage = (columnIndex / totalColumns) * 100;
@@ -76,7 +84,7 @@ export function EventCard({
                 {/* Description - only show if there is enough vertical space (e.g., duration > 0.5 hours) */}
                 {event.duration > 0.5 && (
                     <p className="text-blue-800/70 dark:text-blue-200/60 vibrant:text-purple-800/70 line-clamp-2 mt-1">
-                        {event.description || "No description"}
+                        {event.description || t("No description")}
                     </p>
                 )}
             </div>

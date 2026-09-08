@@ -32,8 +32,8 @@ async function handleApiError(res: Response): Promise<never> {
   // Handling expired sessions
   if (res.status === 401) {
     if (typeof window !== "undefined") {
-      // 1. Clear any stored tokens/auth state (adjust the key to match your app)
-      localStorage.removeItem("token"); 
+      // Clear the same token used by login and authenticated requests.
+      localStorage.removeItem("access_token");
       
       // 2. Force navigation to the login or main page
       window.location.href = "/login";

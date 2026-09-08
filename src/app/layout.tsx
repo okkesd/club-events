@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import {NextIntlClientProvider} from "next-intl";
+import {getLocale} from "next-intl/server";
+import {getUI} from "@/i18n/server";
 import { Geist, Geist_Mono, Nunito } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/app/components/layout/Navbar";
@@ -25,25 +28,27 @@ const nunito = Nunito({
 });
 
 // 2. I updated the metadata to be more descriptive
-export const metadata: Metadata = {
-  title: "Evenements",
-  description: "Find and manage all your club events in one place.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const {t} = await getUI();
+  return {title: "Evenements", description: t("Find and manage all your club events in one place.")};
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       {/* 3. Keep your font variables on the body tag */}
       <body className={`${geistSans.variable} ${geistMono.variable} ${nunito.variable}`}>
+        <NextIntlClientProvider>
         <AuthProvider>
           <ThemeProvider
             attribute="class"
-            defaultTheme="light"
-            enableSystem={false}
+            defaultTheme="system"
+            enableSystem
             themes={["light", "dark", "vibrant"]}
           >
         {/* 4. This div wrapper creates the full-height layout */}
@@ -63,6 +68,7 @@ export default function RootLayout({
         </div>
         </ThemeProvider>
         </AuthProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

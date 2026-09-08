@@ -1,4 +1,6 @@
 "use client";
+import {useUI} from "@/i18n/useUI";
+
 
 import React, { useState } from "react";
 import {
@@ -39,6 +41,7 @@ interface AnnouncementFormProps {
 }
 
 export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSubmitting }: AnnouncementFormProps) {
+  const {t} = useUI();
   const [formData, setFormData] = useState({
     title: initialData?.title || "",
     body: initialData?.body || "",
@@ -138,7 +141,7 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
       {/* Title */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 transition-colors">Title</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 transition-colors">{t("Title")}</label>
           <span className={`text-xs ${titleOverLimit ? "text-red-500 font-bold" : "text-gray-400 dark:text-gray-500"}`}>
             {formData.title.length}/{TITLE_MAX}
           </span>
@@ -149,7 +152,7 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
           maxLength={TITLE_MAX}
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          placeholder="e.g., Summer Internship at Google"
+          placeholder={t("e.g., Summer Internship at Google")}
           className={`w-full p-3 rounded-xl border transition-colors outline-none
             ${titleOverLimit ? "border-red-400 focus:ring-red-300" : "border-gray-200 dark:border-gray-700 vibrant:border-purple-200"}
             bg-white dark:bg-gray-800 vibrant:bg-white/80
@@ -161,7 +164,7 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
 
       {/* Category */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-2 transition-colors">Category</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-2 transition-colors">{t("Category")}</label>
         <div className="flex flex-wrap gap-2">
           {CATEGORIES.map((cat) => (
             <button
@@ -174,7 +177,7 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
                   : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 vibrant:bg-purple-50 vibrant:text-purple-500 hover:bg-gray-200 dark:hover:bg-gray-700 vibrant:hover:bg-purple-100"
               }`}
             >
-              {cat.label}
+              {t(cat.label)}
             </button>
           ))}
         </div>
@@ -183,7 +186,7 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
       {/* Body */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 transition-colors">Description</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 transition-colors">{t("Description")}</label>
           <span className={`text-xs ${bodyOverLimit ? "text-red-500 font-bold" : "text-gray-400 dark:text-gray-500"}`}>
             {formData.body.length}/{BODY_MAX}
           </span>
@@ -194,7 +197,7 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
           maxLength={BODY_MAX}
           value={formData.body}
           onChange={(e) => setFormData({ ...formData, body: e.target.value })}
-          placeholder="Full details about this announcement..."
+          placeholder={t("Full details about this announcement...")}
           className={`w-full p-3 rounded-xl border transition-colors outline-none resize-y
             ${bodyOverLimit ? "border-red-400 focus:ring-red-300" : "border-gray-200 dark:border-gray-700 vibrant:border-purple-200"}
             bg-white dark:bg-gray-800 vibrant:bg-white/80
@@ -206,19 +209,18 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
 
       {/* Cover Image */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-2 transition-colors">Cover Image</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-2 transition-colors">{t("Cover Image")}</label>
         <div className="flex items-center gap-4">
           {formData.coverImage ? (
             <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 group transition-colors">
-              <img src={resolveImageUrl(formData.coverImage)} alt="Cover" className="w-full h-full object-cover" />
+              <img src={resolveImageUrl(formData.coverImage)} alt={t("Cover")} className="w-full h-full object-cover" />
               <button
                 type="button"
                 disabled={isUploading || isSubmitting}
                 onClick={() => setFormData({ ...formData, coverImage: "" })}
                 className="absolute inset-0 bg-black/50 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-xs font-bold cursor-pointer"
               >
-                Remove
-              </button>
+                {t("Remove")}</button>
             </div>
           ) : (
             <div className="w-24 h-24 rounded-xl bg-gray-50 dark:bg-gray-800 vibrant:bg-purple-50 border-2 border-dashed border-gray-300 dark:border-gray-700 vibrant:border-purple-300 flex items-center justify-center text-gray-400 dark:text-gray-600 vibrant:text-purple-400 transition-colors">
@@ -230,7 +232,7 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
             dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-700
             vibrant:bg-white/80 vibrant:border-purple-200 vibrant:text-purple-700 vibrant:hover:bg-purple-50">
             <Upload className="w-4 h-4" />
-            {isUploading ? "Uploading..." : "Upload"}
+            {isUploading ? t("Uploading...") : t("Upload")}
             <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} disabled={isUploading} />
           </label>
         </div>
@@ -239,7 +241,7 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
       {/* External Link */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-2 transition-colors">
-          <span className="flex items-center gap-1.5"><LinkIcon className="w-4 h-4" /> External Link (optional)</span>
+          <span className="flex items-center gap-1.5"><LinkIcon className="w-4 h-4" />  {t("External Link (optional)")}</span>
         </label>
         <input
           type="url"
@@ -258,8 +260,7 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
       {/* Expiration Settings */}
       <div className="space-y-4">
         <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 vibrant:text-purple-900 transition-colors">
-          How long should this be visible?
-        </label>
+          {t("How long should this be visible?")}</label>
 
         {/* The Switch (Segmented Control) */}
         <div className="flex bg-gray-100 dark:bg-gray-800 vibrant:bg-purple-100/50 p-1 rounded-xl w-full max-w-sm transition-colors">
@@ -272,8 +273,7 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
                 : "text-gray-500 dark:text-gray-400 vibrant:text-purple-600 hover:text-gray-700 dark:hover:text-gray-200"
             }`}
           >
-            Quick Presets
-          </button>
+            {t("Quick Presets")}</button>
           <button
             type="button"
             onClick={() => setExpiryMode("date")}
@@ -283,8 +283,7 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
                 : "text-gray-500 dark:text-gray-400 vibrant:text-purple-600 hover:text-gray-700 dark:hover:text-gray-200"
             }`}
           >
-            Custom Date
-          </button>
+            {t("Custom Date")}</button>
         </div>
 
         {/* Conditional Rendering based on the switch */}
@@ -298,14 +297,13 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
                          dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:border-blue-500
                          vibrant:bg-white/80 vibrant:border-purple-200 vibrant:text-purple-900 vibrant:focus:border-purple-500"
             >
-              <option value="1d">1 Day (Quick update)</option>
-              <option value="3d">3 Days (Short notice)</option>
-              <option value="1w">1 Week (Standard)</option>
-              <option value="2w">2 Weeks (Maximum visibility)</option>
+              <option value="1d">{t("1 Day (Quick update)")}</option>
+              <option value="3d">{t("3 Days (Short notice)")}</option>
+              <option value="1w">{t("1 Week (Standard)")}</option>
+              <option value="2w">{t("2 Weeks (Maximum visibility)")}</option>
             </select>
             <p className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-purple-500 mt-2">
-              Announcements auto-hide after this period to keep the feed fresh.
-            </p>
+              {t("Announcements auto-hide after this period to keep the feed fresh.")}</p>
           </div>
         ) : (
           <div className="animate-in fade-in slide-in-from-top-1 duration-200">
@@ -321,8 +319,7 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
                          vibrant:bg-white/80 vibrant:border-purple-200 vibrant:text-purple-900 vibrant:focus:border-purple-500"
             />
             <p className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-purple-500 mt-2">
-              Custom expiration date cannot exceed 14 days from today.
-            </p>
+              {t("Custom expiration date cannot exceed 14 days from today.")}</p>
           </div>
         )}
       </div>
@@ -330,7 +327,7 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
       {/* Tags */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-2 transition-colors">
-          <span className="flex items-center gap-1.5"><TagIcon className="w-4 h-4" /> Tags</span>
+          <span className="flex items-center gap-1.5"><TagIcon className="w-4 h-4" />  {t("Tags")}</span>
         </label>
 
         {/* Current tags */}
@@ -356,7 +353,7 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
           value={tagInput}
           onChange={(e) => setTagInput(e.target.value)}
           onKeyDown={handleTagKeyDown}
-          placeholder="Type a tag and press Enter..."
+          placeholder={t("Type a tag and press Enter...")}
           className="w-full p-3 rounded-xl border transition-colors outline-none mb-2
             border-gray-200 dark:border-gray-700 vibrant:border-purple-200
             bg-white dark:bg-gray-800 vibrant:bg-white/80
@@ -374,7 +371,7 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
               onClick={() => addTag(tag)}
               className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 vibrant:bg-purple-50 vibrant:text-purple-400 hover:bg-gray-200 dark:hover:bg-gray-700 vibrant:hover:bg-purple-100 transition-colors"
             >
-              + {tag}
+              + {t(tag)}
             </button>
           ))}
         </div>
@@ -388,15 +385,14 @@ export default function AnnouncementForm({ initialData, onSubmit, onCancel, isSu
             onClick={onCancel}
             className="px-5 py-2.5 text-gray-600 dark:text-gray-300 vibrant:text-purple-600 font-bold hover:bg-gray-100 dark:hover:bg-gray-800 vibrant:hover:bg-purple-100 rounded-xl transition-colors"
           >
-            Cancel
-          </button>
+            {t("Cancel")}</button>
         )}
         <button
           type="submit"
           disabled={isSubmitting || isUploading}
           className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 vibrant:bg-purple-600 vibrant:hover:bg-purple-700 text-white font-bold rounded-xl disabled:opacity-50 transition-colors"
         >
-          {isSubmitting ? "Saving..." : initialData ? "Save Changes" : "Publish"}
+          {isSubmitting ? t("Saving...") : initialData ? t("Save Changes") : t("Publish")}
         </button>
       </div>
     </form>

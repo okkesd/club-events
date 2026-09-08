@@ -1,4 +1,6 @@
 "use client";
+import {useUI} from "@/i18n/useUI";
+
 
 import SourcePostButton from "@/app/components/SourcePostButton";
 import React, { useEffect, useState } from 'react';
@@ -18,6 +20,7 @@ import { IEvent } from '@/app/lib/types';
 import LikeButton from './LikeButton';
 
 export default function EventDetailClient({ event }: { event: IEvent }) {
+  const {t, locale} = useUI();
   const router = useRouter();
   const { user } = useAuth();
   
@@ -50,7 +53,7 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
         setIsEditing(false);
         router.refresh();
     } catch (err) {
-        alert("Failed to update event");
+        alert(t("Failed to update event"));
     } finally {
         setIsSubmitting(false);
     }
@@ -60,11 +63,11 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
     setIsDeleting(true);
     try {
       await deleteEvent(currentEvent.id);
-      alert("Event deleted successfully.");
+      alert(t("Event deleted successfully."));
       router.push(`/club/${currentEvent.clubId}`);
       router.refresh();
     } catch (err: any) {
-      alert(err.message || "Failed to delete event");
+      alert(t("Failed to delete event"));
     } finally {
       setIsDeleting(false);
       setShowDeleteConfirm(false);
@@ -74,9 +77,9 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
   // --- VIEW MODE HELPERS ---
   const [year, month, day] = currentEvent.date.split('-');
   const dateObj = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-  const monthName = dateObj.toLocaleString('en-US', { month: 'short' });
+  const monthName = dateObj.toLocaleString(locale, { month: 'short' });
   const dayNumber = day;
-  const weekdayStr = dateObj.toLocaleString('en-US', { weekday: 'long' });
+  const weekdayStr = dateObj.toLocaleString(locale, { weekday: 'long' });
   const hasBrochure = !!currentEvent.coverImage;
   const infoColSpan = hasBrochure ? "lg:col-span-6" : "lg:col-span-9";
 
@@ -89,8 +92,7 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                     onClick={() => setIsEditing(false)}
                     className="mb-6 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 vibrant:text-purple-400 hover:text-gray-900 dark:hover:text-white vibrant:hover:text-purple-900 transition-colors"
                 >
-                    <ChevronLeft className="w-4 h-4" /> Cancel Editing
-                </button>
+                    <ChevronLeft className="w-4 h-4" />  {t("Cancel Editing")}</button>
                 <div className="bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 vibrant:border-purple-200 p-6 transition-colors">
                     <EventForm 
                         initialData={currentEvent} 
@@ -115,8 +117,7 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
           className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 vibrant:text-purple-500 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-purple-900 transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
-          Back to Calendar
-        </Link>
+          {t("Back to Calendar")}</Link>
 
         {isOwner && (
           <div className="flex items-center gap-2">
@@ -128,8 +129,7 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                            vibrant:bg-white/80 vibrant:text-purple-700 vibrant:border-purple-200 vibrant:hover:border-purple-400 vibrant:hover:text-purple-900"
             >
                 <Edit3 className="w-4 h-4" />
-                Edit Event
-            </button>
+                {t("Edit Event")}</button>
             <button
                 onClick={() => setShowDeleteConfirm(true)}
                 disabled={isDeleting}
@@ -140,7 +140,7 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                            disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 <Trash2 className="w-4 h-4" />
-                {isDeleting ? "Deleting..." : "Delete"}
+                {isDeleting ? t("Deleting...") : t("Delete")}
             </button>
           </div>
         )}
@@ -159,7 +159,7 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
           )}
 
           {/* 2. INFO */}
-          <div className={`${infoColSpan} order-2 space-y-6`}>
+          <div className={`${infoColSpan} min-w-0 order-2 space-y-6`}>
             <div className="bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 vibrant:border-purple-200 p-6 md:p-8 transition-colors">
                 <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-4 leading-tight transition-colors">
                     {currentEvent.title}
@@ -173,16 +173,16 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                         <Users className="w-4 h-4" />
                     </div>
                     <span>
-                        Hosted by <span className="underline decoration-dotted text-gray-900 dark:text-gray-200 vibrant:text-purple-900 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600 transition-colors">{currentEvent.clubName}</span>
+                        {t("Hosted by")} <span className="underline decoration-dotted text-gray-900 dark:text-gray-200 vibrant:text-purple-900 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600 transition-colors">{currentEvent.clubName}</span>
                     </span>
                 </Link>
 
                 <hr className="my-8 border-gray-100 dark:border-gray-800 vibrant:border-purple-100 transition-colors" />
                 
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-4 transition-colors">About Event</h3>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-4 transition-colors">{t("About Event")}</h3>
                 
                 {/* Prose for rich text handling */}
-                <div className="prose prose-blue prose-sm md:prose-base dark:prose-invert text-gray-600 dark:text-gray-300 vibrant:text-purple-700 whitespace-pre-line leading-relaxed max-w-none transition-colors">
+                <div className="prose prose-blue prose-sm md:prose-base dark:prose-invert text-gray-600 dark:text-gray-300 vibrant:text-purple-700 whitespace-pre-line [overflow-wrap:anywhere] leading-relaxed max-w-none transition-colors">
                     {currentEvent.description}
                 </div>
                 <SourcePostButton url={currentEvent.sourcePostUrl} />
@@ -235,14 +235,14 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                     </div>
                     <div>
                         <p className="text-xs font-medium uppercase mb-0.5 transition-colors
-                                      text-gray-500 dark:text-gray-400 vibrant:text-purple-500">Location</p>
+                                      text-gray-500 dark:text-gray-400 vibrant:text-purple-500">{t("Location")}</p>
                         <p className="text-sm font-semibold leading-snug transition-colors
                                       text-gray-900 dark:text-gray-200 vibrant:text-purple-900">{currentEvent.location}</p>
                         {currentEvent.locationType === 'off-campus' && (
                             <span className="text-[10px] font-bold px-1.5 py-0.5 rounded mt-1 inline-block transition-colors
                                              bg-orange-100 text-orange-700 
                                              dark:bg-orange-900/30 dark:text-orange-400
-                                             vibrant:bg-pink-100 vibrant:text-pink-700">Off Campus</span>
+                                             vibrant:bg-pink-100 vibrant:text-pink-700">{t("Off Campus")}</span>
                         )}
                     </div>
                 </div>
@@ -259,16 +259,14 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                         <div>
                             <p className="text-xs font-medium uppercase mb-0.5 transition-colors
                                           text-gray-500 dark:text-gray-400 vibrant:text-purple-500">
-                                Capacity
-                            </p>
+                                {t("Capacity")}</p>
                             <p className="text-sm font-semibold leading-snug transition-colors
                                           text-gray-900 dark:text-gray-200 vibrant:text-purple-900">
                                 {currentEvent.capacity && currentEvent.capacity > 0 ? (
                                     <>
-                                        Limited to <span className="text-purple-700 dark:text-purple-400 vibrant:text-pink-600">{currentEvent.capacity}</span> spots
-                                    </>
+                                        {t("Limited to {count} spots", {count: currentEvent.capacity})}</>
                                 ) : (
-                                    <span className="text-purple-700 dark:text-purple-400 vibrant:text-pink-600">Unlimited spots</span>
+                                    <span className="text-purple-700 dark:text-purple-400 vibrant:text-pink-600">{t("Unlimited spots")}</span>
                                 )}
                             </p>
                         </div>
@@ -286,10 +284,10 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                         </div>
                         <div>
                             <p className="text-xs font-medium uppercase mb-0.5 transition-colors
-                                          text-gray-500 dark:text-gray-400 vibrant:text-purple-500">Views</p>
+                                          text-gray-500 dark:text-gray-400 vibrant:text-purple-500">{t("Views")}</p>
                             <p className="text-sm font-semibold leading-snug transition-colors
                                           text-gray-900 dark:text-gray-200 vibrant:text-purple-900">
-                                {currentEvent.viewCount.toLocaleString()}
+                                {currentEvent.viewCount.toLocaleString(locale)}
                             </p>
                         </div>
                     </div>
@@ -309,15 +307,13 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                        vibrant:bg-gradient-to-r vibrant:from-purple-600 vibrant:to-pink-600 vibrant:hover:from-purple-700 vibrant:hover:to-pink-700 vibrant:text-white vibrant:shadow-purple-500/25"
         >
             <ExternalLink className="w-5 h-5" />
-            Register Now
-        </button>
+            {t("Register Now")}</button>
     ) : (
         <button disabled className="flex items-center justify-center w-full py-3.5 px-4 font-bold rounded-xl cursor-not-allowed border transition-colors
                                     bg-gray-100 text-gray-400 border-gray-200
                                     dark:bg-gray-800 dark:text-gray-500 dark:border-gray-700 
                                     vibrant:bg-purple-50/50 vibrant:text-purple-300 vibrant:border-purple-100">
-            Registration Closed
-        </button>
+            {t("Registration Closed")}</button>
     )
 )}
 
@@ -340,8 +336,8 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                                                dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800
                                                vibrant:border-purple-200 vibrant:text-purple-700 vibrant:hover:bg-purple-50">
                                 <CalendarPlus className="w-4 h-4 text-gray-500 dark:text-gray-400 vibrant:text-purple-500" /> 
-                                <span className="hidden sm:inline">Add to Cal</span>
-                                <span className="sm:hidden">Cal</span>
+                                <span className="hidden sm:inline">{t("Add to Cal")}</span>
+                                <span className="sm:hidden">{t("Cal")}</span>
                             </button>
                             {/* Assuming ShareButton internally accepts classes or you will style it similarly */}
                             <ShareButton />
@@ -362,10 +358,9 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
           <div className="bg-white dark:bg-gray-900 vibrant:bg-white vibrant:border-purple-200 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 max-w-sm w-full transition-colors">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white vibrant:text-purple-950 mb-2">Delete Event</h3>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white vibrant:text-purple-950 mb-2">{t("Delete Event")}</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 vibrant:text-purple-600 mb-6">
-              Are you sure you want to delete this event? This cannot be undone.
-            </p>
+              {t("Are you sure you want to delete this event? This cannot be undone.")}</p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
@@ -375,8 +370,7 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                            vibrant:border-purple-200 vibrant:text-purple-700 vibrant:hover:bg-purple-50 transition-colors
                            disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Cancel
-              </button>
+                {t("Cancel")}</button>
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}
@@ -384,7 +378,7 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                            dark:bg-red-600 dark:hover:bg-red-500 transition-colors
                            disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isDeleting ? "Deleting..." : "Yes, Delete"}
+                {isDeleting ? t("Deleting...") : t("Yes, Delete")}
               </button>
             </div>
           </div>
@@ -400,13 +394,11 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
             
             <h3 className="text-xl font-bold mb-2
                            text-gray-900 dark:text-white vibrant:text-purple-950">
-                Leaving eventmnts
-            </h3>
+                {t("Leaving eventmnts")}</h3>
             
             <p className="mb-4 text-sm leading-relaxed
                           text-gray-600 dark:text-gray-300 vibrant:text-purple-700">
-                You are about to be redirected to an external website for registration. Do you trust this link?
-            </p>
+                {t("You are about to be redirected to an external website for registration. Do you trust this link?")}</p>
             
             {/* Link Container */}
             <div className="p-3 rounded-xl mb-6 break-all border 
@@ -428,8 +420,7 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                                dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 
                                vibrant:bg-purple-100 vibrant:text-purple-800 vibrant:hover:bg-purple-200"
                 >
-                    Cancel
-                </button>
+                    {t("Cancel")}</button>
                 
                 {/* Confirm Link */}
                 <a 
@@ -442,8 +433,7 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                                dark:bg-blue-600 dark:hover:bg-blue-500 
                                vibrant:bg-gradient-to-r vibrant:from-purple-600 vibrant:to-pink-600 vibrant:hover:from-purple-700 vibrant:hover:to-pink-700"
                 >
-                    Yes, take me to the link
-                </a>
+                    {t("Yes, take me to the link")}</a>
             </div>
             
         </div>

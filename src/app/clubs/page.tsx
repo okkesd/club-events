@@ -1,4 +1,6 @@
 "use client";
+import {useUI} from "@/i18n/useUI";
+
 
 import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
@@ -8,6 +10,7 @@ import { ClubData, Pagination } from '@/app/lib/types';
 import PaginationBar from '@/app/components/PaginationBar';
 
 export default function ClubsDirectory() {
+  const {t} = useUI();
   const [clubs, setClubs] = useState<ClubData[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [search, setSearch] = useState("");
@@ -44,11 +47,9 @@ export default function ClubsDirectory() {
       <div className="bg-white dark:bg-gray-900 vibrant:bg-white/60 vibrant:backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 vibrant:border-purple-200 py-16 px-4 mb-10 transition-colors">
         <div className="max-w-4xl mx-auto text-center space-y-4">
           <h1 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white vibrant:text-purple-800 tracking-tight transition-colors">
-            Meet the Community
-          </h1>
+            {t("Meet the Community")}</h1>
           <p className="text-lg text-gray-500 dark:text-gray-400 vibrant:text-purple-600 max-w-2xl mx-auto transition-colors">
-            Browse all student organizations, find your tribe, and get involved on campus.
-          </p>
+            {t("Browse all student organizations, find your tribe, and get involved on campus.")}</p>
 
           {/* Search Bar */}
           <div className="max-w-xl mx-auto relative mt-8">
@@ -57,7 +58,7 @@ export default function ClubsDirectory() {
             </div>
             <input
               type="text"
-              placeholder="Search for a club..."
+              placeholder={t("Search for a club...")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="block w-full pl-11 pr-4 py-4 rounded-2xl transition-colors outline-none
@@ -118,17 +119,16 @@ export default function ClubsDirectory() {
                             {club.clubName}
                         </h3>
                         <p className="text-sm text-gray-500 dark:text-gray-400 vibrant:text-purple-600/70 line-clamp-2 leading-relaxed h-10 transition-colors">
-                            {club.description || "No description available yet."}
+                            {club.description || t("No description available yet.")}
                         </p>
                     </div>
 
                     <div className="mt-auto pt-6 border-t border-gray-100 dark:border-gray-800 vibrant:border-purple-100 flex items-center gap-4 text-xs font-semibold text-gray-400 dark:text-gray-500 vibrant:text-purple-400 uppercase tracking-wider transition-colors">
                         <span className="flex items-center gap-1">
                             <Users className="w-4 h-4" />
-                            Club
-                        </span>
+                            {t("Club")}</span>
                         <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700 vibrant:bg-purple-300"></span>
-                        <span className="group-hover:text-blue-600 dark:group-hover:text-blue-400 vibrant:group-hover:text-purple-600 transition-colors">View Profile</span>
+                        <span className="group-hover:text-blue-600 dark:group-hover:text-blue-400 vibrant:group-hover:text-purple-600 transition-colors">{t("View Profile")}</span>
                     </div>
                   </Link>
                 );
@@ -143,8 +143,8 @@ export default function ClubsDirectory() {
                 <div className="bg-gray-100 dark:bg-gray-800 vibrant:bg-purple-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors">
                     <Users className="w-8 h-8 text-gray-400 dark:text-gray-500 vibrant:text-purple-400" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-800 transition-colors">No clubs found</h3>
-                <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-500 mt-2 transition-colors">Try searching for something else.</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-800 transition-colors">{t("No clubs found")}</h3>
+                <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-500 mt-2 transition-colors">{t("Try searching for something else.")}</p>
             </div>
         )}
       </div>

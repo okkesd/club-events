@@ -1,4 +1,6 @@
 "use client";
+import {useUI} from "@/i18n/useUI";
+
 
 import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
@@ -39,6 +41,7 @@ function isExpired(expiresAt?: string): boolean {
 }
 
 export default function AnnouncementsPage() {
+  const {t} = useUI();
   const { user } = useAuth();
   const [announcements, setAnnouncements] = useState<IAnnouncement[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
@@ -96,8 +99,7 @@ export default function AnnouncementsPage() {
                 <Megaphone className="w-6 h-6 text-blue-600 dark:text-blue-400 vibrant:text-purple-600" />
               </div>
               <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white vibrant:text-purple-900 tracking-tight transition-colors">
-                Announcements
-              </h1>
+                {t("Announcements")}</h1>
             </div>
             {user && (
               <Link
@@ -105,13 +107,11 @@ export default function AnnouncementsPage() {
                 className="hidden md:flex items-center gap-2 bg-blue-600 hover:bg-blue-700 vibrant:bg-purple-600 vibrant:hover:bg-purple-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm hover:shadow-md active:scale-95"
               >
                 <Plus className="w-4 h-4" />
-                Post Announcement
-              </Link>
+                {t("Post Announcement")}</Link>
             )}
           </div>
           <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-500 max-w-2xl transition-colors">
-            Internships, scholarships, jobs, competitions and more from campus clubs.
-          </p>
+            {t("Internships, scholarships, jobs, competitions and more from campus clubs.")}</p>
         </div>
       </div>
 
@@ -123,7 +123,7 @@ export default function AnnouncementsPage() {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
-              placeholder="Search announcements..."
+              placeholder={t("Search announcements...")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-11 pr-4 py-3 rounded-xl transition-colors outline-none
@@ -150,7 +150,7 @@ export default function AnnouncementsPage() {
                     : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 vibrant:bg-purple-50 vibrant:text-purple-400 hover:bg-gray-200 dark:hover:bg-gray-700 vibrant:hover:bg-purple-100"
                 }`}
               >
-                {cat.label}
+                {t(cat.label)}
               </button>
             ))}
 
@@ -164,13 +164,11 @@ export default function AnnouncementsPage() {
                   : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 vibrant:bg-purple-50 vibrant:text-purple-400 hover:bg-gray-200 dark:hover:bg-gray-700"
               }`}
             >
-              Show Expired
-            </button>
+              {t("Show Expired")}</button>
 
             {hasFilters && (
               <button onClick={clearFilters} className="px-3 py-1.5 rounded-lg text-xs font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center gap-1">
-                <X className="w-3 h-3" /> Clear
-              </button>
+                <X className="w-3 h-3" />  {t("Clear")}</button>
             )}
           </div>
         </div>
@@ -182,8 +180,7 @@ export default function AnnouncementsPage() {
             className="md:hidden flex items-center justify-center gap-2 mb-6 bg-blue-600 hover:bg-blue-700 vibrant:bg-purple-600 vibrant:hover:bg-purple-700 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all shadow-sm w-full"
           >
             <Plus className="w-4 h-4" />
-            Post Announcement
-          </Link>
+            {t("Post Announcement")}</Link>
         )}
 
         {/* Content */}
@@ -209,9 +206,9 @@ export default function AnnouncementsPage() {
             <div className="bg-gray-100 dark:bg-gray-800 vibrant:bg-purple-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors">
               <Megaphone className="w-8 h-8 text-gray-400 dark:text-gray-500 vibrant:text-purple-400" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors">No announcements found</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors">{t("No announcements found")}</h3>
             <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-400 mt-2 transition-colors">
-              {hasFilters ? "Try adjusting your filters." : "Check back soon for new posts."}
+              {hasFilters ? t("Try adjusting your filters.") : t("Check back soon for new posts.")}
             </p>
           </div>
         )}
@@ -219,11 +216,9 @@ export default function AnnouncementsPage() {
         {/* Subscribe section */}
         <div className="mt-12 bg-white dark:bg-gray-900 vibrant:bg-white/80 rounded-2xl border border-gray-200 dark:border-gray-800 vibrant:border-purple-200 p-6 transition-colors">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-2 transition-colors">
-            Stay updated
-          </h3>
+            {t("Stay updated")}</h3>
           <p className="text-sm text-gray-500 dark:text-gray-400 vibrant:text-purple-500 mb-4 transition-colors">
-            Get a <strong>weekly email</strong> with last week&apos;s announcements and upcoming events for the next week.
-          </p>
+            {t("Get a weekly email with last week's announcements and upcoming events for the next week.")}</p>
           <SubscribeForm selectedCategories={selectedCategories} />
         </div>
       </div>
@@ -232,6 +227,7 @@ export default function AnnouncementsPage() {
 }
 
 function AnnouncementCard({ announcement: a }: { announcement: IAnnouncement }) {
+  const {t, locale} = useUI();
   const expiring = isExpiringSoon(a.expiresAt);
   const expired = isExpired(a.expiresAt);
 
@@ -251,21 +247,19 @@ function AnnouncementCard({ announcement: a }: { announcement: IAnnouncement }) 
         {a.isPinned && (
           <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
             <Pin className="w-3.5 h-3.5" />
-            <span className="text-[10px] font-bold uppercase">Pinned</span>
+            <span className="text-[10px] font-bold uppercase">{t("Pinned")}</span>
           </span>
         )}
         <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase ${getCategoryStyle(a.category)}`}>
-          {a.category}
+          {t(a.category)}
         </span>
         {expiring && (
           <span className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300">
-            <Clock className="w-3 h-3" /> Expiring Soon
-          </span>
+            <Clock className="w-3 h-3" />  {t("Expiring Soon")}</span>
         )}
         {expired && (
           <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400">
-            Expired
-          </span>
+            {t("Expired")}</span>
         )}
       </div>
 
@@ -283,7 +277,7 @@ function AnnouncementCard({ announcement: a }: { announcement: IAnnouncement }) 
 
       {/* Club + date */}
       <p className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-purple-400 mb-2 transition-colors">
-        {a.clubName} · {new Date(a.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+        {a.clubName} · {new Date(a.createdAt).toLocaleDateString(locale, { month: "short", day: "numeric" })}
       </p>
 
       {/* Body preview */}

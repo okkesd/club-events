@@ -1,10 +1,13 @@
 "use client";
+import {useUI} from "@/i18n/useUI";
+
 
 import React from 'react';
 import Link from 'next/link';
 import { CalendarDays } from 'lucide-react';
 
 export default function Footer() {
+  const {t} = useUI();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -27,21 +30,16 @@ export default function Footer() {
             {/* Links */}
             <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm font-medium text-gray-600 dark:text-gray-400 vibrant:text-purple-600">
               <Link href="/about-us" className="hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600 transition-colors">
-                About
-              </Link>
+                {t("About")}</Link>
               <Link href="/contact" className="hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600 transition-colors">
-                Contact
-              </Link>
+                {t("Contact")}</Link>
               <span className="hidden md:inline text-gray-300 dark:text-gray-700 vibrant:text-purple-300">|</span>
               <Link href="/legal/terms" className="hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600 transition-colors">
-                Terms
-              </Link>
+                {t("Terms")}</Link>
               <Link href="/legal/privacy" className="hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600 transition-colors">
-                Privacy
-              </Link>
+                {t("Privacy")}</Link>
               <Link href="/legal/cookies" className="hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600 transition-colors">
-                Cookies
-              </Link>
+                {t("Cookies")}</Link>
             </nav>
           </div>
 
@@ -51,8 +49,7 @@ export default function Footer() {
               © {currentYear} Evenements
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-500 vibrant:text-purple-400 mt-1">
-              Made for students, by students.
-            </p>
+              {t("Made for students, by students.")}</p>
           </div>
 
         </div>

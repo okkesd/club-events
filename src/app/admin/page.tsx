@@ -1,4 +1,6 @@
 "use client";
+import {useUI} from "@/i18n/useUI";
+
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -25,6 +27,7 @@ interface ContactMsg {
  * Without it, scraped Instagram posts can't auto-match to this club.
  */
 function IgHandleCell({ club }: { club: ClubData }) {
+  const {t} = useUI();
     const [value, setValue] = useState(club.igUsername || "");
     const [saved, setSaved] = useState<string>(club.igUsername || "");
     const [isSaving, setIsSaving] = useState(false);
@@ -53,7 +56,7 @@ function IgHandleCell({ club }: { club: ClubData }) {
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter" && isDirty) save(); }}
-                placeholder="handle"
+                placeholder={t("handle")}
                 className={`w-32 px-2 py-1 text-sm rounded-lg border transition-colors outline-none
                             focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:text-gray-200
                             ${failed ? "border-red-400 dark:border-red-700" : "border-gray-200 dark:border-gray-700"}`}
@@ -63,17 +66,18 @@ function IgHandleCell({ club }: { club: ClubData }) {
                     onClick={save}
                     disabled={isSaving}
                     className="p-1.5 text-green-600 hover:bg-green-50 dark:text-green-500 dark:hover:bg-green-900/30 rounded-lg transition-colors"
-                    title="Save handle"
+                    title={t("Save handle")}
                 >
                     {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
                 </button>
             )}
-            {failed && <span className="text-xs text-red-500">failed</span>}
+            {failed && <span className="text-xs text-red-500">{t("failed")}</span>}
         </div>
     );
 }
 
 export default function AdminDashboard() {
+  const {t, locale} = useUI();
   const [activeTab, setActiveTab] = useState<'pending' | 'verified' | 'blocked' | 'contacts' | 'subscribers' | 'scraped'>('pending');
 
   // Pending-count badge for the Scraped Events tab
@@ -189,12 +193,12 @@ export default function AdminDashboard() {
 
   // --- ACTIONS ---
   const handleApprove = async (clubId: string) => {
-    if (!confirm("Confirm approval for this club?")) return;
+    if (!confirm(t("Confirm approval for this club?"))) return;
     setClubs(prev => prev.filter(c => c.id !== clubId));
     try {
         await setClubVerification(clubId, true);
     } catch (err) {
-        alert("Approval failed");
+        alert(t("Approval failed"));
         window.location.reload(); 
     }
   };
@@ -208,7 +212,7 @@ export default function AdminDashboard() {
   const submitRejection = async () => {
     if (!selectedClubId) return;
     if (!rejectionReason.trim()) {
-        alert("Please provide a reason.");
+        alert(t("Please provide a reason."));
         return;
     }
     setIsSubmitting(true);
@@ -217,7 +221,7 @@ export default function AdminDashboard() {
     try {
         await setClubVerification(selectedClubId, false, rejectionReason);
     } catch (err) {
-        alert("Rejection failed");
+        alert(t("Rejection failed"));
         window.location.reload();
     } finally {
         setIsSubmitting(false);
@@ -233,7 +237,7 @@ export default function AdminDashboard() {
       const result = await cleanupStorage();
       setCleanupResult(result);
     } catch {
-      alert("Storage cleanup failed.");
+      alert(t("Storage cleanup failed."));
     } finally {
       setIsCleaningUp(false);
     }
@@ -255,9 +259,8 @@ export default function AdminDashboard() {
             <div>
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2 transition-colors">
                     <Shield className="w-8 h-8 text-blue-600 dark:text-blue-500" />
-                    Admin Panel
-                </h1>
-                <p className="text-gray-500 dark:text-gray-400 transition-colors">Manage club applications and platform safety.</p>
+                    {t("Admin Panel")}</h1>
+                <p className="text-gray-500 dark:text-gray-400 transition-colors">{t("Manage club applications and platform safety.")}</p>
             </div>
             <button
                 onClick={() => setShowCleanupConfirm(true)}
@@ -268,7 +271,7 @@ export default function AdminDashboard() {
                            disabled:opacity-50"
             >
                 {isCleaningUp ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                {isCleaningUp ? "Cleaning..." : "Clean Storage"}
+                {isCleaningUp ? t("Cleaning...") : t("Clean Storage")}
             </button>
         </header>
 
@@ -278,7 +281,7 @@ export default function AdminDashboard() {
                 <div className="flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 shrink-0" />
                     <p className="text-sm font-medium text-green-700 dark:text-green-300">
-                        Storage cleaned — <strong>{cleanupResult.orphans_found}</strong> orphan(s) found, <strong>{cleanupResult.deleted}</strong> deleted. Total files: {cleanupResult.total_in_storage}.
+                        {t("Storage cleaned —")} <strong>{cleanupResult.orphans_found}</strong>  {t("orphan(s) found,")} <strong>{cleanupResult.deleted}</strong>  {t("deleted. Total files:")} {cleanupResult.total_in_storage}.
                     </p>
                 </div>
                 <button onClick={() => setCleanupResult(null)} className="text-green-500 hover:text-green-700 dark:hover:text-green-300">
@@ -291,9 +294,9 @@ export default function AdminDashboard() {
         <div className="flex gap-4 border-b border-gray-200 dark:border-gray-800 mb-6 overflow-x-auto transition-colors">
             {/* Club Tabs */}
             {[
-                { id: 'pending', icon: Clock, label: 'Pending Review', color: 'orange' },
-                { id: 'verified', icon: CheckCircle2, label: 'Active Clubs', color: 'green' },
-                { id: 'blocked', icon: Ban, label: 'Blocked', color: 'red' },
+                { id: 'pending', icon: Clock, label: t("Pending Review"), color: 'orange' },
+                { id: 'verified', icon: CheckCircle2, label: t("Active Clubs"), color: 'green' },
+                { id: 'blocked', icon: Ban, label: t("Blocked"), color: 'red' },
             ].map((tab) => (
                 <button
                     key={tab.id}
@@ -319,8 +322,7 @@ export default function AdminDashboard() {
                 }`}
             >
                 <Mail className="w-4 h-4" />
-                Messages
-            </button>
+                {t("Messages")}</button>
 
             {/* Subscribers Tab */}
             <button
@@ -332,8 +334,7 @@ export default function AdminDashboard() {
                 }`}
             >
                 <Mail className="w-4 h-4" />
-                Subscribers
-            </button>
+                {t("Subscribers")}</button>
 
             {/* Scraped Events Tab */}
             <button
@@ -345,8 +346,7 @@ export default function AdminDashboard() {
                 }`}
             >
                 <Instagram className="w-4 h-4" />
-                Scraped Events
-                {!!scrapedPending && (
+                {t("Scraped Events")}{!!scrapedPending && (
                     <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400">
                         {scrapedPending}
                     </span>
@@ -362,7 +362,7 @@ export default function AdminDashboard() {
             ) : isLoadingPage ? (
                 <div className="p-12 text-center text-gray-400 dark:text-gray-500 flex flex-col items-center gap-2">
                     <Loader2 className="w-6 h-6 animate-spin" />
-                    <span>Loading...</span>
+                    <span>{t("Loading...")}</span>
                 </div>
             ) : (
                 <>
@@ -371,18 +371,18 @@ export default function AdminDashboard() {
                     subscribers.length === 0 ? (
                         <div className="p-12 text-center text-gray-400 dark:text-gray-600">
                             <Mail className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                            <p>No subscribers yet.</p>
+                            <p>{t("No subscribers yet.")}</p>
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-100 dark:border-gray-800 transition-colors">
                                     <tr>
-                                        <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Email</th>
-                                        <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Club</th>
-                                        <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Category</th>
-                                        <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Status</th>
-                                        <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Subscribed</th>
+                                        <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t("Email")}</th>
+                                        <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t("Club")}</th>
+                                        <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t("Category")}</th>
+                                        <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t("Status")}</th>
+                                        <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t("Subscribed")}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -396,7 +396,7 @@ export default function AdminDashboard() {
                                             </td>
                                             <td className="p-5 text-sm text-gray-500 dark:text-gray-400 capitalize">
                                                 {sub.categories.length > 0
-                                                    ? sub.categories.map(c => c.category).join(", ")
+                                                    ? sub.categories.map(c => t(c.category)).join(", ")
                                                     : "—"}
                                             </td>
                                             <td className="p-5">
@@ -405,11 +405,11 @@ export default function AdminDashboard() {
                                                         ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                                                         : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
                                                 }`}>
-                                                    {sub.isActive ? "Active" : "Inactive"}
+                                                    {sub.isActive ? t("Active") : t("Inactive")}
                                                 </span>
                                             </td>
                                             <td className="p-5 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                                                {new Date(sub.createdAt).toLocaleDateString()}
+                                                {new Date(sub.createdAt).toLocaleDateString(locale)}
                                             </td>
                                         </tr>
                                     ))}
@@ -424,23 +424,23 @@ export default function AdminDashboard() {
                     contacts.length === 0 ? (
                         <div className="p-12 text-center text-gray-400 dark:text-gray-600">
                             <Mail className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                            <p>No messages found.</p>
+                            <p>{t("No messages found.")}</p>
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-100 dark:border-gray-800 transition-colors">
                                     <tr>
-                                        <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider w-40">Date</th>
-                                        <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider w-64">Email</th>
-                                        <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Message</th>
+                                        <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider w-40">{t("Date")}</th>
+                                        <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider w-64">{t("Email")}</th>
+                                        <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t("Message")}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                                     {contacts.map((msg, idx) => (
                                         <tr key={msg.id || idx} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                                             <td className="p-5 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                                                {new Date(msg.date).toLocaleDateString()} <span className="text-xs opacity-50">{new Date(msg.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                                {new Date(msg.date).toLocaleDateString(locale)} <span className="text-xs opacity-50">{new Date(msg.date).toLocaleTimeString(locale, {hour: '2-digit', minute:'2-digit'})}</span>
                                             </td>
                                             <td className="p-5 text-sm font-semibold text-gray-900 dark:text-gray-200">
                                                 <a href={`mailto:${msg.email}`} className="hover:text-blue-500 transition-colors">
@@ -462,19 +462,19 @@ export default function AdminDashboard() {
                     (!Array.isArray(clubs) || clubs.length === 0) ? (
                         <div className="p-12 text-center text-gray-400 dark:text-gray-600">
                             <CheckCircle2 className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                            <p>No clubs found in this tab.</p>
+                            <p>{t("No clubs found in this tab.")}</p>
                         </div>
                     ) : (
                         <table className="w-full text-left">
                             <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-100 dark:border-gray-800 transition-colors">
                                 <tr>
-                                    <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Club Name</th>
-                                    <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t("Club Name")}</th>
+                                    <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t("Status")}</th>
                                     <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Instagram</th>
                                     {activeTab === 'blocked' && (
-                                        <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Reason</th>
+                                        <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t("Reason")}</th>
                                     )}
-                                    <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider text-right">Actions</th>
+                                    <th className="p-5 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider text-right">{t("Actions")}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -489,16 +489,13 @@ export default function AdminDashboard() {
                                         <td className="p-5">
                                             {club.isVerified ? (
                                                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 transition-colors">
-                                                    <CheckCircle2 className="w-3 h-3" /> Active
-                                                </span>
+                                                    <CheckCircle2 className="w-3 h-3" />  {t("Active")}</span>
                                             ) : (club.rejectionReason && club.rejectionReason !== "None") ? (
                                                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 transition-colors">
-                                                    <Ban className="w-3 h-3" /> Blocked
-                                                </span>
+                                                    <Ban className="w-3 h-3" />  {t("Blocked")}</span>
                                             ) : (
                                                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 transition-colors">
-                                                    <Clock className="w-3 h-3" /> Pending
-                                                </span>
+                                                    <Clock className="w-3 h-3" />  {t("Pending")}</span>
                                             )}
                                         </td>
 
@@ -519,7 +516,7 @@ export default function AdminDashboard() {
                                                     href={`/club/${club.id}`} 
                                                     target="_blank"
                                                     className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
-                                                    title="View Profile"
+                                                    title={t("View Profile")}
                                                 >
                                                     <ExternalLink className="w-4 h-4" />
                                                 </a>
@@ -529,14 +526,14 @@ export default function AdminDashboard() {
                                                         <button 
                                                             onClick={() => handleApprove(club.id)}
                                                             className="p-2 text-green-600 hover:bg-green-50 dark:text-green-500 dark:hover:bg-green-900/30 rounded-lg font-bold text-sm flex items-center gap-1 transition-colors"
-                                                            title="Approve"
+                                                            title={t("Approve")}
                                                         >
                                                             <CheckCircle2 className="w-4 h-4" />
                                                         </button>
                                                         <button 
                                                             onClick={() => handleRejectClick(club.id)}
                                                             className="p-2 text-red-600 hover:bg-red-50 dark:text-red-500 dark:hover:bg-red-900/30 rounded-lg font-bold text-sm flex items-center gap-1 transition-colors"
-                                                            title="Reject"
+                                                            title={t("Reject")}
                                                         >
                                                             <XCircle className="w-4 h-4" />
                                                         </button>
@@ -547,7 +544,7 @@ export default function AdminDashboard() {
                                                      <button 
                                                         onClick={() => handleRejectClick(club.id)}
                                                         className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-                                                        title="Revoke Verification"
+                                                        title={t("Revoke Verification")}
                                                     >
                                                         <Ban className="w-4 h-4" />
                                                     </button>
@@ -559,8 +556,7 @@ export default function AdminDashboard() {
                                                         className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white dark:bg-green-700 dark:hover:bg-green-600 rounded-lg font-bold text-xs flex items-center gap-1 shadow-sm transition-colors"
                                                     >
                                                         <CheckCircle2 className="w-3 h-3" />
-                                                        Re-Activate
-                                                    </button>
+                                                        {t("Re-Activate")}</button>
                                                 )}
                                             </div>
                                         </td>
@@ -585,8 +581,8 @@ export default function AdminDashboard() {
                             <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
                         </div>
                         <div>
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-red-100 transition-colors">Block Club</h3>
-                            <p className="text-sm text-gray-500 dark:text-red-200/70 transition-colors">Provide a reason for the block.</p>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-red-100 transition-colors">{t("Block Club")}</h3>
+                            <p className="text-sm text-gray-500 dark:text-red-200/70 transition-colors">{t("Provide a reason for the block.")}</p>
                         </div>
                     </div>
                     <button onClick={() => setIsRejectModalOpen(false)}>
@@ -596,7 +592,7 @@ export default function AdminDashboard() {
                 
                 <div className="p-6">
                     <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 transition-colors">
-                        Reason <span className="text-red-500">*</span>
+                        {t("Reason")} <span className="text-red-500">*</span>
                     </label>
                     <textarea 
                         value={rejectionReason}
@@ -604,7 +600,7 @@ export default function AdminDashboard() {
                         className="w-full h-32 p-3 border rounded-xl resize-none transition-colors
                                    border-gray-200 text-gray-700 focus:ring-2 focus:ring-red-500
                                    dark:bg-gray-900 dark:border-gray-700 dark:text-gray-100 dark:focus:ring-red-500/50"
-                        placeholder="Violation of university guidelines..."
+                        placeholder={t("Violation of university guidelines...")}
                     />
                 </div>
 
@@ -613,14 +609,13 @@ export default function AdminDashboard() {
                         onClick={() => setIsRejectModalOpen(false)} 
                         className="px-4 py-2 text-gray-700 dark:text-gray-300 font-bold hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
                     >
-                        Cancel
-                    </button>
+                        {t("Cancel")}</button>
                     <button 
                         onClick={submitRejection}
                         disabled={isSubmitting || !rejectionReason.trim()}
                         className="px-4 py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 dark:hover:bg-red-500 disabled:opacity-50 transition-colors"
                     >
-                        {isSubmitting ? "Processing..." : "Block Club"}
+                        {isSubmitting ? t("Processing...") : t("Block Club")}
                     </button>
                 </div>
             </div>
@@ -636,25 +631,22 @@ export default function AdminDashboard() {
                         <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
                             <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400" />
                         </div>
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">Clean Up Storage</h3>
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t("Clean Up Storage")}</h3>
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                        This will delete unused images from storage. Orphaned files that are no longer referenced by any club, event, or announcement will be removed.
-                    </p>
+                        {t("This will delete unused images from storage. Orphaned files that are no longer referenced by any club, event, or announcement will be removed.")}</p>
                 </div>
                 <div className="p-4 bg-gray-50 dark:bg-gray-900/50 flex justify-end gap-3">
                     <button
                         onClick={() => setShowCleanupConfirm(false)}
                         className="px-4 py-2 text-gray-700 dark:text-gray-300 font-bold hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors text-sm"
                     >
-                        Cancel
-                    </button>
+                        {t("Cancel")}</button>
                     <button
                         onClick={handleCleanup}
                         className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition-colors text-sm shadow-sm"
                     >
-                        Continue
-                    </button>
+                        {t("Continue")}</button>
                 </div>
             </div>
         </div>

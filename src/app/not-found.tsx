@@ -1,4 +1,6 @@
 "use client";
+import {useUI} from "@/i18n/useUI";
+
 
 import React, { useState, useEffect, useRef, MouseEvent } from "react";
 import Link from 'next/link';
@@ -23,6 +25,7 @@ const EXCUSES = [
 
 // --- 1. SHARED CONTENT COMPONENT ---
 function NotFoundContent() {
+  const {t} = useUI();
   const [excuse, setExcuse] = useState("");
 
   useEffect(() => {
@@ -48,14 +51,13 @@ function NotFoundContent() {
         </h1>
         
         <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4 transition-colors select-none">
-          Lost on Campus?
-        </h2>
+          {t("Lost on Campus?")}</h2>
 
         {/* The Random Excuse */}
         <div className="min-h-[3rem] flex items-center justify-center select-none">
             {excuse ? (
                 <p className="text-lg text-gray-600 dark:text-gray-400 font-medium italic animate-in fade-in slide-in-from-bottom-2 transition-colors">
-                    "{excuse}"
+                    "{t(excuse)}"
                 </p>
             ) : (
                 <div className="h-6 w-48 bg-gray-200 dark:bg-gray-800 rounded animate-pulse"></div>
@@ -69,8 +71,7 @@ function NotFoundContent() {
                 className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all bg-gray-900 text-white hover:bg-black dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
             >
                 <ArrowLeft className="w-5 h-5" />
-                Back to Safety
-            </Link>
+                {t("Back to Safety")}</Link>
         </div>
       </div>
   );
@@ -78,6 +79,7 @@ function NotFoundContent() {
 
 // --- 2. VARIANT: FLASHLIGHT EFFECT ---
 function FlashlightVariant() {
+  const {t} = useUI();
   const [mousePos, setMousePos] = useState({ x: '50%', y: '50%' });
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -127,8 +129,7 @@ function FlashlightVariant() {
       ></div>
 
        <p className="absolute bottom-8 text-xs text-gray-500 dark:text-gray-500 font-medium uppercase tracking-widest z-40">
-        Flashlight Mode: Moving mouse reveals path
-      </p>
+        {t("Flashlight Mode: Moving mouse reveals path")}</p>
     </div>
   );
 }
@@ -136,6 +137,7 @@ function FlashlightVariant() {
 
 // --- 3. VARIANT: FLOATING ZERO-G (UPDATED) ---
 function ZeroGVariant() {
+  const {t} = useUI();
 
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
@@ -241,8 +243,7 @@ function ZeroGVariant() {
             </div>
 
             <p className="absolute bottom-8 text-xs text-gray-400 dark:text-gray-600 font-medium uppercase tracking-widest transition-colors z-20">
-                Zero-G Mode: Gravity loss detected
-            </p>
+                {t("Zero-G Mode: Gravity loss detected")}</p>
         </div>
     );
 }

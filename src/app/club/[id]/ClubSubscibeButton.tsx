@@ -1,4 +1,6 @@
 "use client";
+import {useUI} from "@/i18n/useUI";
+
 
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
@@ -13,6 +15,7 @@ interface ClubSubscribeButtonProps {
 }
 
 export default function ClubSubscribeButton({ clubId, clubName }: ClubSubscribeButtonProps) {
+  const {t, errorText} = useUI();
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -58,8 +61,7 @@ export default function ClubSubscribeButton({ clubId, clubName }: ClubSubscribeB
                    vibrant:bg-purple-100 vibrant:text-purple-700 vibrant:hover:bg-purple-200"
       >
         <Bell className="w-4 h-4" />
-        Follow Updates
-      </button>
+        {t("Follow Updates")}</button>
 
       {/* 2. The Modal — portalled to body to escape vibrant theme's backdrop-blur stacking context */}
       {isOpen && createPortal(
@@ -76,7 +78,7 @@ export default function ClubSubscribeButton({ clubId, clubName }: ClubSubscribeB
 
             {/* Modal Header */}
             <h3 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-2 transition-colors">
-              Follow {clubName}
+              {t("Follow {club}", {club: clubName})}
             </h3>
 
             {status === "success" ? (
@@ -84,22 +86,19 @@ export default function ClubSubscribeButton({ clubId, clubName }: ClubSubscribeB
                 <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/20 vibrant:bg-green-100 flex items-center justify-center mx-auto mb-4">
                   <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400 vibrant:text-green-600" />
                 </div>
-                <h4 className="text-lg font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-2">You're Subscribed!</h4>
+                <h4 className="text-lg font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-2">{t("You're Subscribed!")}</h4>
                 <p className="text-sm text-gray-600 dark:text-gray-400 vibrant:text-purple-600">
-                  We'll email <span className="font-semibold text-gray-900 dark:text-gray-200 vibrant:text-purple-900">{email}</span> the moment they post new events or announcements.
-                </p>
+                  {t("We'll email {email} whenever this club posts new events or announcements.", {email})}</p>
                 <button
                   onClick={() => setIsOpen(false)}
                   className="mt-6 w-full py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 vibrant:bg-purple-100 vibrant:hover:bg-purple-200 text-gray-800 dark:text-gray-200 vibrant:text-purple-800 font-bold rounded-xl transition-colors"
                 >
-                  Close
-                </button>
+                  {t("Close")}</button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4 mt-4">
                 <p className="text-sm text-gray-600 dark:text-gray-400 vibrant:text-purple-700 leading-relaxed transition-colors">
-                  Enter your email to receive instant notifications whenever this club shares something new.
-                </p>
+                  {t("Enter your email to receive instant notifications whenever this club shares something new.")}</p>
 
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500 vibrant:text-purple-400" />
@@ -125,16 +124,15 @@ export default function ClubSubscribeButton({ clubId, clubName }: ClubSubscribeB
                     className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 vibrant:text-purple-600 vibrant:focus:ring-purple-500"
                   />
                   <label htmlFor="club-subscribe-privacy" className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-purple-500">
-                    I have read and accept the{" "}
+                    {t("I have read and accept the")}{" "}
                     <Link href="/legal/privacy" className="text-blue-600 dark:text-blue-400 vibrant:text-pink-600 hover:underline">
-                      Privacy Policy
-                    </Link>
+                      {t("Privacy Policy")}</Link>
                   </label>
                 </div>
 
                 {status === "error" && (
                   <p className="text-sm text-red-600 dark:text-red-400 vibrant:text-pink-600 font-medium animate-in slide-in-from-top-1">
-                    {errorMsg}
+                    {errorText(errorMsg)}
                   </p>
                 )}
 
@@ -149,10 +147,9 @@ export default function ClubSubscribeButton({ clubId, clubName }: ClubSubscribeB
                   {status === "loading" ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                      Subscribing...
-                    </>
+                      {t("Subscribing...")}</>
                   ) : (
-                    "Subscribe"
+                    t("Subscribe")
                   )}
                 </button>
               </form>

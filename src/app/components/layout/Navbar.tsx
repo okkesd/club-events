@@ -1,12 +1,15 @@
 "use client";
+import {useUI} from "@/i18n/useUI";
+
 
 import React, { useEffect, useState, useRef } from "react";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LogIn, CalendarDays, User, Plus, Moon, Sun, LogOut, Palette, Megaphone, Menu, X, LayoutGrid } from 'lucide-react';
+import { LogIn, CalendarDays, User, Users, Plus, Moon, Sun, LogOut, Palette, Megaphone, Menu, X, LayoutGrid } from 'lucide-react';
 import { useAuth } from "@/app/context/AuthContext";
 import { resolveImageUrl } from "@/app/lib/api";
 import { useTheme } from "next-themes";
+import LanguageSelector from "./LanguageSelector";
 
 const THEME_ORDER = ["light", "dark", "vibrant"] as const;
 
@@ -17,9 +20,11 @@ const THEME_ICON: Record<string, React.ReactNode> = {
 };
 
 export default function Navbar() {
+  const {t} = useUI();
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
+  const currentTheme = resolvedTheme || "light";
 
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -48,7 +53,7 @@ export default function Navbar() {
   }, [mobileMenuOpen]);
 
   const cycleTheme = () => {
-    const current = theme || "light";
+    const current = currentTheme;
     const idx = THEME_ORDER.indexOf(current as typeof THEME_ORDER[number]);
     const next = THEME_ORDER[(idx + 1) % THEME_ORDER.length];
     setTheme(next);
@@ -77,23 +82,21 @@ export default function Navbar() {
             <CalendarDays className="w-6 h-6 text-blue-600 dark:text-blue-500 vibrant:text-purple-600" />
             <span className="vibrant-gradient-text">Evenements</span>
             <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 vibrant:bg-purple-100 vibrant:text-purple-700 border border-blue-200 dark:border-blue-800 vibrant:border-purple-300">
-              Beta
-            </span>
+              {t("Beta")}</span>
           </Link>
 
           {/* Desktop nav links (hidden on mobile) */}
           {!isLoginPage && !isSignupPage && (
-            <div className="hidden sm:flex items-center gap-1">
+            <div className="hidden lg:flex items-center gap-1">
               <Link href="/events" className={navLinkClass("/events")}>
                 <LayoutGrid className="w-4 h-4" />
-                Events
-              </Link>
+                {t("Events")}</Link>
               <Link href="/clubs" className={navLinkClass("/clubs")}>
-                Clubs
-              </Link>
+                <Users className="w-4 h-4" aria-hidden="true" />
+                {t("Clubs")}</Link>
               <Link href="/announcements" className={navLinkClass("/announcements")}>
                 <Megaphone className="w-4 h-4" />
-                <span className="hidden md:inline">Announcements</span>
+                <span className="hidden md:inline">{t("Announcements")}</span>
               </Link>
             </div>
           )}
@@ -101,15 +104,19 @@ export default function Navbar() {
           {/* Right side actions */}
           <div className="flex items-center gap-2 sm:gap-3">
 
+            <div className="hidden lg:block">
+              <LanguageSelector />
+            </div>
+
             {/* Theme Cycle Button */}
             {mounted ? (
               <button
                 onClick={cycleTheme}
                 className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 vibrant:text-purple-500 vibrant:hover:bg-purple-100 transition-all"
-                aria-label={`Current theme: ${theme}. Click to switch.`}
-                title={`Theme: ${theme}`}
+                aria-label={t("Current theme: {theme}. Click to switch.", {theme: t(currentTheme)})}
+                title={t("Theme: {theme}", {theme: t(currentTheme)})}
               >
-                {THEME_ICON[theme || "light"]}
+                {THEME_ICON[currentTheme]}
               </button>
             ) : (
               <div className="w-9 h-9" />
@@ -117,17 +124,15 @@ export default function Navbar() {
 
             {/* Auth Logic - Desktop */}
             {isLoginPage ? (
-              <Link href="/signup" className="text-sm font-semibold text-gray-600 dark:text-gray-300 vibrant:text-purple-700 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600">
-                Create new club
-              </Link>
+              <Link href="/signup" className="hidden lg:inline text-sm font-semibold text-gray-600 dark:text-gray-300 vibrant:text-purple-700 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600">
+                {t("Create new club")}</Link>
             ) : isSignupPage ? (
-              <Link href="/login" className="text-sm font-semibold text-gray-600 dark:text-gray-300 vibrant:text-purple-700 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600">
-                Already have a club?
-              </Link>
+              <Link href="/login" className="hidden lg:inline text-sm font-semibold text-gray-600 dark:text-gray-300 vibrant:text-purple-700 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600">
+                {t("Already have a club?")}</Link>
             ) : (
               <>
                 {/* Desktop-only auth actions */}
-                <div className="hidden sm:flex items-center gap-3">
+                <div className="hidden lg:flex items-center gap-3">
                   {user ? (
                     <>
                       <Link
@@ -135,7 +140,7 @@ export default function Navbar() {
                         className="hidden md:flex items-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 vibrant:bg-purple-600 vibrant:hover:bg-purple-700 text-white px-4 py-2 rounded-xl font-bold text-sm transition-all shadow-sm hover:shadow-md active:scale-95"
                       >
                         <Plus className="w-4 h-4" />
-                        <span>Create Event</span>
+                        <span>{t("Create Event")}</span>
                       </Link>
 
                       <Link
@@ -143,16 +148,16 @@ export default function Navbar() {
                         className="hidden md:flex items-center gap-2 border border-gray-200 dark:border-gray-700 vibrant:border-purple-300 text-gray-700 dark:text-gray-200 vibrant:text-purple-700 hover:bg-gray-50 dark:hover:bg-gray-800 vibrant:hover:bg-purple-50 px-4 py-2 rounded-xl font-bold text-sm transition-all"
                       >
                         <Megaphone className="w-4 h-4" />
-                        <span>Post</span>
+                        <span>{t("Post")}</span>
                       </Link>
 
                       <Link
                         href={user.role === 'admin' ? '/admin' : `/club/${user.id}`}
                         className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-800 vibrant:bg-purple-100 border border-gray-200 dark:border-gray-700 vibrant:border-purple-300 flex items-center justify-center text-gray-600 dark:text-gray-300 vibrant:text-purple-600 hover:bg-gray-200 dark:hover:bg-gray-700 vibrant:hover:bg-purple-200 transition-colors"
-                        title={`Logged in as ${user.club_name}`}
+                        title={t("Logged in as {name}", {name: user.club_name || t("My Club")})}
                       >
                         {user.avatarUrl ? (
-                          <img src={resolveImageUrl(user.avatarUrl)} alt="Avatar" className="w-full h-full rounded-full object-cover" />
+                          <img src={resolveImageUrl(user.avatarUrl)} alt={t("Avatar")} className="w-full h-full rounded-full object-cover" />
                         ) : (
                           <User className="w-5 h-5" />
                         )}
@@ -161,7 +166,7 @@ export default function Navbar() {
                       <button
                         onClick={logout}
                         className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-red-900/20 vibrant:hover:text-pink-600 vibrant:hover:bg-pink-50 rounded-lg transition-colors"
-                        title="Sign Out"
+                        title={t("Sign Out")}
                       >
                         <LogOut className="w-5 h-5" />
                       </button>
@@ -172,16 +177,15 @@ export default function Navbar() {
                       className="flex items-center justify-center gap-2 rounded-xl bg-gray-900 dark:bg-gray-100 vibrant:bg-purple-600 px-4 py-2 text-sm font-semibold text-white dark:text-gray-900 vibrant:text-white shadow-sm hover:bg-gray-800 dark:hover:bg-gray-200 vibrant:hover:bg-purple-700 transition-colors"
                     >
                       <LogIn className="w-4 h-4" />
-                      Club Login
-                    </Link>
+                      {t("Club Login")}</Link>
                   )}
                 </div>
 
                 {/* Mobile hamburger button */}
                 <button
                   onClick={() => setMobileMenuOpen((prev) => !prev)}
-                  className="sm:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 vibrant:text-purple-500 vibrant:hover:bg-purple-100 transition-all"
-                  aria-label="Toggle menu"
+                  className="lg:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 vibrant:text-purple-500 vibrant:hover:bg-purple-100 transition-all"
+                  aria-label={t("Toggle menu")}
                 >
                   {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                 </button>
@@ -191,55 +195,62 @@ export default function Navbar() {
         </div>
       </div>
 
+      {(isLoginPage || isSignupPage) && (
+        <div className="lg:hidden px-4 pb-2">
+          <LanguageSelector expanded />
+          <Link href={isLoginPage ? "/signup" : "/login"} className="flex min-h-11 items-center px-3 text-sm font-semibold text-gray-600 dark:text-gray-300 vibrant:text-purple-700">
+            {t(isLoginPage ? "Create new club" : "Already have a club?")}
+          </Link>
+        </div>
+      )}
+
       {/* Mobile overlay menu */}
       {mobileMenuOpen && !isLoginPage && !isSignupPage && (
         <div
           ref={menuRef}
-          className="sm:hidden absolute left-0 right-0 top-16 border-t border-gray-200 dark:border-gray-800 vibrant:border-purple-200 bg-white dark:bg-gray-900 vibrant:bg-white/95 vibrant:backdrop-blur-sm shadow-lg z-50"
+          className="lg:hidden absolute left-0 right-0 top-16 border-t border-gray-200 dark:border-gray-800 vibrant:border-purple-200 bg-white dark:bg-gray-900 vibrant:bg-white/95 vibrant:backdrop-blur-sm shadow-lg z-50"
         >
           <div className="px-4 py-3 space-y-1">
             <Link href="/events" className={navLinkClass("/events")}>
               <LayoutGrid className="w-4 h-4" />
-              Events
-            </Link>
+              {t("Events")}</Link>
             <Link href="/clubs" className={navLinkClass("/clubs")}>
-              Clubs
-            </Link>
+              <Users className="w-4 h-4" aria-hidden="true" />
+              {t("Clubs")}</Link>
             <Link href="/announcements" className={navLinkClass("/announcements")}>
               <Megaphone className="w-4 h-4" />
-              Board
-            </Link>
+              {t("Announcements")}</Link>
 
+            <div className="border-t border-gray-100 dark:border-gray-800 vibrant:border-purple-100 my-2" />
+
+            <LanguageSelector expanded />
             <div className="border-t border-gray-100 dark:border-gray-800 vibrant:border-purple-100 my-2" />
 
             {user ? (
               <>
                 <Link href="/event/create" className={navLinkClass("/event/create")}>
                   <Plus className="w-4 h-4" />
-                  Create Event
-                </Link>
+                  {t("Create Event")}</Link>
                 <Link href="/announcements/create" className={navLinkClass("/announcements/create")}>
                   <Megaphone className="w-4 h-4" />
-                  Post Announcement
-                </Link>
+                  {t("Post Announcement")}</Link>
                 <Link
                   href={user.role === 'admin' ? '/admin' : `/club/${user.id}`}
                   className={navLinkClass(user.role === 'admin' ? '/admin' : `/club/${user.id}`)}
                 >
                   {user.avatarUrl ? (
-                    <img src={resolveImageUrl(user.avatarUrl)} alt="Avatar" className="w-5 h-5 rounded-full object-cover" />
+                    <img src={resolveImageUrl(user.avatarUrl)} alt={t("Avatar")} className="w-5 h-5 rounded-full object-cover" />
                   ) : (
                     <User className="w-4 h-4" />
                   )}
-                  {user.club_name || 'My Club'}
+                  {user.club_name || t("My Club")}
                 </Link>
                 <button
                   onClick={() => { logout(); setMobileMenuOpen(false); }}
                   className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium w-full text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 vibrant:text-pink-600 vibrant:hover:bg-pink-50 transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
-                  Sign Out
-                </button>
+                  {t("Sign Out")}</button>
               </>
             ) : (
               <Link
@@ -247,8 +258,7 @@ export default function Navbar() {
                 className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900 vibrant:bg-purple-600 vibrant:text-white transition-colors"
               >
                 <LogIn className="w-4 h-4" />
-                Club Login
-              </Link>
+                {t("Club Login")}</Link>
             )}
           </div>
         </div>

@@ -52,8 +52,8 @@ export const getWeekDays = (date: Date): Date[] => {
  * * @param date - The Date object to format.
  * @returns A string like "MMM DD" (e.g., "Oct 27").
  */
-export const formatDate = (date: Date): string => {
-  return date.toLocaleDateString('en-US', {
+export const formatDate = (date: Date, locale = "en-US"): string => {
+  return date.toLocaleDateString(locale, {
     month: 'short',
     day: 'numeric',
   });
@@ -63,41 +63,24 @@ export const formatDate = (date: Date): string => {
  * Formats the header string for the week.
  * e.g., "October 27 - November 2, 2025"
  */
-export const formatWeekHeader = (weekDays: Date[]): string => {
-    if (!weekDays || weekDays.length < 7) {
-        return ""; // Return empty string if weekDays is not ready
-    }
-    const start = weekDays[0];
-    const end = weekDays[6];
-
-    const options: Intl.DateTimeFormatOptions = {
-        month: "long",
+export const formatWeekHeader = (weekDays: Date[], compact = false, locale = "en-US"): string => {
+    if (weekDays.length < 7) return "";
+    const label = new Intl.DateTimeFormat(locale, {
+        month: compact ? "short" : "long",
         day: "numeric",
-    };
-
-    const startFormat = start.toLocaleDateString("en-US", options);
-
-    // Handle case where week spans across two months (e.g., Oct 31 - Nov 6)
-    if (start.getMonth() === end.getMonth()) {
-        options.day = "numeric";
-    }
-
-    const endFormat = end.toLocaleDateString("en-US", {
-        ...options,
         year: "numeric",
-    });
-
-    return `${startFormat} – ${endFormat}`;
+    }).formatRange(weekDays[0], weekDays[6]).replace(/[\u00a0\u2009\u202f]/g, " ");
+    // Normalize ICU whitespace differences between Node and browsers.
+    return compact ? label.replace(/\s*–\s*/g, "–") : label;
 };
 
 /**
  * Formats a Date object into a time string, e.g., "14:00"
  */
-export const formatTime = (date: Date): string => {
-    return date.toLocaleTimeString("en-US", {
+export const formatTime = (date: Date, locale = "en-US"): string => {
+    return date.toLocaleTimeString(locale, {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
     });
 };
-

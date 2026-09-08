@@ -1,4 +1,6 @@
 "use client";
+import {useUI} from "@/i18n/useUI";
+
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -20,6 +22,7 @@ const PREDEFINED_TAGS = ["Workshop", "Social", "Free Food", "Career", "Competiti
 
 // action trigger
 function CreateEventSuspended() {
+  const {t, locale} = useUI();
   const router = useRouter(); 
   const searchParams = useSearchParams();
   const preselectedClubId = searchParams.get('preselect');
@@ -137,7 +140,7 @@ function CreateEventSuspended() {
             setFormData(prev => ({ ...prev, coverImage: url }));
         }
       } catch (err) {
-        alert("Failed to upload image");
+        alert(t("Failed to upload image"));
       } finally {
         setIsUploading(false);
       }
@@ -199,7 +202,7 @@ function CreateEventSuspended() {
     e.preventDefault();
     
     if (!validateForm()) {
-        alert("Please fix the highlighted errors.");
+        alert(t("Please fix the highlighted errors."));
         return; 
     }
 
@@ -211,15 +214,15 @@ function CreateEventSuspended() {
         const response = await createEvent(pureData);
 
         if (response.success && response.data) {
-            alert("Event Created Successfully!");
+            alert(t("Event Created Successfully!"));
             router.push("/main"); 
         } else {
-            alert(`Failed: ${response.errorMsg || "Unknown error"}`);
+            alert(t("Something went wrong. Please try again."));
         }
         
     } catch (error: any) {
         console.error(error);
-        alert(`Server Error: ${error.message}`);
+        alert(t("Something went wrong. Please try again."));
     } finally {
         setIsSubmitting(false);
     }
@@ -238,7 +241,7 @@ function CreateEventSuspended() {
     const [year, month, day] = formData.date.split('-').map(Number);
     const dateObj = new Date(year, month - 1, day);
     return {
-        month: dateObj.toLocaleString('default', { month: 'short' }).toUpperCase(),
+        month: dateObj.toLocaleString(locale, { month: 'short' }).toUpperCase(),
         day: day 
     };
   };
@@ -251,10 +254,10 @@ function CreateEventSuspended() {
         
         {/* HEADER */}
         <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors">Create Event</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors">{t("Create Event")}</h1>
             
             <div className={`flex items-center gap-3 bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-800 vibrant:border-purple-200 shadow-sm transition-colors ${user?.role !== "admin" ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
-                <span className={`text-sm text-gray-500 dark:text-gray-400 vibrant:text-purple-600 font-medium ${user?.role !== "admin" ? 'cursor-not-allowed' : 'cursor-pointer'}`}>Posting as:</span>
+                <span className={`text-sm text-gray-500 dark:text-gray-400 vibrant:text-purple-600 font-medium ${user?.role !== "admin" ? 'cursor-not-allowed' : 'cursor-pointer'}`}>{t("Posting as:")}</span>
                 <select
                     value={user?.id}
                     onChange={(e) => setFormData({...formData, clubId: e.target.value})}
@@ -276,15 +279,14 @@ function CreateEventSuspended() {
                 <div className="bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm p-6 rounded-2xl border border-gray-200 dark:border-gray-800 vibrant:border-purple-200 shadow-sm space-y-6 transition-colors">
                     <h2 className="font-bold text-gray-900 dark:text-white vibrant:text-purple-900 flex items-center gap-2 transition-colors">
                         <Type className="w-5 h-5 text-blue-600 dark:text-blue-500 vibrant:text-purple-600" />
-                        Basic Info
-                    </h2>
+                        {t("Basic Info")}</h2>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">Event Title</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">{t("Event Title")}</label>
                         <input
                             type="text"
                             required
-                            placeholder="e.g. Intro to React Workshop"
+                            placeholder={t("e.g. Intro to React Workshop")}
                             value={formData.title}
                             onChange={e => handleInputChange('title', e.target.value)}
                             className={`w-full p-3 rounded-xl border transition-all font-semibold
@@ -294,22 +296,21 @@ function CreateEventSuspended() {
                                 : 'border-gray-200 dark:border-gray-700 vibrant:border-purple-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 vibrant:focus:ring-purple-500 vibrant:focus:border-purple-500'
                             }`}
                         />
-                        {errors.title && <p className="text-red-500 text-xs mt-1 font-medium">{errors.title}</p>}
+                        {errors.title && <p className="text-red-500 text-xs mt-1 font-medium">{t(errors.title)}</p>}
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-2 transition-colors">Cover Image</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-2 transition-colors">{t("Cover Image")}</label>
                         <div className="flex items-center gap-4">
                             {formData.coverImage ? (
                                 <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 vibrant:border-purple-200 group transition-colors">
-                                    <img src={resolveImageUrl(formData.coverImage)} alt="Cover" className="w-full h-full object-cover" />
+                                    <img src={resolveImageUrl(formData.coverImage)} alt={t("Cover")} className="w-full h-full object-cover" />
                                     <button
                                         type="button"
                                         onClick={() => setFormData({...formData, coverImage: ""})}
                                         className="absolute inset-0 bg-black/50 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-xs font-bold cursor-pointer"
                                     >
-                                        Remove
-                                    </button>
+                                        {t("Remove")}</button>
                                 </div>
                             ) : (
                                 <div className="w-24 h-24 rounded-xl bg-gray-50 dark:bg-gray-800 vibrant:bg-purple-50 border-2 border-dashed border-gray-300 dark:border-gray-700 vibrant:border-purple-300 flex items-center justify-center text-gray-400 dark:text-gray-600 vibrant:text-purple-400 transition-colors">
@@ -323,12 +324,11 @@ function CreateEventSuspended() {
                                                 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-700
                                                 vibrant:bg-white/80 vibrant:text-purple-700 vibrant:border-purple-200 vibrant:hover:bg-purple-50">
                                     <Upload className="w-4 h-4" />
-                                    {isUploading ? "Uploading..." : "Upload Image"}
+                                    {isUploading ? t("Uploading...") : t("Upload Image")}
                                     <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} disabled={isUploading} />
                                 </label>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-purple-500 mt-2 transition-colors">
-                                    Recommended: 1200x600px. Max 5MB.
-                                </p>
+                                    {t("Recommended: 1200x600px. Max 5MB.")}</p>
                             </div>
                         </div>
                     </div>
@@ -338,12 +338,11 @@ function CreateEventSuspended() {
                 <div className="bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm p-6 rounded-2xl border border-gray-200 dark:border-gray-800 vibrant:border-purple-200 shadow-sm space-y-6 transition-colors">
                     <h2 className="font-bold text-gray-900 dark:text-white vibrant:text-purple-900 flex items-center gap-2 transition-colors">
                         <Clock className="w-5 h-5 text-orange-600 dark:text-orange-500 vibrant:text-purple-600" />
-                        Time & Place
-                    </h2>
+                        {t("Time & Place")}</h2>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">Date</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">{t("Date")}</label>
                             <input
                                 type="date"
                                 required
@@ -354,10 +353,10 @@ function CreateEventSuspended() {
                                            bg-white dark:bg-gray-800 vibrant:bg-white/80 text-gray-700 dark:text-white vibrant:text-purple-900 dark:border-gray-700 vibrant:border-purple-200
                                            ${errors.date ? 'border-red-500 dark:border-red-500/50' : 'border-gray-200'}`}
                             />
-                            {errors.date && <p className="text-red-500 text-xs mt-1">{errors.date}</p>}
+                            {errors.date && <p className="text-red-500 text-xs mt-1">{t(errors.date)}</p>}
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">Start Time</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">{t("Start Time")}</label>
                             <input
                                 type="time"
                                 required
@@ -379,7 +378,7 @@ function CreateEventSuspended() {
                                     onChange={() => setFormData({...formData, timeMode: 'duration'})}
                                     className="text-blue-600 focus:ring-blue-500 vibrant:text-purple-600 vibrant:focus:ring-purple-500 cursor-pointer dark:bg-gray-700 dark:border-gray-600"
                                 />
-                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700">Set Duration</span>
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700">{t("Set Duration")}</span>
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer">
                                 <input
@@ -389,13 +388,13 @@ function CreateEventSuspended() {
                                     onChange={() => setFormData({...formData, timeMode: 'endTime'})}
                                     className="text-blue-600 focus:ring-blue-500 vibrant:text-purple-600 vibrant:focus:ring-purple-500 cursor-pointer dark:bg-gray-700 dark:border-gray-600"
                                 />
-                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700">Set End Time</span>
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700">{t("Set End Time")}</span>
                             </label>
                         </div>
 
                         {formData.timeMode === 'duration' ? (
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 vibrant:text-purple-500 uppercase tracking-wide mb-1">Duration (Hours)</label>
+                                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 vibrant:text-purple-500 uppercase tracking-wide mb-1">{t("Duration (Hours)")}</label>
                                 <div className="flex items-center gap-3">
                                     <input
                                         type="number"
@@ -408,15 +407,15 @@ function CreateEventSuspended() {
                                     />
                                     <div className="flex flex-col">
                                         <span className="text-sm text-gray-500 dark:text-gray-400 vibrant:text-purple-500">
-                                            Ends at <span className="font-bold text-gray-900 dark:text-white vibrant:text-purple-900">{formData.endTime}</span>
+                                            {t("Ends at")} <span className="font-bold text-gray-900 dark:text-white vibrant:text-purple-900">{formData.endTime}</span>
                                         </span>
-                                        {errors.endTime && <span className="text-red-500 text-xs font-bold">{errors.endTime}</span>}
+                                        {errors.endTime && <span className="text-red-500 text-xs font-bold">{t(errors.endTime)}</span>}
                                     </div>
                                 </div>
                             </div>
                         ) : (
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 vibrant:text-purple-500 uppercase tracking-wide mb-1">End Time</label>
+                                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 vibrant:text-purple-500 uppercase tracking-wide mb-1">{t("End Time")}</label>
                                 <input
                                     type="time"
                                     max="20:00"
@@ -434,8 +433,8 @@ function CreateEventSuspended() {
                                         bg-white dark:bg-gray-800 vibrant:bg-white/80 text-gray-700 dark:text-white vibrant:text-purple-900 dark:border-gray-700 vibrant:border-purple-200
                                         ${errors.endTime ? 'border-red-500' : 'border-gray-200'}`}
                                 />
-                                {errors.endTime && <p className="text-red-500 text-xs mt-1">{errors.endTime}</p>}
-                                <p className="text-gray-400 dark:text-gray-500 vibrant:text-purple-400 text-[10px] mt-1">Max 8:00 PM. For later events, mention it in the description.</p>
+                                {errors.endTime && <p className="text-red-500 text-xs mt-1">{t(errors.endTime)}</p>}
+                                <p className="text-gray-400 dark:text-gray-500 vibrant:text-purple-400 text-[10px] mt-1">{t("Max 8:00 PM. For later events, mention it in the description.")}</p>
                             </div>
                         )}
                     </div>
@@ -452,8 +451,7 @@ function CreateEventSuspended() {
                                     : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 vibrant:bg-white/60 vibrant:border-purple-200 vibrant:text-purple-600 vibrant:hover:bg-purple-50'
                                 }`}
                              >
-                                On Campus
-                             </button>
+                                {t("On Campus")}</button>
                              <button
                                 type="button"
                                 onClick={() => setFormData({...formData, locationType: 'off-campus'})}
@@ -463,19 +461,18 @@ function CreateEventSuspended() {
                                     : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 vibrant:bg-white/60 vibrant:border-purple-200 vibrant:text-purple-600 vibrant:hover:bg-purple-50'
                                 }`}
                              >
-                                Off Campus
-                             </button>
+                                {t("Off Campus")}</button>
                         </div>
 
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">
-                            {formData.locationType === 'on-campus' ? "Room / Building" : "Address / Venue"}
+                            {formData.locationType === 'on-campus' ? t("Room / Building") : t("Address / Venue")}
                         </label>
                         <input
                             type="text"
                             required
                             value={formData.location}
                             onChange={e => handleInputChange('location', e.target.value)}
-                            placeholder={formData.locationType === 'on-campus' ? "e.g. Room 101, Tech Hall" : "e.g. 123 Main St, Downtown"}
+                            placeholder={formData.locationType === 'on-campus' ? t("e.g. Room 101, Tech Hall") : t("e.g. 123 Main St, Downtown")}
                             className={`w-full p-3 rounded-xl border mb-2
                                 bg-white dark:bg-gray-800 vibrant:bg-white/80 text-gray-700 dark:text-white vibrant:text-purple-900 dark:placeholder-gray-500 vibrant:placeholder-purple-400
                                 ${errors.location
@@ -483,7 +480,7 @@ function CreateEventSuspended() {
                                 : 'border-gray-200 dark:border-gray-700 vibrant:border-purple-200 focus:ring-2 focus:ring-blue-500 vibrant:focus:ring-purple-500'
                             }`}
                         />
-                        {errors.location && <p className="text-red-500 text-xs mt-1">{errors.location}</p>}
+                        {errors.location && <p className="text-red-500 text-xs mt-1">{t(errors.location)}</p>}
 
                         {/* Quick Select Buttons */}
                         {formData.locationType === 'on-campus' && (
@@ -513,11 +510,10 @@ function CreateEventSuspended() {
                 <div className="bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm p-6 rounded-2xl border border-gray-200 dark:border-gray-800 vibrant:border-purple-200 shadow-sm space-y-6 transition-colors">
                     <h2 className="font-bold text-gray-900 dark:text-white vibrant:text-purple-900 flex items-center gap-2 transition-colors">
                         <Map className="w-5 h-5 text-purple-600 dark:text-purple-500" />
-                        Details
-                    </h2>
+                        {t("Details")}</h2>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">Description</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">{t("Description")}</label>
                         <textarea
                             rows={4}
                             required
@@ -529,13 +525,13 @@ function CreateEventSuspended() {
                                 ? 'border-red-500 focus:ring-2 focus:ring-red-500 dark:border-red-500/50'
                                 : 'border-gray-200 dark:border-gray-700 vibrant:border-purple-200 focus:ring-2 focus:ring-blue-500 vibrant:focus:ring-purple-500'
                             }`}
-                            placeholder="Tell students what makes this event awesome..."
+                            placeholder={t("Tell students what makes this event awesome...")}
                         />
-                        {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
+                        {errors.description && <p className="text-red-500 text-xs mt-1">{t(errors.description)}</p>}
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-2 transition-colors">Tags (Max 3)</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-2 transition-colors">{t("Tags (Max 3)")}</label>
                         <div className="flex flex-wrap gap-2">
                             {PREDEFINED_TAGS.map(tag => {
                                 const isSelected = formData.tags.includes(tag);
@@ -550,7 +546,7 @@ function CreateEventSuspended() {
                                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 vibrant:bg-purple-100 vibrant:text-purple-600 vibrant:hover:bg-purple-200'
                                         }`}
                                     >
-                                        {tag}
+                                        {t(tag)}
                                     </button>
                                 );
                             })}
@@ -562,8 +558,7 @@ function CreateEventSuspended() {
                 <div className="bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm p-6 rounded-2xl border border-gray-200 dark:border-gray-800 vibrant:border-purple-200 shadow-sm space-y-6 transition-colors">
                     <h2 className="font-bold text-gray-900 dark:text-white vibrant:text-purple-900 flex items-center gap-2 transition-colors">
                         <Users className="w-5 h-5 text-green-600 dark:text-green-500 vibrant:text-purple-600" />
-                        Registration
-                    </h2>
+                        {t("Registration")}</h2>
 
                     <div className="flex items-center gap-3">
                         <label className="relative inline-flex items-center cursor-pointer">
@@ -575,13 +570,13 @@ function CreateEventSuspended() {
                             />
                             <div className="w-11 h-6 bg-gray-200 peer-focus:ring-2 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 vibrant:peer-focus:ring-purple-300 rounded-full peer dark:bg-gray-700 vibrant:bg-purple-200 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:after:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600 vibrant:peer-checked:bg-purple-600"></div>
                         </label>
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700">Enable registration</span>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700">{t("Enable registration")}</span>
                     </div>
 
                     {formData.isRegistrationOpen && (
                         <div className="space-y-4 animate-in fade-in slide-in-from-top-1 duration-200">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">Registration Link</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">{t("Registration Link")}</label>
                                 <div className="relative">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <Link2 className="h-4 w-4 text-gray-400 dark:text-gray-500 vibrant:text-purple-400" />
@@ -596,7 +591,7 @@ function CreateEventSuspended() {
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">Capacity <span className="text-gray-400 vibrant:text-purple-400 font-normal">(0 = unlimited)</span></label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">{t("Capacity")} <span className="text-gray-400 vibrant:text-purple-400 font-normal">{t("(0 = unlimited)")}</span></label>
                                 <input
                                     type="number"
                                     min="0"
@@ -614,8 +609,7 @@ function CreateEventSuspended() {
                     {!user?.isVerified && user?.role !== 'admin' && (
                         <div className="flex items-center gap-2 mb-3 p-3 rounded-xl bg-yellow-50 border border-yellow-200 text-yellow-700 dark:bg-yellow-900/20 dark:border-yellow-900/50 dark:text-yellow-400 text-sm font-medium">
                             <ShieldAlert className="w-5 h-5 shrink-0" />
-                            Only verified clubs can publish events. Your club is pending verification.
-                        </div>
+                            {t("Only verified clubs can publish events. Your club is pending verification.")}</div>
                     )}
                     <button
                         type="submit"
@@ -626,7 +620,7 @@ function CreateEventSuspended() {
                             : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 vibrant:bg-purple-600 vibrant:hover:bg-purple-700"
                         }`}
                     >
-                        {isSubmitting ? "Publishing Event..." : (!user?.isVerified && user?.role !== 'admin') ? "Verification Required" : "Publish Event"}
+                        {isSubmitting ? t("Publishing Event...") : (!user?.isVerified && user?.role !== 'admin') ? t("Verification Required") : t("Publish Event")}
                     </button>
                 </div>
 
@@ -641,7 +635,7 @@ function CreateEventSuspended() {
             <div className="flex justify-between items-center px-2">
                 <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 vibrant:text-purple-500 transition-colors">
                     <Eye className="w-4 h-4" />
-                    <span className="text-xs font-bold uppercase tracking-wider">Live Preview (Not Exactly)</span>
+                    <span className="text-xs font-bold uppercase tracking-wider">{t("Live Preview (Not Exactly)")}</span>
                 </div>
 
                 <div className="flex bg-gray-200 dark:bg-gray-800 vibrant:bg-purple-100 p-1 rounded-lg transition-colors">
@@ -653,7 +647,7 @@ function CreateEventSuspended() {
                             ? 'bg-white shadow-sm text-gray-900 dark:bg-gray-700 dark:text-white vibrant:bg-white vibrant:text-purple-900'
                             : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 vibrant:text-purple-400 vibrant:hover:text-purple-700'
                         }`}
-                        title="Desktop View"
+                        title={t("Desktop View")}
                     >
                         <Monitor className="w-4 h-4" />
                     </button>
@@ -665,7 +659,7 @@ function CreateEventSuspended() {
                             ? 'bg-white shadow-sm text-gray-900 dark:bg-gray-700 dark:text-white vibrant:bg-white vibrant:text-purple-900'
                             : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 vibrant:text-purple-400 vibrant:hover:text-purple-700'
                         }`}
-                        title="Mobile View"
+                        title={t("Mobile View")}
                     >
                         <Smartphone className="w-4 h-4" />
                     </button>
@@ -690,7 +684,7 @@ function CreateEventSuspended() {
                         <img 
                             src={resolveImageUrl(formData.coverImage) || "/gsu_image.jpg"}
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                            alt="Event Preview" 
+                            alt={t("Event Preview")}
                             onError={(e) => {
                                 e.currentTarget.src = "https://via.placeholder.com/800x400?text=No+Image";
                             }}
@@ -699,14 +693,13 @@ function CreateEventSuspended() {
                         {/* Club Badge Overlay */}
                         <div className="absolute top-4 left-4 z-10">
                             <span className="bg-white/90 backdrop-blur text-xs font-bold px-2 py-1 rounded-md shadow-sm text-gray-800">
-                                {clubs && clubs.find(c => c.id === formData.clubId)?.clubName || "Loading Club..."}
+                                {clubs && clubs.find(c => c.id === formData.clubId)?.clubName || t("Loading Club...")}
                             </span>
                         </div>
                     
                         {!formData.coverImage && (
                             <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur text-white text-[10px] px-2 py-0.5 rounded-full">
-                                Default Image
-                            </div>
+                                {t("Default Image")}</div>
                         )}
                     </div>
         
@@ -717,10 +710,10 @@ function CreateEventSuspended() {
                             
                             <div className="flex-1 min-w-0">
                                 <h3 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900 leading-tight mb-1 break-words transition-colors">
-                                    {formData.title || "Your Event Title"}
+                                    {formData.title || t("Your Event Title")}
                                 </h3>
                                 <p className="text-sm text-gray-500 dark:text-gray-400 vibrant:text-purple-600/70 line-clamp-2 h-10 break-words transition-colors">
-                                    {formData.description || "Description will appear here..."}
+                                    {formData.description || t("Description will appear here...")}
                                 </p>
                             </div>
         
@@ -740,7 +733,7 @@ function CreateEventSuspended() {
                             </div>
                             <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 vibrant:text-purple-700 transition-colors">
                                 <MapPin className="w-4 h-4 text-gray-400 dark:text-gray-500 vibrant:text-purple-400 shrink-0" />
-                                <span className="truncate">{formData.location || "Location TBD"}</span>
+                                <span className="truncate">{formData.location || t("Location TBD")}</span>
                             </div>
                         </div>
         
@@ -759,8 +752,7 @@ function CreateEventSuspended() {
                                                  bg-gray-50 text-gray-400
                                                  dark:bg-gray-800/50 dark:text-gray-600
                                                  vibrant:bg-purple-50 vibrant:text-purple-400">
-                                    No Tags
-                                </span>
+                                    {t("No Tags")}</span>
                             )}
                         </div>
                     </div>
@@ -769,8 +761,8 @@ function CreateEventSuspended() {
         
             <p className="text-center text-xs text-gray-400 dark:text-gray-500 vibrant:text-purple-400 px-8 mt-4 transition-colors">
                 {previewMode === 'mobile' 
-                    ? "Previewing how students see it on their phones." 
-                    : "Previewing how it looks on laptops and tablets."}
+                    ? t("Previewing how students see it on their phones.")
+                    : t("Previewing how it looks on laptops and tablets.")}
             </p>
           </div>
         </div>
@@ -782,8 +774,9 @@ function CreateEventSuspended() {
 }
 
 export default function CreateEventPage() {
+  const {t} = useUI();
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-500 dark:text-gray-400 vibrant:text-purple-500 bg-gray-50 dark:bg-gray-950 vibrant:bg-transparent">Loading event form...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-500 dark:text-gray-400 vibrant:text-purple-500 bg-gray-50 dark:bg-gray-950 vibrant:bg-transparent">{t("Loading event form...")}</div>}>
       <CreateEventSuspended />
     </Suspense>
   );

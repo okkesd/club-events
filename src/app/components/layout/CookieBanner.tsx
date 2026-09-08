@@ -1,66 +1,57 @@
 "use client";
+import {useUI} from "@/i18n/useUI";
+
 
 import { useState, useEffect } from 'react';
-import { Cookie } from 'lucide-react';
 import Link from 'next/link';
 
+const NOTICE_KEY = 'cookie_notice_dismissed_v1';
+
 export default function CookieBanner() {
+  const {t} = useUI();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const consent = localStorage.getItem('cookie_consent');
-    if (!consent) {
-      const timer = setTimeout(() => setIsVisible(true), 1000);
-      return () => clearTimeout(timer);
+    try {
+      if (localStorage.getItem(NOTICE_KEY) === 'true') return;
+    } catch {
+      // The notice remains usable when browser storage is unavailable.
     }
+    const timer = setTimeout(() => setIsVisible(true), 1000);
+    return () => clearTimeout(timer);
   }, []);
 
-  const handleAccept = () => {
-    localStorage.setItem('cookie_consent', 'true');
-    setIsVisible(false);
-  };
-
   const handleDismiss = () => {
-    localStorage.setItem('cookie_consent', 'dismissed');
+    try {
+      // This records dismissal of an informational notice, not consent.
+      localStorage.setItem(NOTICE_KEY, 'true');
+      localStorage.removeItem('cookie_consent');
+    } catch {
+      // Closing the notice should not depend on storage access.
+    }
     setIsVisible(false);
   };
 
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 p-4 animate-in slide-in-from-bottom-10 fade-in duration-500">
-      <div className="max-w-4xl mx-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl p-4 md:p-6 flex flex-col md:flex-row items-center gap-4 md:gap-8 ring-1 ring-black/5">
-
-        {/* Icon & Text */}
-        <div className="flex-1 flex items-start gap-4">
-          <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl shrink-0">
-            <Cookie className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-          </div>
-          <div className="space-y-1">
-            <h3 className="font-bold text-gray-900 dark:text-white">We value your privacy</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-              Evenements uses your browser&apos;s local storage to keep you logged in and remember your theme preference, plus one essential cookie to prevent duplicate likes and views. We do not use tracking cookies or analytics.
-              Learn more in our <Link href="/legal/cookies" className="text-blue-600 hover:underline dark:text-blue-400">Cookie &amp; Local Storage Policy</Link>.
-            </p>
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex items-center gap-3 w-full md:w-auto">
+    <aside
+      aria-label={t("Cookies and browser storage")}
+      className="fixed bottom-0 left-0 right-0 z-50 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pointer-events-none"
+    >
+      <div className="pointer-events-auto max-w-2xl mx-auto bg-white dark:bg-gray-900 vibrant:bg-white border border-gray-200 dark:border-gray-800 vibrant:border-purple-200 rounded-xl shadow-lg p-4">
+        <p className="text-sm text-gray-700 dark:text-gray-300 vibrant:text-purple-900 leading-relaxed">
+          {t("We use browser storage for sign-in and preferences, and a cookie to avoid counting repeat likes and views.")}</p>
+        <div className="mt-2 flex items-center justify-between gap-3">
+          <Link href="/legal/cookies" className="inline-flex min-h-11 items-center text-sm font-medium text-blue-600 dark:text-blue-400 vibrant:text-purple-700 underline underline-offset-2 rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500">
+            {t("Cookie details")}</Link>
           <button
             onClick={handleDismiss}
-            className="flex-1 md:flex-none py-2.5 px-4 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors"
+            className="min-h-11 px-4 text-sm font-semibold text-gray-700 dark:text-gray-200 vibrant:text-purple-800 bg-gray-100 dark:bg-gray-800 vibrant:bg-purple-100 hover:bg-gray-200 dark:hover:bg-gray-700 vibrant:hover:bg-purple-200 rounded-lg transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
           >
-            Dismiss
-          </button>
-          <button
-            onClick={handleAccept}
-            className="flex-1 md:flex-none py-2.5 px-6 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 rounded-xl shadow-md transition-all active:scale-95"
-          >
-            Got it
-          </button>
+            {t("Close")}</button>
         </div>
       </div>
-    </div>
+    </aside>
   );
 }

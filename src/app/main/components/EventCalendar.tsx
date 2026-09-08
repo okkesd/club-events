@@ -1,4 +1,5 @@
 "use client";
+import {useUI} from "@/i18n/useUI";
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { IEvent } from "@/app/lib/types";
@@ -10,8 +11,10 @@ import { CalendarListView } from "./CalendarListView";
 import { ErrorState } from "./ErrorState";
 import { Loader2 } from "lucide-react";
 import { useMediaQuery } from "@/app/lib/hooks/useMediaQuery";
+import { CALENDAR_START_HOUR, CALENDAR_END_HOUR, CALENDAR_MAX_END_HOUR } from "@/app/lib/timeUtils";
 
 export default function EventCalendar() {
+    const {locale} = useUI();
     // --- State ---
     const [currentDate, setCurrentDate] = useState(new Date());
     const [events, setEvents] = useState<IEvent[]>([]);
@@ -35,6 +38,14 @@ export default function EventCalendar() {
     };
 
     const weekDays = useMemo(() => getWeekDays(currentDate), [currentDate]);
+    const calendarEndHour = events.reduce((endHour, event) => {
+        const [hours, minutes] = event.startTime.split(":").map(Number);
+        const start = hours + minutes / 60;
+        const end = start + event.duration;
+        return start >= CALENDAR_START_HOUR && Number.isFinite(end)
+            ? Math.min(CALENDAR_MAX_END_HOUR, Math.max(endHour, Math.ceil(end)))
+            : endHour;
+    }, CALENDAR_END_HOUR);
 
     // --- Effects ---
     useEffect(() => {
@@ -89,10 +100,11 @@ export default function EventCalendar() {
     if (error) return <ErrorState message={error} retry={() => setCurrentDate(new Date(currentDate))} />;
 
     return (
-        <div className="flex flex-col h-full w-full bg-white dark:bg-gray-950 vibrant:bg-transparent text-slate-800 dark:text-gray-100 vibrant:text-indigo-950 transition-colors duration-300">
+        <div className="flex flex-col w-full bg-white dark:bg-gray-950 vibrant:bg-transparent text-slate-800 dark:text-gray-100 vibrant:text-indigo-950 transition-colors duration-300">
             {/* Header Section */}
             <CalendarHeader
-                weekHeader={formatWeekHeader(weekDays)}
+                weekHeader={formatWeekHeader(weekDays, false, locale)}
+                mobileWeekHeader={formatWeekHeader(weekDays, true, locale)}
                 onPreviousWeek={goToPreviousWeek}
                 onNextWeek={goToNextWeek}
                 viewMode={viewMode}
@@ -100,7 +112,7 @@ export default function EventCalendar() {
             />
 
             {/* Calendar Content */}
-            <main className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
+            <div>
                 {isLoading ? (
                     <div className="flex h-96 w-full items-center justify-center">
                         <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
@@ -108,13 +120,14 @@ export default function EventCalendar() {
                 ) : viewMode === "grid" ? (
                     // Grid View (original 7-column calendar)
                     <div className="overflow-x-auto">
-                        <div className="grid grid-cols-7 min-w-[1000px] h-full divide-x divide-slate-200 dark:divide-gray-800 vibrant:divide-purple-200">
+                        <div className="grid grid-cols-7 min-w-[1000px] divide-x divide-slate-200 dark:divide-gray-800 vibrant:divide-purple-200">
                             {weekDays.map((day, index) => (
                                 <DayColumn
                                     key={day.toISOString()}
                                     day={day}
                                     events={getEventsForDay(day)}
                                     isFirstDay={index === 0}
+                                    endHour={calendarEndHour}
                                 />
                             ))}
                         </div>
@@ -126,7 +139,7 @@ export default function EventCalendar() {
                         getEventsForDay={getEventsForDay}
                     />
                 )}
-            </main>
+            </div>
         </div>
     );
 }

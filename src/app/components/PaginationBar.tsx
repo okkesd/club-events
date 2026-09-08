@@ -1,4 +1,6 @@
 "use client";
+import {useUI} from "@/i18n/useUI";
+
 
 import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -10,6 +12,7 @@ interface PaginationBarProps {
 }
 
 export default function PaginationBar({ pagination, onPageChange }: PaginationBarProps) {
+  const {t, locale} = useUI();
   const { page, totalPages, total } = pagination;
 
   if (totalPages <= 1) return null;
@@ -22,7 +25,7 @@ export default function PaginationBar({ pagination, onPageChange }: PaginationBa
         onClick={() => onPageChange(page - 1)}
         disabled={page <= 1}
         className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 vibrant:border-purple-200 text-gray-600 dark:text-gray-400 vibrant:text-purple-600 hover:bg-gray-100 dark:hover:bg-gray-800 vibrant:hover:bg-purple-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-        aria-label="Previous page"
+        aria-label={t("Previous page")}
       >
         <ChevronLeft className="w-4 h-4" />
       </button>
@@ -51,13 +54,13 @@ export default function PaginationBar({ pagination, onPageChange }: PaginationBa
         onClick={() => onPageChange(page + 1)}
         disabled={page >= totalPages}
         className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 vibrant:border-purple-200 text-gray-600 dark:text-gray-400 vibrant:text-purple-600 hover:bg-gray-100 dark:hover:bg-gray-800 vibrant:hover:bg-purple-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-        aria-label="Next page"
+        aria-label={t("Next page")}
       >
         <ChevronRight className="w-4 h-4" />
       </button>
 
       <span className="ml-3 text-sm text-gray-500 dark:text-gray-400 vibrant:text-purple-500">
-        {total} result{total !== 1 ? "s" : ""}
+        {t(new Intl.PluralRules(locale).select(total) === "one" ? "{count} result" : "{count} results", {count: total.toLocaleString(locale)})}
       </span>
     </div>
   );

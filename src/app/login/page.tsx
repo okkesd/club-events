@@ -1,37 +1,40 @@
-// app/login/page.tsx
 "use client";
-
-import React, { useState, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import {useUI} from "@/i18n/useUI";
+// app/login/page.tsx
+import React, { useState, useRef, FormEvent } from 'react';
 import { LogIn, Loader2, AlertCircle, AtSign, Lock, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '../context/AuthContext';
 
 
 export default function LoginPage() {
+  const {t, errorText} = useUI();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
 
-  const { login } = useAuth(); // Get login function
+  const { login, isLoading: isAuthLoading } = useAuth(); // Get login function
   
   
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const submitting = useRef(false);
+  const isLoading = isAuthLoading || isSubmitting;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (submitting.current || isAuthLoading) return;
+    submitting.current = true;
     setError(null);
     setIsSubmitting(true);
 
     try {
       await login(email, password);
       // No need to router.push here, the Context handles it
-    } catch (err: any) {
+    } catch (err) {
       // Display the error message from the API
-      setError(err.message || "Invalid email or password.");
+      setError(err instanceof Error ? err.message : "Invalid email or password.");
     } finally {
+      submitting.current = false;
       setIsSubmitting(false);
     }
   };
@@ -46,11 +49,9 @@ export default function LoginPage() {
              <LogIn className="h-6 w-6 text-blue-600 dark:text-blue-400 vibrant:text-purple-600" />
           </div>
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors">
-            Welcome Back
-          </h2>
+            {t("Welcome Back")}</h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 vibrant:text-purple-500 transition-colors">
-            Sign in to manage your club events
-          </p>
+            {t("Sign in to manage your club events")}</p>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -59,8 +60,7 @@ export default function LoginPage() {
             {/* Email Input */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1 transition-colors">
-                Email Address
-              </label>
+                {t("Email Address")}</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <AtSign className="h-5 w-5 text-gray-400 dark:text-gray-500" />
@@ -86,8 +86,7 @@ export default function LoginPage() {
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 transition-colors">
-                  Password
-                </label>
+                  {t("Password")}</label>
               </div>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -118,7 +117,7 @@ export default function LoginPage() {
                             dark:bg-red-900/20 dark:text-red-300 dark:border-red-900/50
                             vibrant:bg-red-50 vibrant:text-red-700 vibrant:border-red-200 transition-colors">
               <AlertCircle className="w-5 h-5 flex-shrink-0" />
-              <span>{error}</span>
+              <span>{errorText(error)}</span>
             </div>
           )}
 
@@ -136,12 +135,10 @@ export default function LoginPage() {
             {isLoading ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Signing in...
-              </>
+                {t("Signing in...")}</>
             ) : (
               <>
-                Sign in
-                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                {t("Sign in")}<ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </>
             )}
           </button>
@@ -150,10 +147,9 @@ export default function LoginPage() {
         {/* Footer with Sign Up Link */}
         <div className="text-center pt-2">
           <p className="text-sm text-gray-600 dark:text-gray-400 vibrant:text-purple-500 transition-colors">
-            Need to register a club?{' '}
+            {t("Need to register a club?")}{' '}
             <Link href="/signup" className="font-semibold text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 vibrant:text-pink-600 vibrant:hover:text-pink-500 transition-colors">
-              Create new club
-            </Link>
+              {t("Create new club")}</Link>
           </p>
         </div>
 

@@ -1,17 +1,20 @@
 "use client";
+import {useUI} from "@/i18n/useUI";
+
 
 import { useAuth } from "@/app/context/AuthContext";
 import { Shield, Users, LogOut, UniversityIcon } from "lucide-react";
 
 export default function DevAuthToolbar() {
+  const {t} = useUI();
   const { user } = useAuth(); // , loginAsClub, loginAsUnverified, loginAsAdmin, logout_mock 
 
   return (
     <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 p-2 bg-white/90 backdrop-blur border border-gray-200 shadow-xl rounded-xl text-xs">
       <div className="px-2 py-1 border-b border-gray-100 mb-1">
-        <span className="text-gray-400 font-bold uppercase tracking-wider">Dev Mode</span>
+        <span className="text-gray-400 font-bold uppercase tracking-wider">{t("Dev Mode")}</span>
         <div className="font-semibold text-gray-800">
-          {user ? `Logged in as: ${user.role}` : "Guest Mode"}
+          {user ? t("Logged in as {name}", {name: t(user.role)}) : t("Guest Mode")}
         </div>
       </div>
 

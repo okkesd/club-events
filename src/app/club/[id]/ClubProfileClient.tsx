@@ -1,4 +1,5 @@
 "use client";
+import { isAnnouncementExpired as hasAnnouncementExpired } from "@/app/lib/announcementExpiry";
 import {useUI} from "@/i18n/useUI";
 
 
@@ -115,7 +116,7 @@ export default function ClubProfileClient({ initialClub, events, announcements =
   // Announcements expire 14 days after creation (or at expiresAt if set)
   const isAnnouncementExpired = (a: IAnnouncement) => {
     const now = new Date();
-    if (a.expiresAt) return new Date(a.expiresAt) < now;
+    if (a.expiresAt) return hasAnnouncementExpired(a.expiresAt, now.getTime());
     const created = new Date(a.createdAt);
     created.setDate(created.getDate() + 14);
     return created < now;

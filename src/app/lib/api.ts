@@ -585,7 +585,7 @@ export async function fetchAnnouncements(filters?: IAnnouncementFilters): Promis
   if (filters?.club_id) params.set("club_id", filters.club_id);
   if (filters?.tag) params.set("tag", filters.tag);
   if (filters?.search) params.set("search", filters.search);
-  if (filters?.include_expired) params.set("include_expired", "true");
+  params.set("include_expired", String(filters?.include_expired ?? false));
   if (filters?.page) params.set("page", String(filters.page));
   if (filters?.pageSize) params.set("page_size", String(filters.pageSize));
 

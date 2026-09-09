@@ -228,6 +228,15 @@ export default function SignupPage() {
                 )}
             </button>
         </form>
+        <p className="text-center text-sm text-gray-600 dark:text-gray-400 vibrant:text-purple-500">
+          {t("Already have a club?")}{' '}
+          <Link
+            href="/login"
+            className="inline-flex min-h-11 items-center font-semibold text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 vibrant:text-pink-600 vibrant:hover:text-pink-500 rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+          >
+            {t("Sign in")}
+          </Link>
+        </p>
       </div>
 
       {/* --- TERMS OF SERVICE MODAL --- */}

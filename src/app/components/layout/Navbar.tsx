@@ -28,7 +28,7 @@ export default function Navbar() {
 
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -70,7 +70,7 @@ export default function Navbar() {
     }`;
 
   return (
-    <nav className="w-full bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 vibrant:border-purple-200 sticky top-0 z-50 transition-colors duration-300">
+    <nav ref={menuRef} className="w-full bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 vibrant:border-purple-200 sticky top-0 z-50 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
 
@@ -81,7 +81,7 @@ export default function Navbar() {
           >
             <CalendarDays className="w-6 h-6 text-blue-600 dark:text-blue-500 vibrant:text-purple-600" />
             <span className="vibrant-gradient-text">Evenements</span>
-            <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 vibrant:bg-purple-100 vibrant:text-purple-700 border border-blue-200 dark:border-blue-800 vibrant:border-purple-300">
+            <span className={`${isLoginPage || isSignupPage ? "hidden sm:inline" : ""} px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 vibrant:bg-purple-100 vibrant:text-purple-700 border border-blue-200 dark:border-blue-800 vibrant:border-purple-300`}>
               {t("Beta")}</span>
           </Link>
 
@@ -181,33 +181,26 @@ export default function Navbar() {
                   )}
                 </div>
 
-                {/* Mobile hamburger button */}
-                <button
-                  onClick={() => setMobileMenuOpen((prev) => !prev)}
-                  className="lg:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 vibrant:text-purple-500 vibrant:hover:bg-purple-100 transition-all"
-                  aria-label={t("Toggle menu")}
-                >
-                  {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                </button>
               </>
             )}
+            {/* Mobile hamburger button */}
+            <button
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              className="lg:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 vibrant:text-purple-500 vibrant:hover:bg-purple-100 transition-all"
+              aria-label={t("Toggle menu")}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-navigation"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
       </div>
 
-      {(isLoginPage || isSignupPage) && (
-        <div className="lg:hidden px-4 pb-2">
-          <LanguageSelector expanded />
-          <Link href={isLoginPage ? "/signup" : "/login"} className="flex min-h-11 items-center px-3 text-sm font-semibold text-gray-600 dark:text-gray-300 vibrant:text-purple-700">
-            {t(isLoginPage ? "Create new club" : "Already have a club?")}
-          </Link>
-        </div>
-      )}
-
       {/* Mobile overlay menu */}
-      {mobileMenuOpen && !isLoginPage && !isSignupPage && (
+      {mobileMenuOpen && (
         <div
-          ref={menuRef}
+          id="mobile-navigation"
           className="lg:hidden absolute left-0 right-0 top-16 border-t border-gray-200 dark:border-gray-800 vibrant:border-purple-200 bg-white dark:bg-gray-900 vibrant:bg-white/95 vibrant:backdrop-blur-sm shadow-lg z-50"
         >
           <div className="px-4 py-3 space-y-1">
@@ -226,7 +219,12 @@ export default function Navbar() {
             <LanguageSelector expanded />
             <div className="border-t border-gray-100 dark:border-gray-800 vibrant:border-purple-100 my-2" />
 
-            {user ? (
+            {isLoginPage || isSignupPage ? (
+              <Link href={isLoginPage ? "/signup" : "/login"} className={navLinkClass(isLoginPage ? "/signup" : "/login")}>
+                <LogIn className="w-4 h-4" />
+                {t(isLoginPage ? "Create new club" : "Already have a club?")}
+              </Link>
+            ) : user ? (
               <>
                 <Link href="/event/create" className={navLinkClass("/event/create")}>
                   <Plus className="w-4 h-4" />

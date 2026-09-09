@@ -18,8 +18,8 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# Next vendors a pre-bundled tar 6.2.1 at next/dist/compiled/tar which rides
-# into the standalone output and trips CVE-2026-59873 (fixed in 7.5.19). Only
+# Next vendors tar at next/dist/compiled/tar. Keep the existing security
+# override in the standalone output (CVE-2026-59873, fixed in 7.5.19). Only
 # lib/download-swc.js uses it, and only during a build, so swap in a patched
 # tar rather than dropping it.
 #
@@ -34,7 +34,7 @@ RUN mkdir -p /tmp/tar \
       "const api = { ...tar }" \
       "api.default = api" \
       "module.exports = api" \
-      > ./.next/standalone/node_modules/next/dist/compiled/tar/index.js \
+      > ./.next/standalone/node_modules/next/dist/compiled/tar/index.min.js \
  && rm -rf /tmp/tar \
  && node -e "const t=require('./.next/standalone/node_modules/next/dist/compiled/tar');if(typeof t.default.x!=='function')throw new Error('tar shim did not resolve')"
 

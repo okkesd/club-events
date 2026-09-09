@@ -1,4 +1,5 @@
 "use client";
+import { isAnnouncementExpired, isAnnouncementExpiringSoon } from "@/app/lib/announcementExpiry";
 import {useUI} from "@/i18n/useUI";
 
 
@@ -60,12 +61,8 @@ export default function AnnouncementDetailPage() {
     }
   };
 
-  const expiring = announcement?.expiresAt && (() => {
-    const diff = new Date(announcement.expiresAt!).getTime() - Date.now();
-    return diff > 0 && diff < 3 * 24 * 60 * 60 * 1000;
-  })();
-
-  const expired = announcement?.expiresAt && new Date(announcement.expiresAt).getTime() < Date.now();
+  const expiring = isAnnouncementExpiringSoon(announcement?.expiresAt);
+  const expired = isAnnouncementExpired(announcement?.expiresAt);
 
   if (isLoading) {
     return (

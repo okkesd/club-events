@@ -2,7 +2,7 @@
 import {useUI} from "@/i18n/useUI";
 
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Search, Megaphone, Pin, Clock, ExternalLink, Plus,
@@ -12,6 +12,7 @@ import { fetchAnnouncements, resolveImageUrl } from "@/app/lib/api";
 import { IAnnouncement, AnnouncementCategory, Pagination } from "@/app/lib/types";
 import { useAuth } from "@/app/context/AuthContext";
 import PaginationBar from "@/app/components/PaginationBar";
+import { isAnnouncementExpired as isExpired, isAnnouncementExpiringSoon as isExpiringSoon } from "@/app/lib/announcementExpiry";
 import SubscribeForm from "@/app/components/SubscribeForm";
 
 const CATEGORIES: { value: AnnouncementCategory; label: string; color: string }[] = [
@@ -29,17 +30,6 @@ function getCategoryStyle(category: AnnouncementCategory) {
   return CATEGORIES.find((c) => c.value === category)?.color ?? CATEGORIES[7].color;
 }
 
-function isExpiringSoon(expiresAt?: string): boolean {
-  if (!expiresAt) return false;
-  const diff = new Date(expiresAt).getTime() - Date.now();
-  return diff > 0 && diff < 3 * 24 * 60 * 60 * 1000; // within 3 days
-}
-
-function isExpired(expiresAt?: string): boolean {
-  if (!expiresAt) return false;
-  return new Date(expiresAt).getTime() < Date.now();
-}
-
 export default function AnnouncementsPage() {
   const {t} = useUI();
   const { user } = useAuth();
@@ -51,29 +41,33 @@ export default function AnnouncementsPage() {
   const [showExpired, setShowExpired] = useState(false);
   const [page, setPage] = useState(1);
 
-  const load = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const res = await fetchAnnouncements({
-        search: search || undefined,
-        category: selectedCategories.length > 0 ? selectedCategories : undefined,
-        include_expired: showExpired,
-        page,
-        pageSize: 12,
-      });
-      setAnnouncements(res.data);
-      setPagination(res.pagination);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [search, selectedCategories, showExpired, page]);
-
   useEffect(() => {
-    const timer = setTimeout(() => load(), 300);
-    return () => clearTimeout(timer);
-  }, [load]);
+    let active = true;
+    const load = async () => {
+      setIsLoading(true);
+      try {
+        const res = await fetchAnnouncements({
+          search: search || undefined,
+          category: selectedCategories.length > 0 ? selectedCategories : undefined,
+          include_expired: showExpired,
+          page,
+          pageSize: 12,
+        });
+        if (!active) return;
+        setAnnouncements(res.data);
+        setPagination(res.pagination);
+      } catch (err) {
+        if (!active) return;
+        console.error(err);
+        setAnnouncements([]);
+        setPagination(null);
+      } finally {
+        if (active) setIsLoading(false);
+      }
+    };
+    const timer = setTimeout(load, 300);
+    return () => { active = false; clearTimeout(timer); };
+  }, [search, selectedCategories, showExpired, page]);
 
   useEffect(() => {
     setPage(1);
@@ -85,6 +79,8 @@ export default function AnnouncementsPage() {
     setShowExpired(false);
     setPage(1);
   };
+
+  const visibleAnnouncements = showExpired ? announcements : announcements.filter(a => !isExpired(a.expiresAt));
 
   const hasFilters = search || selectedCategories.length > 0 || showExpired;
 
@@ -157,6 +153,7 @@ export default function AnnouncementsPage() {
             <div className="h-5 w-px bg-gray-200 dark:bg-gray-700 vibrant:bg-purple-200 mx-1" />
 
             <button
+              aria-pressed={showExpired}
               onClick={() => setShowExpired(!showExpired)}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 showExpired
@@ -190,10 +187,10 @@ export default function AnnouncementsPage() {
               <div key={i} className="bg-white dark:bg-gray-900 h-48 rounded-2xl border border-gray-200 dark:border-gray-800 animate-pulse transition-colors" />
             ))}
           </div>
-        ) : announcements.length > 0 ? (
+        ) : visibleAnnouncements.length > 0 ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {announcements.map((a) => (
+              {visibleAnnouncements.map((a) => (
                 <AnnouncementCard key={a.id} announcement={a} />
               ))}
             </div>

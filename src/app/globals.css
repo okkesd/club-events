@@ -1,5 +1,25 @@
 @import "tailwindcss";
 
+/* Five gentle color sweeps on arrival; stop immediately after interaction. */
+@media (prefers-reduced-motion: no-preference) {
+  .mobile-menu-intro::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(120deg, #4338ca, #a21caf, #1d4ed8);
+    background-size: 200% 200%;
+    opacity: 0;
+    animation: mobile-menu-color 2.4s ease-in-out 0.5s 5;
+  }
+}
+
+@keyframes mobile-menu-color {
+  0%, 100% { opacity: 0; background-position: 0% 50%; }
+  40%, 60% { opacity: 1; }
+  80% { background-position: 100% 50%; }
+}
+
 :root {
   /* Light Mode */
   --background: #ffffff;

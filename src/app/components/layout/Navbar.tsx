@@ -28,6 +28,7 @@ export default function Navbar() {
 
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [hasOpenedMobileMenu, setHasOpenedMobileMenu] = useState(false);
   const menuRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -77,11 +78,11 @@ export default function Navbar() {
           {/* Brand/Logo */}
           <Link
             href="/main"
-            className="flex items-center gap-2 text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-700 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600 transition-colors"
+            className="flex shrink-0 items-center gap-1.5 text-base sm:gap-2 sm:text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-700 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600 transition-colors"
           >
             <CalendarDays className="w-6 h-6 text-blue-600 dark:text-blue-500 vibrant:text-purple-600" />
             <span className="vibrant-gradient-text">Evenements</span>
-            <span className={`${isLoginPage || isSignupPage ? "hidden sm:inline" : ""} px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 vibrant:bg-purple-100 vibrant:text-purple-700 border border-blue-200 dark:border-blue-800 vibrant:border-purple-300`}>
+            <span className="hidden sm:inline px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 vibrant:bg-purple-100 vibrant:text-purple-700 border border-blue-200 dark:border-blue-800 vibrant:border-purple-300">
               {t("Beta")}</span>
           </Link>
 
@@ -102,7 +103,7 @@ export default function Navbar() {
           )}
 
           {/* Right side actions */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-3">
 
             <div className="hidden lg:block">
               <LanguageSelector />
@@ -185,13 +186,20 @@ export default function Navbar() {
             )}
             {/* Mobile hamburger button */}
             <button
-              onClick={() => setMobileMenuOpen((prev) => !prev)}
-              className="lg:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 vibrant:text-purple-500 vibrant:hover:bg-purple-100 transition-all"
-              aria-label={t("Toggle menu")}
+              onClick={() => {
+                setHasOpenedMobileMenu(true);
+                setMobileMenuOpen((prev) => !prev);
+              }}
+              type="button"
+              className={`relative isolate overflow-hidden lg:hidden inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-500 ${!hasOpenedMobileMenu ? "mobile-menu-intro" : ""} ${mobileMenuOpen
+                ? "border-gray-200 bg-gray-100 text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white vibrant:border-purple-200 vibrant:bg-purple-100 vibrant:text-purple-900"
+                : "border-blue-500 bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/25 hover:from-blue-500 hover:to-indigo-500 dark:border-blue-400/60 dark:shadow-blue-500/30 vibrant:border-purple-400 vibrant:from-purple-600 vibrant:to-pink-600 vibrant:shadow-purple-500/25 vibrant:hover:from-purple-500 vibrant:hover:to-pink-500"
+              }`}
+              aria-label={t(mobileMenuOpen ? "Close" : "Toggle menu")}
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-navigation"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? <X className="relative z-10 h-6 w-6 shrink-0" aria-hidden="true" /> : <Menu className="relative z-10 h-6 w-6 shrink-0" aria-hidden="true" />}
             </button>
           </div>
         </div>

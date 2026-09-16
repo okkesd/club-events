@@ -273,7 +273,10 @@ function BrowseEventCard({ event }: { event: IEvent }) {
   const eventDate = new Date(event.date + "T00:00:00");
   const monthName = eventDate.toLocaleString(locale, { month: "short" });
   const dayNumber = eventDate.getDate();
-  const isPast = eventDate.getTime() < Date.now();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  // Today's events stay active until the next local calendar day.
+  const isPast = eventDate.getTime() < today.getTime();
 
   return (
     <Link

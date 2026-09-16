@@ -700,5 +700,6 @@
   "x0063": "undergraduate",
   "x0064": "deadline",
   "final0": "Missing field: {field}",
-  "final1": "Confirm Password"
+  "final1": "Confirm Password",
+  "navExplore": "Explore"
 }

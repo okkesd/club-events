@@ -13,6 +13,8 @@ import { Loader2 } from "lucide-react";
 import { useMediaQuery } from "@/app/lib/hooks/useMediaQuery";
 import { CALENDAR_START_HOUR, CALENDAR_END_HOUR, CALENDAR_MAX_END_HOUR } from "@/app/lib/timeUtils";
 
+const DESKTOP_VIEW_STORAGE_KEY = "calendar-desktop-view";
+
 export default function EventCalendar() {
     const {locale} = useUI();
     // --- State ---
@@ -21,20 +23,39 @@ export default function EventCalendar() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<any>(null);
 
-    // View mode: default to "list" (mobile-first), switch to "grid" on desktop
+    // Mobile defaults to list; desktop restores the user's saved view.
     const isDesktop = useMediaQuery("(min-width: 768px)");
     const [viewMode, setViewMode] = useState<"grid" | "list">("list");
     const hasUserToggled = useRef(false);
 
     useEffect(() => {
         if (!hasUserToggled.current) {
+            if (isDesktop) {
+                try {
+                    const savedView = window.localStorage.getItem(DESKTOP_VIEW_STORAGE_KEY);
+                    if (savedView === "grid" || savedView === "list") {
+                        setViewMode(savedView);
+                        return;
+                    }
+                } catch {
+                    // Storage can be unavailable; keep the responsive default.
+                }
+            }
             setViewMode(isDesktop ? "grid" : "list");
         }
     }, [isDesktop]);
 
     const toggleView = () => {
         hasUserToggled.current = true;
-        setViewMode((prev) => (prev === "grid" ? "list" : "grid"));
+        const nextView = viewMode === "grid" ? "list" : "grid";
+        setViewMode(nextView);
+        if (isDesktop) {
+            try {
+                window.localStorage.setItem(DESKTOP_VIEW_STORAGE_KEY, nextView);
+            } catch {
+                // Switching views still works when storage is unavailable.
+            }
+        }
     };
 
     const weekDays = useMemo(() => getWeekDays(currentDate), [currentDate]);

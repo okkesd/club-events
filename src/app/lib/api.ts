@@ -1,5 +1,49 @@
 import { IEvent, ClubData, IApiResponse, IClubUpdate, IEventUpdate, SignUpData, IAnnouncement, IAnnouncementCreate, IAnnouncementUpdate, IAnnouncementFilters, PaginatedResponse, IEventFilters, ISubscribeRequest, ISubscription, IIgClubMapping, IScrapedEvent, IScrapedEventFilters, IScrapedEventUpdate, IScrapedEventApprove, IScrapedAnnouncementApprove, IScrapedImportResult } from './types';
 import { getWeekStartDate } from './dateUtils';
+import type { SuggestionDraft } from './suggestions';
+
+/** Proposed backend contract: POST /admin/suggestions/extract, { success, data }.
+ * image is a data URL; the backend authenticates the admin and calls the LLM.
+ */
+export async function extractSuggestionWithAI(image: string, kind: SuggestionDraft['kind'], signal?: AbortSignal): Promise<Partial<SuggestionDraft>> {
+  const auth = getAuthHeader();
+  if (!auth) throw new ApiError('Authentication required', 401);
+  if (!image.startsWith('data:')) {
+    const poster = await fetch(image, { signal });
+    if (!poster.ok) throw new Error('Could not load poster');
+    const blob = await poster.blob();
+    image = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(blob);
+    });
+  }
+  const response = await fetch('/api/proxy/admin/suggestions/extract', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...auth },
+    body: JSON.stringify({ image, kind }),
+    signal,
+  });
+  if (!response.ok) await handleApiError(response);
+  const result: unknown = await response.json();
+  if (!result || typeof result !== 'object' || !('data' in result) || ('success' in result && result.success === false)) throw new Error('Invalid extraction response');
+  const data = result.data;
+  if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('Invalid extraction data');
+  const fields: Partial<SuggestionDraft> = {};
+  // Never let model output overwrite the poster, contact email, or review state.
+  for (const key of ['title', 'description', 'date', 'startTime', 'endTime', 'location', 'organizer', 'link', 'expiresAt'] as const) {
+    if (key in data) {
+      const value = (data as Record<string, unknown>)[key];
+      if (typeof value === 'string' && value.trim()) fields[key] = value.trim();
+    }
+  }
+  if ('category' in data && typeof data.category === 'string' && ['general', 'internship', 'job', 'scholarship', 'competition', 'recruitment', 'academic', 'workshop'].includes(data.category)) {
+    fields.category = data.category as SuggestionDraft['category'];
+  }
+  if (!Object.keys(fields).length) throw new Error('No details extracted');
+  return fields;
+}
 
 const URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4444";
 const PROXY_URL = process.env.PROXY_URL || "/api/proxy";
@@ -25,7 +69,7 @@ export class ApiError extends Error {
  * - 429: Rate limit — user-friendly message
  * - Other: Generic fallback
  */
-async function handleApiError(res: Response): Promise<never> {
+export async function handleApiError(res: Response): Promise<never> {
   let body: any = {};
   try { body = await res.json(); } catch {}
 
@@ -476,7 +520,7 @@ export async function loginUser(email: string, password: string) {
 }
 
 // Helper to get the token from storage
-function getAuthHeader() {
+export function getAuthHeader() {
   // Ensure we are in the browser before accessing localStorage
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("access_token");

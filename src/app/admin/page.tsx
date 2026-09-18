@@ -11,6 +11,8 @@ import {
 import { getAdminClubs, setClubVerification, getContacts, getAdminSubscriptions, cleanupStorage, getScrapedEvents, updateClub } from '@/app/lib/api';
 import { ClubData, ISubscription } from '@/app/lib/types';
 import ScrapedEventsPanel from '@/app/components/ScrapedEventsPanel';
+import UserSuggestionsPanel from '@/app/components/UserSuggestionsPanel';
+import { listSuggestions } from '@/app/lib/suggestions';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
 
@@ -78,10 +80,11 @@ function IgHandleCell({ club }: { club: ClubData }) {
 
 export default function AdminDashboard() {
   const {t, locale} = useUI();
-  const [activeTab, setActiveTab] = useState<'pending' | 'verified' | 'blocked' | 'contacts' | 'subscribers' | 'scraped'>('pending');
+  const [activeTab, setActiveTab] = useState<'pending' | 'verified' | 'blocked' | 'contacts' | 'subscribers' | 'scraped' | 'suggestions'>('pending');
 
   // Pending-count badge for the Scraped Events tab
   const [scrapedPending, setScrapedPending] = useState<number | null>(null);
+  const [suggestionsPending, setSuggestionsPending] = useState<number | null>(null);
 
   const [clubs, setClubs] = useState<ClubData[]>([]);
   const [contacts, setContacts] = useState<ContactMsg[]>([]);
@@ -122,7 +125,7 @@ export default function AdminDashboard() {
         fetchMessages();
     } else if (activeTab === 'subscribers') {
         fetchSubscribers();
-    } else if (activeTab === 'scraped') {
+    } else if (activeTab === 'scraped' || activeTab === 'suggestions') {
         setIsLoadingPage(false); // the panel loads its own data
     } else {
         fetchClubs();
@@ -138,6 +141,17 @@ export default function AdminDashboard() {
   }, [isAuthorized]);
 
   // --- FETCHERS ---
+  useEffect(() => {
+    if (!isAuthorized) return;
+    let active = true;
+    listSuggestions().then(result => {
+      if (active) setSuggestionsPending(result.meta.pendingCount);
+    }).catch(() => {
+      if (active) setSuggestionsPending(null);
+    });
+    return () => { active = false; };
+  }, [isAuthorized]);
+
   const fetchClubs = async () => {
     setIsLoadingPage(true);
     try {
@@ -337,6 +351,14 @@ export default function AdminDashboard() {
                 {t("Subscribers")}</button>
 
             {/* Scraped Events Tab */}
+            <button onClick={() => setActiveTab('suggestions')} className={`pb-3 px-4 text-sm font-bold flex items-center gap-2 border-b-2 whitespace-nowrap ${activeTab === 'suggestions' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500'}`}>
+                {t('User suggestions')}
+                {!!suggestionsPending && (
+                    <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                        {suggestionsPending}
+                    </span>
+                )}
+            </button>
             <button
                 onClick={() => setActiveTab('scraped')}
                 className={`pb-3 px-4 text-sm font-bold flex items-center gap-2 transition-colors border-b-2 whitespace-nowrap ${
@@ -357,7 +379,7 @@ export default function AdminDashboard() {
         {/* --- CONTENT AREA --- */}
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden transition-colors">
             
-            {activeTab === 'scraped' ? (
+            {activeTab === 'suggestions' ? <UserSuggestionsPanel onPendingCountChange={setSuggestionsPending} /> : activeTab === 'scraped' ? (
                 <ScrapedEventsPanel onPendingCountChange={setScrapedPending} />
             ) : isLoadingPage ? (
                 <div className="p-12 text-center text-gray-400 dark:text-gray-500 flex flex-col items-center gap-2">

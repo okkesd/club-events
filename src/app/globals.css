@@ -1,5 +1,46 @@
 @import "tailwindcss";
 
+/* Keep cover painting inside its reserved space without forcing GPU layers. */
+.browse-event-cover {
+  contain: paint;
+}
+
+/* Animate cards only for precise pointers and when motion is welcome. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .browse-event-card {
+    transition: transform 300ms, box-shadow 300ms;
+  }
+
+  .browse-event-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  }
+
+  .browse-event-cover-image {
+    transition: transform 500ms;
+  }
+
+  .browse-event-card:hover .browse-event-cover-image {
+    transform: scale(1.05);
+  }
+}
+
+@layer base {
+  button:not(:disabled),
+  input[type="button"]:not(:disabled),
+  input[type="submit"]:not(:disabled),
+  input[type="reset"]:not(:disabled),
+  input[type="file"]:not(:disabled)::file-selector-button {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  input:disabled,
+  input[type="file"]:disabled::file-selector-button {
+    cursor: not-allowed;
+  }
+}
+
 /* Five gentle color sweeps on arrival; stop immediately after interaction. */
 @media (prefers-reduced-motion: no-preference) {
   .mobile-menu-intro::before {

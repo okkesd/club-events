@@ -10,6 +10,7 @@ import {
 import { fetchEvents, resolveImageUrl } from "@/app/lib/api";
 import { IEvent, IEventFilters, Pagination } from "@/app/lib/types";
 import PaginationBar from "@/app/components/PaginationBar";
+import StayUpdated from "@/app/components/StayUpdated";
 
 const LOCATION_TYPES = [
   { value: "on-campus", label: "On Campus" },
@@ -263,6 +264,7 @@ export default function EventsBrowsePage() {
             </p>
           </div>
         )}
+        <StayUpdated />
       </div>
     </div>
   );
@@ -281,18 +283,20 @@ function BrowseEventCard({ event }: { event: IEvent }) {
   return (
     <Link
       href={`/event/${event.id}`}
-      className={`group block bg-white dark:bg-gray-900 vibrant:bg-white/80 rounded-2xl border overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5
+      className={`browse-event-card group block bg-white dark:bg-gray-900 vibrant:bg-white/80 rounded-2xl border overflow-hidden
         border-gray-200 dark:border-gray-800 vibrant:border-purple-200
         ${isPast ? "opacity-60" : ""}
       `}
     >
       {/* Cover image or colored header */}
       {event.coverImage ? (
-        <div className="w-full h-40 bg-gray-100 dark:bg-gray-800 overflow-hidden">
+        <div className="browse-event-cover w-full h-40 bg-gray-100 dark:bg-gray-800 overflow-hidden">
           <img
             src={resolveImageUrl(event.coverImage)}
             alt={event.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            loading="lazy"
+            decoding="async"
+            className="browse-event-cover-image block w-full h-full object-cover"
           />
         </div>
       ) : (

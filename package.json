@@ -5,10 +5,12 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "analyze": "ANALYZE=true next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "test:i18n": "node scripts/check-i18n.mjs",
-    "test:auth": "node scripts/check-auth-api.mjs"
+    "test:auth": "node scripts/check-auth-api.mjs",
+    "test:suggestions": "node scripts/check-suggestions-api.cjs"
   },
   "dependencies": {
     "lucide-react": "^0.548.0",
@@ -19,6 +21,7 @@
     "react-dom": "19.2.0"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "16.3.3",
     "@tailwindcss/postcss": "^4",
     "@types/jest": "^30.0.0",
     "@types/node": "^20",

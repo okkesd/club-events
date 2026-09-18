@@ -18,7 +18,9 @@ export default function LoginPage() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const submitting = useRef(false);
-  const isLoading = isAuthLoading || isSubmitting;
+  // Session restoration can finish before this page hydrates. Keep its initial
+  // markup independent of that state; the submit handler still guards it.
+  const isLoading = isSubmitting;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

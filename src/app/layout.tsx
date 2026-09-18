@@ -41,8 +41,9 @@ export default async function RootLayout({
   const locale = await getLocale();
   return (
     <html lang={locale} suppressHydrationWarning>
-      {/* 3. Keep your font variables on the body tag */}
-      <body className={`${geistSans.variable} ${geistMono.variable} ${nunito.variable}`}>
+      {/* Extensions may inject body attributes before hydration (e.g. cz-shortcut-listen).
+          Suppression is shallow; descendant hydration checks remain enabled. */}
+      <body suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} ${nunito.variable}`}>
         <NextIntlClientProvider>
         <AuthProvider>
           <ThemeProvider

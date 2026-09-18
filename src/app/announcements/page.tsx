@@ -13,7 +13,7 @@ import { IAnnouncement, AnnouncementCategory, Pagination } from "@/app/lib/types
 import { useAuth } from "@/app/context/AuthContext";
 import PaginationBar from "@/app/components/PaginationBar";
 import { isAnnouncementExpired as isExpired, isAnnouncementExpiringSoon as isExpiringSoon } from "@/app/lib/announcementExpiry";
-import SubscribeForm from "@/app/components/SubscribeForm";
+import StayUpdated from "@/app/components/StayUpdated";
 
 const CATEGORIES: { value: AnnouncementCategory; label: string; color: string }[] = [
   { value: "internship", label: "Internship", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 vibrant:bg-blue-100 vibrant:text-blue-700" },
@@ -210,14 +210,7 @@ export default function AnnouncementsPage() {
           </div>
         )}
 
-        {/* Subscribe section */}
-        <div className="mt-12 bg-white dark:bg-gray-900 vibrant:bg-white/80 rounded-2xl border border-gray-200 dark:border-gray-800 vibrant:border-purple-200 p-6 transition-colors">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-2 transition-colors">
-            {t("Stay updated")}</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 vibrant:text-purple-500 mb-4 transition-colors">
-            {t("Get a weekly email with last week's announcements and upcoming events for the next week.")}</p>
-          <SubscribeForm selectedCategories={selectedCategories} />
-        </div>
+        <StayUpdated selectedCategories={selectedCategories} />
       </div>
     </div>
   );

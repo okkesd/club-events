@@ -199,7 +199,11 @@ async function handleMutation(
     });
 
     if (res.ok) {
-      if (pathString.startsWith("announcements")) {
+      if (pathString.startsWith("admin/suggestions/") && pathString.endsWith("/approve")) {
+        revalidateTag("events", {expire: 0});
+        revalidateTag("announcements", {expire: 0});
+      }
+      else if (pathString.startsWith("announcements")) {
         revalidateTag("announcements", {expire: 0});
         console.log("Cache cleared for tag: announcements");
       }

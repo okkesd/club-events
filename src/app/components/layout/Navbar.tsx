@@ -109,6 +109,10 @@ export default function Navbar() {
               <LanguageSelector />
             </div>
 
+            <Link href="/suggest" className="hidden lg:inline-flex items-center gap-2 rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700 vibrant:bg-purple-600">
+              <Plus className="h-4 w-4" aria-hidden="true" />{t('Suggest an event')}
+            </Link>
+
             {/* Theme Cycle Button */}
             {mounted ? (
               <button
@@ -212,6 +216,9 @@ export default function Navbar() {
           className="lg:hidden absolute left-0 right-0 top-16 border-t border-gray-200 dark:border-gray-800 vibrant:border-purple-200 bg-white dark:bg-gray-900 vibrant:bg-white/95 vibrant:backdrop-blur-sm shadow-lg z-50"
         >
           <div className="px-4 py-3 space-y-1">
+            <Link href="/suggest" className="mb-3 flex items-center gap-2 rounded-xl bg-blue-600 px-3 py-3 text-sm font-semibold text-white hover:bg-blue-700 vibrant:bg-purple-600">
+              <Plus className="h-4 w-4" aria-hidden="true" />{t('Suggest an event')}
+            </Link>
             <Link href="/events" className={navLinkClass("/events")}>
               <LayoutGrid className="w-4 h-4" />
               {t("Events")}</Link>

@@ -700,5 +700,6 @@
   "x0063": "Premier cycle",
   "x0064": "Date limite",
   "final0": "Champ manquant : {field}",
-  "final1": "Confirmer le mot de passe"
+  "final1": "Confirmer le mot de passe",
+  "navExplore": "Découvrir"
 }

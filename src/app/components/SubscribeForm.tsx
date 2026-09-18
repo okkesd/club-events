@@ -2,7 +2,7 @@
 import {useUI} from "@/i18n/useUI";
 
 
-import React, { useEffect, useState } from "react";
+import React, { useId, useState } from "react";
 import Link from "next/link";
 import { Mail, CheckCircle, AlertCircle } from "lucide-react";
 import { subscribe } from "@/app/lib/api";
@@ -10,54 +10,42 @@ import { AnnouncementCategory } from "@/app/lib/types";
 
 interface SubscribeFormProps {
   selectedCategories?: AnnouncementCategory[];
+  layout?: "inline" | "stacked";
 }
 
-export default function SubscribeForm({ selectedCategories = [] }: SubscribeFormProps) {
+export default function SubscribeForm({ selectedCategories = [], layout = "inline" }: SubscribeFormProps) {
   const {t, errorText} = useUI();
+  const formId = useId();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
   const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
 
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return (
-      <div className="space-y-3 opacity-0">
-        {/* Render an invisible placeholder so the layout doesn't jump */}
-        <div className="h-[46px] w-full rounded-xl bg-gray-100 dark:bg-gray-800"></div>
-      </div>
-    );
-  }
-
   const handleSubscribeClick = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email.trim() || !agreedToPrivacy || status === "loading") return;
     setShowConfirm(true);
   };
 
   const handleConfirm = async () => {
+    if (!agreedToPrivacy || status === "loading") return;
     setShowConfirm(false);
     setStatus("loading");
     setErrorMsg("");
     try {
-      await subscribe({ email, categories: selectedCategories });
+      await subscribe({ email: email.trim(), categories: selectedCategories });
       setStatus("success");
       setEmail("");
-    } catch (err: any) {
-      setErrorMsg(err.message || "Failed to subscribe");
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : "Failed to subscribe");
       setStatus("error");
     }
   };
 
   if (status === "success") {
     return (
-      <div className="flex items-center gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-900/20 vibrant:bg-green-50 border border-green-200 dark:border-green-800 vibrant:border-green-200 transition-colors">
+      <div role="status" className="flex items-center gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-900/20 vibrant:bg-green-50 border border-green-200 dark:border-green-800 vibrant:border-green-200 transition-colors">
         <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 shrink-0" />
         <p className="text-sm font-medium text-green-700 dark:text-green-300">
           {t("Subscribed! You'll receive a weekly digest of announcements and upcoming events.")}</p>
@@ -72,16 +60,25 @@ export default function SubscribeForm({ selectedCategories = [] }: SubscribeForm
   return (
     <>
       <form onSubmit={handleSubscribeClick} className="space-y-3">
-        <div className="flex gap-2">
-          <div className="relative flex-1">
+        <label htmlFor={`${formId}-email`} className={layout === "stacked" ? "block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700" : "sr-only"}>
+          {t("Your Email")}
+        </label>
+        <div className={`flex gap-2 ${layout === "stacked" ? "flex-col" : ""}`}>
+          <div className="relative min-w-0 flex-1">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
             <input
               type="email"
+              id={`${formId}-email`}
+              name="email"
+              autoComplete="email"
+              autoCapitalize="none"
+              spellCheck={false}
+              disabled={status === "loading"}
               required
               placeholder="your@email.com"
               value={email}
               onChange={(e) => { setEmail(e.target.value); setStatus("idle"); }}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border transition-colors outline-none text-sm
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border transition-colors outline-none text-base sm:text-sm
                 border-gray-200 dark:border-gray-700 vibrant:border-purple-200
                 bg-white dark:bg-gray-800 vibrant:bg-white/80
                 text-gray-900 dark:text-white vibrant:text-purple-900
@@ -99,20 +96,22 @@ export default function SubscribeForm({ selectedCategories = [] }: SubscribeForm
         </div>
         <div className="flex items-start gap-2">
           <input
-            id="subscribe-privacy"
+            id={`${formId}-privacy`}
             type="checkbox"
+            required
+            disabled={status === "loading"}
             checked={agreedToPrivacy}
             onChange={(e) => setAgreedToPrivacy(e.target.checked)}
             className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 vibrant:text-purple-600 vibrant:focus:ring-purple-500"
           />
-          <label htmlFor="subscribe-privacy" className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-purple-500">
+          <label htmlFor={`${formId}-privacy`} className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-purple-500">
             {t("I have read and accept the")}{" "}
             <Link href="/legal/privacy" className="text-blue-600 dark:text-blue-400 vibrant:text-pink-600 hover:underline">
               {t("Privacy Policy")}</Link>
           </label>
         </div>
         {status === "error" && (
-          <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
+          <div role="alert" className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
             <AlertCircle className="w-4 h-4 shrink-0" />
             {errorText(errorMsg)}
           </div>

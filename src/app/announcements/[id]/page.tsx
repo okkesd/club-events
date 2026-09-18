@@ -9,7 +9,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
-  ChevronLeft, Megaphone, ExternalLink, Pin, Clock,
+  ChevronLeft, Megaphone, ExternalLink, Link2, Pin, Clock,
   Edit3, Trash2, Tag as TagIcon, CalendarDays, User,
 } from "lucide-react";
 import { fetchAnnouncementById, deleteAnnouncement, resolveImageUrl } from "@/app/lib/api";
@@ -181,7 +181,6 @@ export default function AnnouncementDetailPage() {
             <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 vibrant:text-purple-800 whitespace-pre-line leading-relaxed mb-6 transition-colors">
               {announcement.body}
             </div>
-                <SourcePostButton url={announcement.sourcePostUrl} />
 
             {/* Tags */}
             {announcement.tags.length > 0 && (
@@ -197,17 +196,24 @@ export default function AnnouncementDetailPage() {
               </div>
             )}
 
-            {/* External link */}
-            {announcement.link && (
+            {/* Announcement actions */}
+            {(announcement.link || (announcement.sourcePostUrl && /^https:\/\/www\.instagram\.com\/p\/[A-Za-z0-9_-]+\/$/.test(announcement.sourcePostUrl))) && (
+              <div className="flex flex-col gap-3 border-t border-gray-100 pt-6 dark:border-gray-800 vibrant:border-purple-100 sm:flex-row sm:flex-wrap">
+              {announcement.link && (
               <a
                 href={announcement.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl font-bold text-sm shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all
-                  bg-blue-600 hover:bg-blue-700 vibrant:bg-purple-600 vibrant:hover:bg-purple-700 text-white"
+                className="group inline-flex min-h-12 w-full items-center justify-center gap-3 rounded-xl border border-transparent px-5 py-3 text-sm font-semibold shadow-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 sm:w-auto
+                  bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 vibrant:bg-purple-600 vibrant:hover:bg-purple-700 text-white"
               >
-                <ExternalLink className="w-4 h-4" />
-                {t("Visit Link")}</a>
+                <Link2 className="h-4 w-4 shrink-0" aria-hidden="true" />
+                {t("Visit Link")}
+                <ExternalLink className="h-3.5 w-3.5 shrink-0 opacity-70 group-hover:opacity-100" aria-hidden="true" />
+              </a>
+              )}
+              <SourcePostButton url={announcement.sourcePostUrl} variant="announcement" />
+              </div>
             )}
           </div>
         </article>

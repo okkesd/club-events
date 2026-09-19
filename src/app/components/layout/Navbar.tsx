@@ -81,7 +81,7 @@ export default function Navbar() {
             className="flex shrink-0 items-center gap-1.5 text-base sm:gap-2 sm:text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-700 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600 transition-colors"
           >
             <CalendarDays className="w-6 h-6 text-blue-600 dark:text-blue-500 vibrant:text-purple-600" />
-            <span className="vibrant-gradient-text">Evenements</span>
+            <span className="vibrant-gradient-text">evenements</span>
             <span className="hidden sm:inline px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 vibrant:bg-purple-100 vibrant:text-purple-700 border border-blue-200 dark:border-blue-800 vibrant:border-purple-300">
               {t("Beta")}</span>
           </Link>

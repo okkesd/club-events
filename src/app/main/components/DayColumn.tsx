@@ -5,7 +5,7 @@ import {useUI} from "@/i18n/useUI";
 import { useState } from "react";
 import { IEvent } from "@/app/lib/types";
 import { EventCard } from "@/app/components/EventCard";
-import { getCalendarHourSlots, CALENDAR_START_HOUR, calculateEndTime } from '@/app/lib/timeUtils';
+import { getCalendarHourSlots, calculateEndTime } from '@/app/lib/timeUtils';
 import Link from 'next/link';
 import { Clock, X } from "lucide-react";
 
@@ -16,6 +16,7 @@ interface DayColumnProps {
     day: Date;
     events: IEvent[];
     isFirstDay: boolean;
+    startHour: number;
     endHour: number;
 }
 
@@ -193,7 +194,7 @@ function OverflowModal({ events, onClose }: { events: IEvent[]; onClose: () => v
     );
 }
 
-export function DayColumn({ day, events, isFirstDay, endHour }: DayColumnProps) {
+export function DayColumn({ day, events, isFirstDay, startHour, endHour }: DayColumnProps) {
   const {t, locale} = useUI();
     const [modalCluster, setModalCluster] = useState<ClusterInfo | null>(null);
 
@@ -206,12 +207,12 @@ export function DayColumn({ day, events, isFirstDay, endHour }: DayColumnProps) 
     const dayOfMonth = day.getDate();
     const dayName = day.toLocaleDateString(locale, { weekday: 'short' });
 
-    const hourSlots = getCalendarHourSlots(endHour);
-    const totalGridRows = endHour - CALENDAR_START_HOUR;
+    const hourSlots = getCalendarHourSlots(endHour, startHour);
+    const totalGridRows = endHour - startHour;
 
     const validEvents = events.filter(event => {
-        const startHour = parseInt(event.startTime.split(':')[0], 10);
-        return startHour >= CALENDAR_START_HOUR && startHour < endHour;
+        const start = parseTime(event.startTime);
+        return start >= startHour && start < endHour;
     });
 
     const { layout: overlapLayout, clusters } = computeOverlapLayout(validEvents);
@@ -223,7 +224,7 @@ export function DayColumn({ day, events, isFirstDay, endHour }: DayColumnProps) 
     const crowdedClusters = clusters.filter(c => c.hiddenCount > 0);
 
     return (
-        <div className="flex flex-col flex-1 h-full min-w-0 bg-white dark:bg-gray-950 vibrant:bg-white/50 border-r border-slate-200 dark:border-gray-800 vibrant:border-purple-200 last:border-r-0 transition-colors">
+        <div className="flex flex-col flex-1 h-full min-w-0 bg-white dark:bg-gray-950 vibrant:bg-white/50 transition-colors">
             {/* Header */}
             <div className="p-2">
                 <div className="flex flex-col items-center justify-center py-4 border-b border-slate-200 dark:border-gray-800 vibrant:border-purple-200 mb-5 bg-white dark:bg-gray-900 vibrant:bg-white/80 shadow-lg rounded-md">
@@ -276,6 +277,7 @@ export function DayColumn({ day, events, isFirstDay, endHour }: DayColumnProps) 
                             columnIndex={layoutInfo?.columnIndex ?? 0}
                             totalColumns={layoutInfo?.totalColumns ?? 1}
                             colSpan={layoutInfo?.colSpan ?? 1}
+                            startHour={startHour}
                             endHour={endHour}
                         />
                     );
@@ -284,7 +286,7 @@ export function DayColumn({ day, events, isFirstDay, endHour }: DayColumnProps) 
                 {/* Layer 3: "+N more" buttons for crowded clusters */}
                 {crowdedClusters.map((cluster, idx) => {
                     // Position the button at the bottom of the cluster area
-                    const topRem = (Math.min(cluster.maxEnd, endHour) - CALENDAR_START_HOUR) * ROW_HEIGHT_REM - 1.75;
+                    const topRem = (Math.min(cluster.maxEnd, endHour) - startHour) * ROW_HEIGHT_REM - 1.75;
                     return (
                         <button
                             key={idx}

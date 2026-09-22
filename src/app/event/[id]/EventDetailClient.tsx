@@ -18,6 +18,8 @@ import { NotifyModal } from '@/app/event/[id]/NotifyModal';
 import { EventBrochure } from '@/app/event/[id]/EventBrochure';
 import { IEvent } from '@/app/lib/types';
 import LikeButton from './LikeButton';
+import EventDescription from './EventDescription';
+import { downloadEventCalendar } from '@/app/lib/calendarExport';
 
 export default function EventDetailClient({ event }: { event: IEvent }) {
   const {t, locale} = useUI();
@@ -31,18 +33,28 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showExternalLinkModal, setShowExternalLinkModal] = useState(false);
+  const [calendarError, setCalendarError] = useState(false);
 
   // --- AUTH CHECK ---
   const isOwner = user && (user.id === currentEvent.clubId || user.role === 'admin');
 
   useEffect(() => {
-    const eventDate = new Date(event.date + "T00:00:00");
-    if (eventDate.getTime() < Date.now()) {
-      setIsEventInPast(true);
-    }
-  }, [])
+    const eventDate = new Date(currentEvent.date + "T00:00:00");
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    setIsEventInPast(eventDate.getTime() < today.getTime());
+  }, [currentEvent.date])
 
   // --- HANDLERS ---
+  const handleCalendarDownload = () => {
+    setCalendarError(false);
+    try {
+      downloadEventCalendar(currentEvent);
+    } catch {
+      setCalendarError(true);
+    }
+  };
+
   const handleUpdate = async (formData: any) => {
     setIsSubmitting(true);
     try {
@@ -179,12 +191,7 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
 
                 <hr className="my-8 border-gray-100 dark:border-gray-800 vibrant:border-purple-100 transition-colors" />
                 
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-4 transition-colors">{t("About Event")}</h3>
-                
-                {/* Prose for rich text handling */}
-                <div className="prose prose-blue prose-sm md:prose-base dark:prose-invert text-gray-600 dark:text-gray-300 vibrant:text-purple-700 whitespace-pre-line [overflow-wrap:anywhere] leading-relaxed max-w-none transition-colors">
-                    {currentEvent.description}
-                </div>
+                <EventDescription eventId={currentEvent.id} description={currentEvent.description} />
                 <SourcePostButton url={currentEvent.sourcePostUrl} />
             </div>
           </div>
@@ -331,7 +338,7 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                 
                         {/* 2. CALENDAR & SHARE */}
                         {!isEventInPast && <div className="grid grid-cols-2 gap-3 flex-grow">
-                            <button className="flex items-center justify-center gap-2 py-2 px-3 border rounded-lg text-sm font-semibold transition-colors
+                            <button type="button" onClick={handleCalendarDownload} aria-label={t("Add to Cal")} className="flex items-center justify-center gap-2 py-2 px-3 border rounded-lg text-sm font-semibold transition-colors
                                                border-gray-200 text-gray-700 hover:bg-gray-50 
                                                dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800
                                                vibrant:border-purple-200 vibrant:text-purple-700 vibrant:hover:bg-purple-50">
@@ -344,6 +351,7 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                         </div>}
                     </div>
                     
+                    {calendarError && <p role="alert" className="text-sm text-red-600 dark:text-red-400">{t("Could not download the calendar file. Please try again.")}</p>}
                     <NotifyModal eventId={currentEvent.id} isEventInPast={isEventInPast}/>
                 </div>
                     </div>

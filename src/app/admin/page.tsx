@@ -6,12 +6,13 @@ import React, { useState, useEffect } from 'react';
 import {
     Shield, CheckCircle2, XCircle, Clock, Search,
     MoreHorizontal, ExternalLink, Loader2,
-    AlertTriangle, X, Ban, Mail, Trash2, Instagram, Check
+    AlertTriangle, X, Ban, Mail, Trash2, Instagram, Check, BarChart3
 } from 'lucide-react';
 import { getAdminClubs, setClubVerification, getContacts, getAdminSubscriptions, cleanupStorage, getScrapedEvents, updateClub } from '@/app/lib/api';
 import { ClubData, ISubscription } from '@/app/lib/types';
 import ScrapedEventsPanel from '@/app/components/ScrapedEventsPanel';
 import UserSuggestionsPanel from '@/app/components/UserSuggestionsPanel';
+import AdminMetricsPanel from '@/app/components/AdminMetricsPanel';
 import { listSuggestions } from '@/app/lib/suggestions';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -80,7 +81,7 @@ function IgHandleCell({ club }: { club: ClubData }) {
 
 export default function AdminDashboard() {
   const {t, locale} = useUI();
-  const [activeTab, setActiveTab] = useState<'pending' | 'verified' | 'blocked' | 'contacts' | 'subscribers' | 'scraped' | 'suggestions'>('pending');
+  const [activeTab, setActiveTab] = useState<'metrics' | 'pending' | 'verified' | 'blocked' | 'contacts' | 'subscribers' | 'scraped' | 'suggestions'>('metrics');
 
   // Pending-count badge for the Scraped Events tab
   const [scrapedPending, setScrapedPending] = useState<number | null>(null);
@@ -125,7 +126,7 @@ export default function AdminDashboard() {
         fetchMessages();
     } else if (activeTab === 'subscribers') {
         fetchSubscribers();
-    } else if (activeTab === 'scraped' || activeTab === 'suggestions') {
+    } else if (activeTab === 'metrics' || activeTab === 'scraped' || activeTab === 'suggestions') {
         setIsLoadingPage(false); // the panel loads its own data
     } else {
         fetchClubs();
@@ -267,7 +268,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-6 md:p-12 relative transition-colors duration-300">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         
         <header className="flex justify-between items-center mb-8">
             <div>
@@ -304,82 +305,33 @@ export default function AdminDashboard() {
             </div>
         )}
 
-        {/* --- TABS --- */}
-        <div className="flex gap-4 border-b border-gray-200 dark:border-gray-800 mb-6 overflow-x-auto transition-colors">
-            {/* Club Tabs */}
-            {[
-                { id: 'pending', icon: Clock, label: t("Pending Review"), color: 'orange' },
-                { id: 'verified', icon: CheckCircle2, label: t("Active Clubs"), color: 'green' },
-                { id: 'blocked', icon: Ban, label: t("Blocked"), color: 'red' },
-            ].map((tab) => (
-                <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id as any)}
-                    className={`pb-3 px-4 text-sm font-bold flex items-center gap-2 transition-colors border-b-2 whitespace-nowrap ${
-                        activeTab === tab.id
-                        ? `border-${tab.color}-500 text-${tab.color}-600 dark:text-${tab.color}-400` 
-                        : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                    }`}
-                >
-                    <tab.icon className="w-4 h-4" />
-                    {tab.label}
-                </button>
+        <div className="flex flex-col md:flex-row items-start gap-6">
+          <nav aria-label={t("Admin Panel")} className="w-full md:w-56 md:shrink-0 md:sticky md:top-24 flex flex-col gap-1 rounded-2xl border border-gray-200 dark:border-gray-800 vibrant:border-purple-200 bg-white dark:bg-gray-900 vibrant:bg-white/80 p-2 shadow-sm">
+            {([
+              { id: 'metrics', icon: BarChart3, label: t('Metrics') },
+              { id: 'pending', icon: Clock, label: t('Pending Review') },
+              { id: 'verified', icon: CheckCircle2, label: t('Active Clubs') },
+              { id: 'blocked', icon: Ban, label: t('Blocked') },
+              { id: 'contacts', icon: Mail, label: t('Messages') },
+              { id: 'subscribers', icon: Mail, label: t('Subscribers') },
+              { id: 'suggestions', icon: CheckCircle2, label: t('User suggestions'), count: suggestionsPending },
+              { id: 'scraped', icon: Instagram, label: t('Scraped Events'), count: scrapedPending },
+            ] as const).map(tab => (
+              <button key={tab.id} type="button" onClick={() => setActiveTab(tab.id)} aria-current={activeTab === tab.id ? 'page' : undefined}
+                className={`w-full flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold transition-colors ${activeTab === tab.id
+                  ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 vibrant:bg-purple-100 vibrant:text-purple-800'
+                  : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800 vibrant:text-purple-600 vibrant:hover:bg-purple-50'}`}>
+                <tab.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span className="flex-1">{tab.label}</span>
+                {'count' in tab && !!tab.count && <span className="shrink-0 rounded-full bg-blue-100 dark:bg-blue-900/40 vibrant:bg-purple-200 px-2 py-0.5 text-xs text-blue-700 dark:text-blue-300 vibrant:text-purple-800">{tab.count}</span>}
+              </button>
             ))}
-
-            {/* Messages Tab */}
-            <button
-                onClick={() => setActiveTab('contacts')}
-                className={`pb-3 px-4 text-sm font-bold flex items-center gap-2 transition-colors border-b-2 whitespace-nowrap ${
-                    activeTab === 'contacts'
-                    ? 'border-blue-600 text-blue-700 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                }`}
-            >
-                <Mail className="w-4 h-4" />
-                {t("Messages")}</button>
-
-            {/* Subscribers Tab */}
-            <button
-                onClick={() => setActiveTab('subscribers')}
-                className={`pb-3 px-4 text-sm font-bold flex items-center gap-2 transition-colors border-b-2 whitespace-nowrap ${
-                    activeTab === 'subscribers'
-                    ? 'border-purple-600 text-purple-700 dark:text-purple-400'
-                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                }`}
-            >
-                <Mail className="w-4 h-4" />
-                {t("Subscribers")}</button>
-
-            {/* Scraped Events Tab */}
-            <button onClick={() => setActiveTab('suggestions')} className={`pb-3 px-4 text-sm font-bold flex items-center gap-2 border-b-2 whitespace-nowrap ${activeTab === 'suggestions' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500'}`}>
-                {t('User suggestions')}
-                {!!suggestionsPending && (
-                    <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                        {suggestionsPending}
-                    </span>
-                )}
-            </button>
-            <button
-                onClick={() => setActiveTab('scraped')}
-                className={`pb-3 px-4 text-sm font-bold flex items-center gap-2 transition-colors border-b-2 whitespace-nowrap ${
-                    activeTab === 'scraped'
-                    ? 'border-pink-600 text-pink-700 dark:text-pink-400'
-                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                }`}
-            >
-                <Instagram className="w-4 h-4" />
-                {t("Scraped Events")}{!!scrapedPending && (
-                    <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400">
-                        {scrapedPending}
-                    </span>
-                )}
-            </button>
-        </div>
+          </nav>
 
         {/* --- CONTENT AREA --- */}
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden transition-colors">
+        <div className="w-full min-w-0 flex-1 bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden transition-colors">
             
-            {activeTab === 'suggestions' ? <UserSuggestionsPanel onPendingCountChange={setSuggestionsPending} /> : activeTab === 'scraped' ? (
+            {activeTab === 'metrics' ? <AdminMetricsPanel /> : activeTab === 'suggestions' ? <UserSuggestionsPanel onPendingCountChange={setSuggestionsPending} /> : activeTab === 'scraped' ? (
                 <ScrapedEventsPanel onPendingCountChange={setScrapedPending} />
             ) : isLoadingPage ? (
                 <div className="p-12 text-center text-gray-400 dark:text-gray-500 flex flex-col items-center gap-2">
@@ -590,6 +542,7 @@ export default function AdminDashboard() {
                 )}
                 </>
             )}
+        </div>
         </div>
       </div>
 

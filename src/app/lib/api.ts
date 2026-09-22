@@ -150,34 +150,36 @@ const getBaseUrl = () => {
 };
 
 /**
- * Simulates an API call to fetch all events for a given week.
- * @param weekStartDate - The Date object for the Monday of the week.
+ * Fetches every page of events for the week containing currentDate.
  */
 export const fetchEventsForWeek = async (currentDate: Date): Promise<IEvent[]|null> => {
-  console.log(`Fetching events for the week`);
-  const date_str = formatDateToLocalISO(currentDate)
-  let BASE_URL = getBaseUrl()
-  let functionURL = `${BASE_URL}/api/proxy/events/weekly?date=${date_str}`;
-  //let functionURL = URL + `events/weekly?date=${date_str}`
-  
-  let data;
-  try {
-    const response = await fetch(functionURL, {
-      method:"GET", 
-      //body: JSON.stringify({"day": day, "month": month, "year": year}),
-      headers: {"Content-Type": "application/json"},
-      next: { revalidate: 60 }
-    })
-    if (response.ok){
-      let raw_data = await response.json()
-      data = (raw_data["data"] as any[])?.map(normalizeEvent) ?? [];
-      console.log(data)
-      console.log(typeof(data))
-      return data;
+  const params = new URLSearchParams({
+    date: formatDateToLocalISO(currentDate),
+    page_size: "100",
+  });
+  const events: IEvent[] = [];
 
-    } else {
-      throw new Error("Failed to fetch")
-    }
+  try {
+    let page = 1;
+    let totalPages = 1;
+    do {
+      params.set("page", String(page));
+      const response = await fetch(`${getBaseUrl()}/api/proxy/events/weekly?${params}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        next: { revalidate: 60 },
+      });
+      if (!response.ok) throw new Error("Failed to fetch weekly events");
+
+      const result: Omit<PaginatedResponse<IEvent>, "pagination"> & {
+        pagination?: PaginatedResponse<IEvent>["pagination"] | null;
+      } = await response.json();
+      events.push(...(result.data ?? []).map(normalizeEvent));
+      totalPages = result.pagination?.totalPages ?? 1;
+      page += 1;
+    } while (page <= totalPages);
+
+    return events;
   } catch (error) {
     console.error("error", error)
     return null
@@ -713,6 +715,32 @@ export async function fetchAnnouncementsByClubId(clubId: string): Promise<IAnnou
 // ============================================
 
 export async function fetchEvents(filters?: IEventFilters): Promise<PaginatedResponse<IEvent>> {
+  return fetchEventPage("events", filters);
+}
+
+export async function fetchLikedEvents(filters?: IEventFilters): Promise<PaginatedResponse<IEvent>> {
+  return fetchEventPage("events/liked", { ...filters, sort_order: "desc" });
+}
+
+export async function translateEventDescription(eventId: string, targetLanguage: 'en' | 'fr', signal?: AbortSignal): Promise<string> {
+  const response = await fetch(`${getBaseUrl()}/api/proxy/events/${encodeURIComponent(eventId)}/translation`, {
+    method: "POST",
+    credentials: "same-origin",
+    cache: "no-store",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ targetLanguage }),
+    signal,
+  });
+  if (!response.ok) throw new Error("Failed to translate event description");
+  const result = await response.json();
+  if (result.success !== true || result.data?.targetLanguage !== targetLanguage ||
+      typeof result.data?.description !== "string" || !result.data.description.trim()) {
+    throw new Error("Invalid translation response");
+  }
+  return result.data.description;
+}
+
+async function fetchEventPage(path: string, filters?: IEventFilters): Promise<PaginatedResponse<IEvent>> {
   const BASE_URL = getBaseUrl();
   const params = new URLSearchParams();
 
@@ -728,11 +756,15 @@ export async function fetchEvents(filters?: IEventFilters): Promise<PaginatedRes
 
   const query = params.toString() ? `?${params.toString()}` : "";
 
-  const res = await fetch(`${BASE_URL}/api/proxy/events${query}`, { cache: "no-store" });
+  const res = await fetch(`${BASE_URL}/api/proxy/${path}${query}`, {
+    cache: "no-store",
+    credentials: "same-origin",
+  });
 
   if (!res.ok) throw new Error("Failed to fetch events");
 
   const json = await res.json();
+  if (json.success === false) throw new Error("Failed to fetch events");
   return {
     ...json,
     data: (json.data as any[])?.map(normalizeEvent) ?? [],

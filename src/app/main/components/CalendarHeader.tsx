@@ -26,28 +26,32 @@ export function CalendarHeader({
     return (
         <header className="flex flex-col gap-2 md:flex-row md:gap-0 items-center justify-between p-4 bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm shadow-md border-b border-gray-300 dark:border-gray-800 vibrant:border-purple-200 transition-colors">
             {/* View Toggle */}
-            <div className="order-2 md:order-none flex items-center bg-gray-100 dark:bg-gray-800 vibrant:bg-purple-100 rounded-lg p-1 transition-colors">
+            <div className="order-2 md:order-none flex items-center gap-1 border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-gray-950 vibrant:border-purple-300 vibrant:bg-purple-100 rounded-xl p-1 shadow-sm transition-colors">
                 <button
                     onClick={viewMode !== "grid" ? onToggleView : undefined}
                     aria-label={t("Grid view")}
-                    className={`p-1.5 rounded-md transition-all ${
+                    aria-pressed={viewMode === "grid"}
+                    className={`flex items-center justify-center p-1.5 md:min-h-9 md:gap-1.5 md:px-2.5 rounded-lg text-xs font-semibold cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950 vibrant:focus-visible:ring-purple-500 transition-colors ${
                         viewMode === "grid"
-                            ? "bg-white dark:bg-gray-700 vibrant:bg-white text-blue-600 dark:text-blue-400 vibrant:text-purple-600 shadow-sm"
-                            : "text-gray-400 dark:text-gray-500 vibrant:text-purple-400 hover:text-gray-600 dark:hover:text-gray-300 vibrant:hover:text-purple-600"
+                            ? "bg-blue-600 text-white dark:bg-blue-500 vibrant:bg-purple-600 shadow-sm"
+                            : "text-blue-800 dark:text-blue-200 vibrant:text-purple-800 hover:bg-blue-100 dark:hover:bg-gray-800 vibrant:hover:bg-purple-200"
                     }`}
                 >
-                    <LayoutGrid className="w-4 h-4" />
+                    <LayoutGrid className="w-4 h-4 shrink-0" aria-hidden="true" />
+                    <span className="hidden md:inline">{t("Grid view")}</span>
                 </button>
                 <button
                     onClick={viewMode !== "list" ? onToggleView : undefined}
                     aria-label={t("List view")}
-                    className={`p-1.5 rounded-md transition-all ${
+                    aria-pressed={viewMode === "list"}
+                    className={`flex items-center justify-center p-1.5 md:min-h-9 md:gap-1.5 md:px-2.5 rounded-lg text-xs font-semibold cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950 vibrant:focus-visible:ring-purple-500 transition-colors ${
                         viewMode === "list"
-                            ? "bg-white dark:bg-gray-700 vibrant:bg-white text-blue-600 dark:text-blue-400 vibrant:text-purple-600 shadow-sm"
-                            : "text-gray-400 dark:text-gray-500 vibrant:text-purple-400 hover:text-gray-600 dark:hover:text-gray-300 vibrant:hover:text-purple-600"
+                            ? "bg-blue-600 text-white dark:bg-blue-500 vibrant:bg-purple-600 shadow-sm"
+                            : "text-blue-800 dark:text-blue-200 vibrant:text-purple-800 hover:bg-blue-100 dark:hover:bg-gray-800 vibrant:hover:bg-purple-200"
                     }`}
                 >
-                    <List className="w-4 h-4" />
+                    <List className="w-4 h-4 shrink-0" aria-hidden="true" />
+                    <span className="hidden md:inline">{t("List view")}</span>
                 </button>
             </div>
 

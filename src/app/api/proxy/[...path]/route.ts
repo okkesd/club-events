@@ -61,6 +61,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   // Now you can safely use .join()
   const pathString = path.join("/");
+  const responseHeaders = pathString === "events/liked"
+    ? { "Cache-Control": "private, no-store" }
+    : undefined;
   //console.log(params)
   //const pathString = params.path.join("/");
 
@@ -132,10 +135,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const data = await res.json();
     
     // Pass along the status code from Python (e.g., 404, 200, 500)
-    return NextResponse.json(data, { status: res.status });
+    return NextResponse.json(data, { status: res.status, headers: responseHeaders });
 
   } catch (error) {
-    return NextResponse.json({ error: "Proxy failed" }, { status: 500 });
+    return NextResponse.json({ error: "Proxy failed" }, { status: 500, headers: responseHeaders });
   }
 }
 

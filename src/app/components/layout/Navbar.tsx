@@ -5,7 +5,7 @@ import {useUI} from "@/i18n/useUI";
 import React, { useEffect, useState, useRef } from "react";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LogIn, CalendarDays, User, Users, Plus, Moon, Sun, LogOut, Palette, Megaphone, Menu, X, LayoutGrid } from 'lucide-react';
+import { LogIn, CalendarDays, User, Users, Plus, Moon, Sun, LogOut, Palette, Megaphone, Menu, X, LayoutGrid, Heart } from 'lucide-react';
 import { useAuth } from "@/app/context/AuthContext";
 import { resolveImageUrl } from "@/app/lib/api";
 import { useTheme } from "next-themes";
@@ -81,7 +81,7 @@ export default function Navbar() {
             className="flex shrink-0 items-center gap-1.5 text-base sm:gap-2 sm:text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-700 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600 transition-colors"
           >
             <CalendarDays className="w-6 h-6 text-blue-600 dark:text-blue-500 vibrant:text-purple-600" />
-            <span className="vibrant-gradient-text">Evenements</span>
+            <span className="vibrant-gradient-text">evenements</span>
             <span className="hidden sm:inline px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 vibrant:bg-purple-100 vibrant:text-purple-700 border border-blue-200 dark:border-blue-800 vibrant:border-purple-300">
               {t("Beta")}</span>
           </Link>
@@ -104,6 +104,10 @@ export default function Navbar() {
 
           {/* Right side actions */}
           <div className="flex shrink-0 items-center gap-1 sm:gap-3">
+            <Link href="/my-likes" title={t("My Likes")} aria-label={t("My Likes")} aria-current={pathname === "/my-likes" ? "page" : undefined}
+              className={`hidden lg:inline-flex items-center justify-center rounded-lg p-2 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 ${pathname === "/my-likes" ? "bg-rose-50 text-rose-600 dark:bg-rose-950 dark:text-rose-300 vibrant:bg-pink-100 vibrant:text-pink-700" : "text-gray-500 hover:bg-rose-50 hover:text-rose-600 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-rose-400 vibrant:text-purple-600 vibrant:hover:bg-pink-50"}`}>
+              <Heart className="h-5 w-5" aria-hidden="true" />
+            </Link>
 
             <div className="hidden lg:block">
               <LanguageSelector />
@@ -225,6 +229,9 @@ export default function Navbar() {
             <Link href="/clubs" className={navLinkClass("/clubs")}>
               <Users className="w-4 h-4" aria-hidden="true" />
               {t("Clubs")}</Link>
+            <Link href="/my-likes" className={navLinkClass("/my-likes")} aria-current={pathname === "/my-likes" ? "page" : undefined}>
+              <Heart className="w-4 h-4" aria-hidden="true" />
+              {t("My Likes")}</Link>
             <Link href="/announcements" className={navLinkClass("/announcements")}>
               <Megaphone className="w-4 h-4" />
               {t("Announcements")}</Link>

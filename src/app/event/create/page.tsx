@@ -11,6 +11,7 @@ import {
 import { createEvent, uploadImage, getAllClubs, resolveImageUrl } from '@/app/lib/api';
 import { ClubData } from '@/app/lib/types';
 import { useAuth } from '@/app/context/AuthContext';
+import { parseEventJson } from '@/app/lib/eventJson';
 
 type clubs_type = {
   id: string
@@ -34,6 +35,8 @@ function CreateEventSuspended() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({}); // errors for the form
   const [genericError, setGenericError] = useState<string | null>(null); // errors for generic case
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [jsonInput, setJsonInput] = useState('');
+  const [jsonStatus, setJsonStatus] = useState<'success' | 'error' | null>(null);
 
   const { user , isLoading } = useAuth()
  
@@ -130,6 +133,27 @@ function CreateEventSuspended() {
   }, [formData.startTime, formData.duration, formData.timeMode]);
 
   // --- HANDLERS ---
+  const handleJsonImport = () => {
+    try {
+      const imported = parseEventJson(jsonInput);
+      setFormData(prev => {
+        const next = { ...prev, ...imported };
+        if (next.timeMode === 'endTime') {
+          const minutes = (time: string) => {
+            const [h, m] = time.split(':').map(Number);
+            return h * 60 + m;
+          };
+          next.duration = (minutes(next.endTime) - minutes(next.startTime)) / 60;
+        }
+        return next;
+      });
+      setErrors({});
+      setJsonStatus('success');
+    } catch {
+      setJsonStatus('error');
+    }
+  };
+
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setIsUploading(true);
@@ -274,6 +298,25 @@ function CreateEventSuspended() {
           {/* ================= LEFT COLUMN: THE FORM ================= */}
           <div className="lg:col-span-7 space-y-6">
             <form onSubmit={handleSubmit} className="space-y-6">
+                <details className="bg-white dark:bg-gray-900 vibrant:bg-white/80 p-5 rounded-2xl border border-blue-200 dark:border-blue-900 vibrant:border-purple-200 shadow-sm">
+                    <summary className="cursor-pointer font-semibold text-blue-700 dark:text-blue-300 vibrant:text-purple-700">{t("Import JSON")}</summary>
+                    <div className="mt-4 space-y-3">
+                        <label htmlFor="event-json" className="block text-sm text-gray-600 dark:text-gray-300 vibrant:text-purple-700">{t("Paste event JSON to fill the form. Review the details before creating the event.")}</label>
+                        <textarea
+                            id="event-json"
+                            rows={6}
+                            value={jsonInput}
+                            onChange={e => { setJsonInput(e.target.value); setJsonStatus(null); }}
+                            spellCheck={false}
+                            placeholder={'{"kind":"event","title":"Meeting","date":"2026-09-21T18:30:00","location":"I107"}'}
+                            className="w-full rounded-xl border border-gray-300 dark:border-gray-700 vibrant:border-purple-200 bg-gray-50 dark:bg-gray-950 vibrant:bg-white p-3 font-mono text-sm text-gray-900 dark:text-white vibrant:text-purple-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <button type="button" onClick={handleJsonImport} disabled={!jsonInput.trim()} className="rounded-lg bg-blue-600 vibrant:bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 vibrant:hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed">{t("Fill form from JSON")}</button>
+                        {jsonStatus && <p role={jsonStatus === 'error' ? 'alert' : 'status'} className={`text-sm ${jsonStatus === 'error' ? 'text-red-600 dark:text-red-400' : 'text-green-700 dark:text-green-400'}`}>
+                            {jsonStatus === 'error' ? t("Invalid event JSON. Check the format and field values.") : t("Event details imported. Review the form before publishing.")}
+                        </p>}
+                    </div>
+                </details>
                 
                 {/* SECTION 1: BASICS */}
                 <div className="bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm p-6 rounded-2xl border border-gray-200 dark:border-gray-800 vibrant:border-purple-200 shadow-sm space-y-6 transition-colors">

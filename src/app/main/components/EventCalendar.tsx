@@ -11,7 +11,7 @@ import { CalendarListView } from "./CalendarListView";
 import { ErrorState } from "./ErrorState";
 import { Loader2 } from "lucide-react";
 import { useMediaQuery } from "@/app/lib/hooks/useMediaQuery";
-import { CALENDAR_START_HOUR, CALENDAR_END_HOUR, CALENDAR_MAX_END_HOUR } from "@/app/lib/timeUtils";
+import { getCalendarStartHour, CALENDAR_END_HOUR, CALENDAR_MAX_END_HOUR } from "@/app/lib/timeUtils";
 
 const DESKTOP_VIEW_STORAGE_KEY = "calendar-desktop-view";
 
@@ -23,7 +23,7 @@ export default function EventCalendar() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<any>(null);
 
-    // Mobile defaults to list; desktop restores the user's saved view.
+    // Default to list on all screens; desktop restores the user's saved view.
     const isDesktop = useMediaQuery("(min-width: 768px)");
     const [viewMode, setViewMode] = useState<"grid" | "list">("list");
     const hasUserToggled = useRef(false);
@@ -38,10 +38,10 @@ export default function EventCalendar() {
                         return;
                     }
                 } catch {
-                    // Storage can be unavailable; keep the responsive default.
+                    // Storage can be unavailable; keep the list default.
                 }
             }
-            setViewMode(isDesktop ? "grid" : "list");
+            setViewMode("list");
         }
     }, [isDesktop]);
 
@@ -59,11 +59,12 @@ export default function EventCalendar() {
     };
 
     const weekDays = useMemo(() => getWeekDays(currentDate), [currentDate]);
+    const calendarStartHour = getCalendarStartHour(events);
     const calendarEndHour = events.reduce((endHour, event) => {
         const [hours, minutes] = event.startTime.split(":").map(Number);
         const start = hours + minutes / 60;
         const end = start + event.duration;
-        return start >= CALENDAR_START_HOUR && Number.isFinite(end)
+        return start >= calendarStartHour && Number.isFinite(end)
             ? Math.min(CALENDAR_MAX_END_HOUR, Math.max(endHour, Math.ceil(end)))
             : endHour;
     }, CALENDAR_END_HOUR);
@@ -141,13 +142,14 @@ export default function EventCalendar() {
                 ) : viewMode === "grid" ? (
                     // Grid View (original 7-column calendar)
                     <div className="overflow-x-auto">
-                        <div className="grid grid-cols-7 min-w-[1000px] divide-x divide-slate-200 dark:divide-gray-800 vibrant:divide-purple-200">
+                        <div className="grid grid-cols-7 min-w-[1000px] divide-x divide-slate-300 dark:divide-gray-700 vibrant:divide-purple-300">
                             {weekDays.map((day, index) => (
                                 <DayColumn
                                     key={day.toISOString()}
                                     day={day}
                                     events={getEventsForDay(day)}
                                     isFirstDay={index === 0}
+                                    startHour={calendarStartHour}
                                     endHour={calendarEndHour}
                                 />
                             ))}

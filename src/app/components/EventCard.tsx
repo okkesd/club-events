@@ -18,6 +18,7 @@ export function EventCard({
     columnIndex = 0, 
     totalColumns = 1, 
     colSpan = 1,
+    startHour = CALENDAR_START_HOUR,
     endHour,
 }: { 
     event: IEvent, 
@@ -25,13 +26,14 @@ export function EventCard({
     columnIndex?: number, 
     totalColumns?: number, 
     colSpan?: number,
+    startHour?: number,
     endHour?: number,
 }) {
     // 1. Calculate numerical times
     const start = parseTime(event.startTime);
     
     // 2. Calculate Absolute Vertical Positioning (Top and Height)
-    const topPositionRem = (start - CALENDAR_START_HOUR) * ROW_HEIGHT_REM;
+    const topPositionRem = (start - startHour) * ROW_HEIGHT_REM;
     const visibleDuration = endHour === undefined
         ? event.duration
         : Math.max(0, Math.min(event.duration, endHour - start));

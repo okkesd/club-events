@@ -27,6 +27,8 @@ export default function EventCalendar() {
     const isDesktop = useMediaQuery("(min-width: 768px)");
     const [viewMode, setViewMode] = useState<"grid" | "list">("list");
     const hasUserToggled = useRef(false);
+    const calendarRef = useRef<HTMLDivElement>(null);
+    const hasHandledInitialScroll = useRef(false);
 
     useEffect(() => {
         if (!hasUserToggled.current) {
@@ -89,6 +91,29 @@ export default function EventCalendar() {
             });
     }, [currentDate]);
 
+    useEffect(() => {
+        if (isLoading || error || hasHandledInitialScroll.current) return;
+
+        const frame = requestAnimationFrame(() => {
+            hasHandledInitialScroll.current = true;
+            if (viewMode !== "list") return;
+
+            const today = calendarRef.current?.querySelector<HTMLElement>('[data-today="true"]');
+            if (!today) return;
+
+            const top = today.getBoundingClientRect().top;
+            if (top + 40 <= window.innerHeight) return;
+
+            const navBottom = document.querySelector("nav")?.getBoundingClientRect().bottom ?? 0;
+            window.scrollTo({
+                top: window.scrollY + top - Math.max(0, navBottom) - 16,
+                behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+            });
+        });
+
+        return () => cancelAnimationFrame(frame);
+    }, [isLoading, error, viewMode]);
+
     // --- Event Handlers ---
     const goToPreviousWeek = () => {
         const newDate = new Date(currentDate);
@@ -122,7 +147,7 @@ export default function EventCalendar() {
     if (error) return <ErrorState message={error} retry={() => setCurrentDate(new Date(currentDate))} />;
 
     return (
-        <div className="flex flex-col w-full bg-white dark:bg-gray-950 vibrant:bg-transparent text-slate-800 dark:text-gray-100 vibrant:text-indigo-950 transition-colors duration-300">
+        <div ref={calendarRef} className="flex flex-col w-full bg-white dark:bg-gray-950 vibrant:bg-transparent text-slate-800 dark:text-gray-100 vibrant:text-indigo-950 transition-colors duration-300">
             {/* Header Section */}
             <CalendarHeader
                 weekHeader={formatWeekHeader(weekDays, false, locale)}

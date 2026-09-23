@@ -23,7 +23,7 @@ export function ListViewDay({ day, events }: ListViewDayProps) {
     const monthDay = day.toLocaleDateString(locale, { month: "short", day: "numeric" });
 
     return (
-        <div>
+        <div data-today={isToday || undefined}>
             {/* Day Header */}
             <div className="flex items-center gap-3 mb-3">
                 <div

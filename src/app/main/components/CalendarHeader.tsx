@@ -24,14 +24,14 @@ export function CalendarHeader({
 }: CalendarHeaderProps) {
   const {t} = useUI();
     return (
-        <header className="flex flex-col gap-2 md:flex-row md:gap-0 items-center justify-between p-4 bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm shadow-md border-b border-gray-300 dark:border-gray-800 vibrant:border-purple-200 transition-colors">
+        <header className="flex flex-col gap-1 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:gap-0 items-center px-4 py-2 bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm shadow-md border-b border-gray-300 dark:border-gray-800 vibrant:border-purple-200 transition-colors">
             {/* View Toggle */}
-            <div className="order-2 md:order-none flex items-center gap-1 border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-gray-950 vibrant:border-purple-300 vibrant:bg-purple-100 rounded-xl p-1 shadow-sm transition-colors">
+            <div className="order-2 md:order-none md:col-start-1 md:row-start-1 md:justify-self-start flex items-center gap-1 border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-gray-950 vibrant:border-purple-300 vibrant:bg-purple-100 rounded-xl p-1 shadow-sm transition-colors">
                 <button
                     onClick={viewMode !== "grid" ? onToggleView : undefined}
                     aria-label={t("Grid view")}
                     aria-pressed={viewMode === "grid"}
-                    className={`flex items-center justify-center p-1.5 md:min-h-9 md:gap-1.5 md:px-2.5 rounded-lg text-xs font-semibold cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950 vibrant:focus-visible:ring-purple-500 transition-colors ${
+                    className={`flex items-center justify-center p-1.5 md:min-h-8 md:gap-1.5 md:px-2.5 rounded-lg text-xs font-semibold cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950 vibrant:focus-visible:ring-purple-500 transition-colors ${
                         viewMode === "grid"
                             ? "bg-blue-600 text-white dark:bg-blue-500 vibrant:bg-purple-600 shadow-sm"
                             : "text-blue-800 dark:text-blue-200 vibrant:text-purple-800 hover:bg-blue-100 dark:hover:bg-gray-800 vibrant:hover:bg-purple-200"
@@ -44,7 +44,7 @@ export function CalendarHeader({
                     onClick={viewMode !== "list" ? onToggleView : undefined}
                     aria-label={t("List view")}
                     aria-pressed={viewMode === "list"}
-                    className={`flex items-center justify-center p-1.5 md:min-h-9 md:gap-1.5 md:px-2.5 rounded-lg text-xs font-semibold cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950 vibrant:focus-visible:ring-purple-500 transition-colors ${
+                    className={`flex items-center justify-center p-1.5 md:min-h-8 md:gap-1.5 md:px-2.5 rounded-lg text-xs font-semibold cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950 vibrant:focus-visible:ring-purple-500 transition-colors ${
                         viewMode === "list"
                             ? "bg-blue-600 text-white dark:bg-blue-500 vibrant:bg-purple-600 shadow-sm"
                             : "text-blue-800 dark:text-blue-200 vibrant:text-purple-800 hover:bg-blue-100 dark:hover:bg-gray-800 vibrant:hover:bg-purple-200"
@@ -56,7 +56,7 @@ export function CalendarHeader({
             </div>
 
             {/* Week Navigation */}
-            <div className="order-1 md:order-none flex w-full md:w-auto items-center justify-between md:justify-normal md:space-x-2">
+            <div className="order-1 md:order-none md:col-start-2 md:row-start-1 flex w-full md:w-auto items-center justify-between md:justify-center md:gap-2">
                 <button
                     onClick={onPreviousWeek}
                     aria-label={t("Previous week")}
@@ -77,8 +77,6 @@ export function CalendarHeader({
                 </button>
             </div>
 
-            {/* Spacer for alignment */}
-            <div className="hidden md:block w-[72px]"></div>
         </header>
     );
 }

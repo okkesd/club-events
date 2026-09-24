@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Clock } from "lucide-react";
 import { CALENDAR_START_HOUR, calculateEndTime } from '@/app/lib/timeUtils';
 
-const ROW_HEIGHT_REM = 5; // Matches the parent container's row height
+const ROW_HEIGHT_REM = 4.5; // Matches the parent container's row height
 
 // Helper to parse time
 function parseTime(time: string): number {
@@ -38,8 +38,8 @@ export function EventCard({
         ? event.duration
         : Math.max(0, Math.min(event.duration, endHour - start));
     const heightRem = visibleDuration * ROW_HEIGHT_REM;
-    const isCompact = visibleDuration < 0.75;
-    const showDescription = visibleDuration >= 1.5 && Boolean(event.description);
+    const isCompact = heightRem < 3.75;
+    const showDescription = heightRem >= 7.5 && Boolean(event.description);
 
     // 3. Calculate Absolute Horizontal Positioning (Left and Width)
     const leftPercentage = (columnIndex / totalColumns) * 100;

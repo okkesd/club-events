@@ -9,7 +9,7 @@ import { getCalendarHourSlots, calculateEndTime } from '@/app/lib/timeUtils';
 import Link from 'next/link';
 import { Clock, X } from "lucide-react";
 
-const ROW_HEIGHT_REM = 5; // h-20 in tailwind is 5rem
+const ROW_HEIGHT_REM = 4.5; // Keep in sync with EventCard's row height.
 const MAX_VISIBLE_EVENTS = 3;
 
 interface DayColumnProps {
@@ -227,7 +227,7 @@ export function DayColumn({ day, events, isFirstDay, startHour, endHour }: DayCo
         <div className="flex flex-col flex-1 h-full min-w-0 bg-white dark:bg-gray-950 vibrant:bg-white/50 transition-colors">
             {/* Header */}
             <div className="p-2">
-                <div className="flex flex-col items-center justify-center py-4 border-b border-slate-200 dark:border-gray-800 vibrant:border-purple-200 mb-5 bg-white dark:bg-gray-900 vibrant:bg-white/80 shadow-lg rounded-md">
+                <div className="flex flex-col items-center justify-center py-3 border-b border-slate-200 dark:border-gray-800 vibrant:border-purple-200 mb-3 bg-white dark:bg-gray-900 vibrant:bg-white/80 shadow-lg rounded-md">
                     <span className="text-xs font-medium uppercase text-slate-500 dark:text-gray-400 vibrant:text-purple-500 mb-1">
                         {dayName}
                     </span>

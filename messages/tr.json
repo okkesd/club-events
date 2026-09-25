@@ -826,5 +826,7 @@
   "adminMetrics027": "En çok görüntülenen etkinlikler",
   "adminMetrics028": "{views} görüntülenme · {likes} beğeni",
   "adminMetrics029": "Bu dönemde hareket yok.",
-  "adminMetrics030": "Güncellenme: {time}"
+  "adminMetrics030": "Güncellenme: {time}",
+  "siteVisitorsAllTime": "Benzersiz site ziyaretçileri (tüm zamanlar)",
+  "siteVisitorsCoverage": "Site ziyaretçileri {date} tarihinden beri sayılıyor. Her tarayıcı bir kez sayılır; önceki ziyaretler dahil değildir."
 }

@@ -826,5 +826,7 @@
   "Most viewed events": "adminMetrics027",
   "{views} views · {likes} likes": "adminMetrics028",
   "No activity in this period.": "adminMetrics029",
-  "Updated at {time}": "adminMetrics030"
+  "Updated at {time}": "adminMetrics030",
+  "Unique site visitors (all time)": "siteVisitorsAllTime",
+  "Site visitors counted since {date}. Each browser counts once; earlier visits are not included.": "siteVisitorsCoverage"
 }

@@ -35,6 +35,6 @@ export const config = {
   matcher: [
     // Match page routes only — exclude static assets and internal API calls
     // (SSR fetch to /api/proxy already carries x-visitor-id explicitly)
-    "/((?!_next/static|_next/image|favicon.ico|api/).*)",
+    "/((?!_next/static|_next/image|favicon.ico|icon.svg|robots.txt|sitemap.xml|opengraph-image|api/).*)",
   ],
 };

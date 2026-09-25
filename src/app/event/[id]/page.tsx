@@ -1,4 +1,5 @@
 import React from 'react';
+import { pageMetadata, eventStructuredData, jsonLd } from '@/app/lib/seo';
 import {getUI} from '@/i18n/server';
 import { Metadata } from 'next';
 import { fetchEventById, resolveImageUrl } from '@/app/lib/api';
@@ -16,31 +17,14 @@ export async function generateMetadata({ params }: EventPageProps): Promise<Meta
   const event = await fetchEventById(id);
 
   if (!event) {
-    return { title: t("Event Not Found") };
+    return { title: t("Event Not Found"), robots: { index: false, follow: false } };
   }
 
   const title = event.title;
   const description = event.description?.slice(0, 160) || t("Check out this event!");
   const imageUrl = event.coverImage ? resolveImageUrl(event.coverImage) : undefined;
 
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      type: 'article',
-      ...(imageUrl && {
-        images: [{ url: imageUrl, width: 1200, height: 630, alt: title }],
-      }),
-    },
-    twitter: {
-      card: imageUrl ? 'summary_large_image' : 'summary',
-      title,
-      description,
-      ...(imageUrl && { images: [imageUrl] }),
-    },
-  };
+  return pageMetadata(title, description, `/event/${encodeURIComponent(id)}`, imageUrl);
 }
 
 export default async function EventDetailPage({ params }: EventPageProps) {
@@ -55,5 +39,9 @@ export default async function EventDetailPage({ params }: EventPageProps) {
 
   if (!event) notFound();
 
-  return <EventDetailClient event={event} />;
+  const image = event.coverImage ? resolveImageUrl(event.coverImage) : undefined;
+  return <>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(eventStructuredData(event, image)) }} />
+    <EventDetailClient event={event} />
+  </>;
 }

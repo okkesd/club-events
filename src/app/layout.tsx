@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import {NextIntlClientProvider} from "next-intl";
 import {getLocale} from "next-intl/server";
-import {getUI} from "@/i18n/server";
+import { absoluteUrl, siteName, siteUrl } from "@/app/lib/seo";
 import { Geist, Geist_Mono, Nunito } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/app/components/layout/Navbar";
 import Footer from "@/app/components/layout/Footer";
 import { AuthProvider } from "@/app/context/AuthContext";
-import DevAuthToolbar from "@/app/components/DevAuthToolbar";
 import { ThemeProvider } from "@/app/providers/ThemeProvider";
+import ThemeFavicon from "@/app/components/ThemeFavicon";
+import SiteVisitTracker from "@/app/components/SiteVisitTracker";
 import CookieBanner from "@/app/components/layout/CookieBanner";
 
 const geistSans = Geist({
@@ -29,8 +30,20 @@ const nunito = Nunito({
 
 // 2. I updated the metadata to be more descriptive
 export async function generateMetadata(): Promise<Metadata> {
-  const {t} = await getUI();
-  return {title: "Evenements", description: t("Find and manage all your club events in one place.")};
+  const locale = await getLocale();
+  const descriptions: Record<string, string> = {
+    tr: "Galatasaray Üniversitesi kulüplerini, kampüs etkinliklerini ve duyurularını keşfedin. Evenements ile etkinlik takvimini takip edin.",
+    en: "Discover Galatasaray University clubs, campus events and announcements. Follow the event calendar with Evenements.",
+    fr: "Découvrez les clubs, événements et annonces de l’Université Galatasaray. Retrouvez le calendrier des événements sur Evenements.",
+  };
+  const description = descriptions[locale] || descriptions.tr;
+  return {
+    metadataBase: new URL(siteUrl),
+    title: { default: 'Evenements | Galatasaray Üniversitesi Etkinlikleri', template: '%s | Evenements' },
+    description,
+    openGraph: { type: 'website', siteName, title: siteName, description, images: [{ url: absoluteUrl('/opengraph-image'), width: 1200, height: 630 }] },
+    twitter: { card: 'summary_large_image', title: siteName, description, images: [absoluteUrl('/opengraph-image')] },
+  };
 }
 
 export default async function RootLayout({
@@ -57,6 +70,8 @@ export default async function RootLayout({
           
           {/* 5. The Navbar is added here, at the top */}
           
+          <ThemeFavicon />
+          <SiteVisitTracker />
           <Navbar /> 
           {/* 6. The <main> tag holds the page content and fills the remaining space */}
           <main className="flex-grow flex flex-col h-full">

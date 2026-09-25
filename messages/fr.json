@@ -826,5 +826,7 @@
   "adminMetrics027": "Événements les plus consultés",
   "adminMetrics028": "{views} vues · {likes} favoris",
   "adminMetrics029": "Aucune activité pendant cette période.",
-  "adminMetrics030": "Mise à jour : {time}"
+  "adminMetrics030": "Mise à jour : {time}",
+  "siteVisitorsAllTime": "Visiteurs uniques du site (depuis le début)",
+  "siteVisitorsCoverage": "Visiteurs comptés depuis le {date}. Chaque navigateur compte une fois ; les visites antérieures sont exclues."
 }

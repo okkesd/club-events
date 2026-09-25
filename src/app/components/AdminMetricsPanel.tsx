@@ -14,8 +14,6 @@ export default function AdminMetricsPanel() {
   const [revision, setRevision] = useState(0);
   useEffect(() => {
     const controller = new AbortController();
-    setLoading(true);
-    setError(false);
     fetchAdminMetrics(controller.signal).then(result => {
       if (!controller.signal.aborted) setData(result);
     }).catch(() => {
@@ -43,7 +41,7 @@ export default function AdminMetricsPanel() {
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t('Last 7 complete days, compared with the previous 7 days.')}</p>
         {data && <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{date(data.period.from)} – {date(data.period.to)} · {data.period.timezone}</p>}
       </div>
-      <button type="button" onClick={() => setRevision(value => value + 1)} disabled={loading} className="flex items-center gap-2 rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm disabled:opacity-50">
+      <button type="button" onClick={() => { setLoading(true); setError(false); setRevision(value => value + 1); }} disabled={loading} className="flex items-center gap-2 rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm disabled:opacity-50">
         <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} aria-hidden="true" />{t('Refresh metrics')}
       </button>
     </div>
@@ -64,12 +62,13 @@ export default function AdminMetricsPanel() {
         <h3 className="font-semibold mb-3">{t('Current totals and queues')}</h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {([
-            ['activeSubscribers', 'Active subscribers'], ['pendingClubs', 'Pending clubs'],
+            ['uniqueSiteVisitors', 'Unique site visitors (all time)'], ['activeSubscribers', 'Active subscribers'], ['pendingClubs', 'Pending clubs'],
             ['pendingSuggestions', 'Pending suggestions'], ['pendingScrapedEvents', 'Pending scraped events'],
           ] as const).map(([key, label]) => <div key={key} className={panel}><p className="text-sm text-gray-500 dark:text-gray-400">{t(label)}</p><p className="mt-2 text-2xl font-bold tabular-nums">{number(data.totals[key])}</p></div>)}
         </div>
       </div>
       <div className="overflow-x-auto">
+        {data.siteVisitorsTrackingStartedAt && <p className="mb-4 text-xs text-gray-500 dark:text-gray-400">{t('Site visitors counted since {date}. Each browser counts once; earlier visits are not included.', { date: new Date(data.siteVisitorsTrackingStartedAt).toLocaleDateString(locale, { timeZone: data.period.timezone }) })}</p>}
         <h3 className="font-semibold mb-3">{t('Daily activity')}</h3>
         <table className="w-full text-sm text-left whitespace-nowrap">
           <thead className="text-gray-500 dark:text-gray-400"><tr>{['Date', 'Published events', 'Event views', 'New likes', 'New subscribers'].map(label => <th key={label} className="px-3 py-2 font-medium">{t(label)}</th>)}</tr></thead>

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import type { IEvent } from './types';
 
 export const siteName = 'Evenements';
-export const siteUrl = new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://evenements.duckdns.org').origin;
+export const siteUrl = new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://evenements.com.tr').origin;
 export const absoluteUrl = (path: string) => new URL(path, siteUrl).toString();
 export const descriptionText = (value: string) => value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 160);
 

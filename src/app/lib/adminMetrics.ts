@@ -18,6 +18,7 @@ type MetricKey = typeof metricDefinitions[number][0];
 export interface AdminMetrics {
   period: { from: string; to: string; previousFrom: string; previousTo: string; timezone: string };
   generatedAt: string;
+  historyCoverage?: { startedAt: string | null; currentComplete: boolean; previousComplete: boolean };
   siteVisitorsTrackingStartedAt?: string | null;
   metrics: Record<MetricKey, { current: number | null; previous: number | null }>;
   totals: { uniqueSiteVisitors?: number; activeSubscribers: number | null; pendingClubs: number | null; pendingSuggestions: number | null; pendingScrapedEvents: number | null };

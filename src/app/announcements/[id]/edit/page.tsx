@@ -44,7 +44,7 @@ export default function EditAnnouncementPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 vibrant:bg-transparent flex items-center justify-center transition-colors">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500 vibrant:text-purple-500" />
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500 vibrant:text-campus-muted" />
       </div>
     );
   }
@@ -54,7 +54,7 @@ export default function EditAnnouncementPage() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 vibrant:bg-transparent flex flex-col items-center justify-center gap-4 transition-colors">
         <Megaphone className="w-12 h-12 text-gray-300 dark:text-gray-700" />
         <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t("Announcement not found")}</h2>
-        <Link href="/announcements" className="text-blue-600 dark:text-blue-400 vibrant:text-purple-600 font-semibold hover:underline">
+        <Link href="/announcements" className="text-blue-600 dark:text-blue-400 vibrant:text-campus-ink font-semibold hover:underline">
           {t("Back to Announcements")}</Link>
       </div>
     );
@@ -65,7 +65,7 @@ export default function EditAnnouncementPage() {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 vibrant:bg-transparent flex flex-col items-center justify-center gap-4 transition-colors">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t("Not authorized")}</h2>
-        <Link href="/announcements" className="text-blue-600 dark:text-blue-400 vibrant:text-purple-600 font-semibold hover:underline">
+        <Link href="/announcements" className="text-blue-600 dark:text-blue-400 vibrant:text-campus-ink font-semibold hover:underline">
           {t("Back to Announcements")}</Link>
       </div>
     );
@@ -76,13 +76,13 @@ export default function EditAnnouncementPage() {
       <div className="max-w-2xl mx-auto">
         <Link
           href={`/announcements/${announcement.id}`}
-          className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 vibrant:text-purple-600 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600 transition-colors mb-6"
+          className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 vibrant:text-campus-ink hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-campus-accent transition-colors mb-6"
         >
           <ChevronLeft className="w-4 h-4" />
           {t("Back to Announcement")}</Link>
 
-        <div className="bg-white dark:bg-gray-900 vibrant:bg-white/80 rounded-2xl border border-gray-200 dark:border-gray-800 vibrant:border-purple-200 shadow-sm p-6 md:p-8 transition-colors">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-6 transition-colors">
+        <div className="bg-white dark:bg-gray-900 vibrant:bg-white/80 rounded-2xl border border-gray-200 dark:border-gray-800 vibrant:border-campus-border shadow-sm p-6 md:p-8 transition-colors">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white vibrant:text-gray-900 mb-6 transition-colors">
             {t("Edit Announcement")}</h1>
           <AnnouncementForm
             initialData={{

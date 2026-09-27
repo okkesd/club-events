@@ -134,16 +134,16 @@ export default function EventsBrowsePage({ likedOnly = false }: { likedOnly?: bo
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 vibrant:bg-transparent pb-20 transition-colors duration-300">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 vibrant:border-purple-200 py-12 px-4 mb-8 transition-colors">
+      <div className="bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 vibrant:border-campus-border py-12 px-4 mb-8 transition-colors">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2.5 bg-blue-100 dark:bg-blue-900/30 vibrant:bg-purple-100 rounded-xl">
-              {likedOnly ? <Heart className="w-6 h-6 text-rose-600 dark:text-rose-400 vibrant:text-pink-600" /> : <CalendarDays className="w-6 h-6 text-blue-600 dark:text-blue-400 vibrant:text-purple-600" />}
+            <div className="p-2.5 bg-blue-100 dark:bg-blue-900/30 vibrant:bg-campus-soft rounded-xl">
+              {likedOnly ? <Heart className="w-6 h-6 text-rose-600 dark:text-rose-400 vibrant:text-campus-ink" /> : <CalendarDays className="w-6 h-6 text-blue-600 dark:text-blue-300 vibrant:text-campus-ink" />}
             </div>
-            <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white vibrant:text-purple-900 tracking-tight transition-colors">
+            <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white vibrant:text-gray-900 tracking-tight transition-colors">
               {likedOnly ? t("My Likes") : t("Browse Events")}</h1>
           </div>
-          <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-500 max-w-2xl transition-colors">
+          <p className="text-gray-500 dark:text-gray-300 vibrant:text-campus-muted max-w-2xl transition-colors">
             {likedOnly ? t("Events you liked.") : t("Discover upcoming events from all campus clubs.")}</p>
         </div>
       </div>
@@ -153,7 +153,7 @@ export default function EventsBrowsePage({ likedOnly = false }: { likedOnly?: bo
         <div className="mb-6 space-y-4">
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-400" />
             <input
               type="text"
               placeholder={t("Search events...")}
@@ -164,13 +164,13 @@ export default function EventsBrowsePage({ likedOnly = false }: { likedOnly?: bo
                 focus:ring-2 focus:ring-blue-200 focus:border-blue-500
                 dark:bg-gray-900 dark:border-gray-800 dark:text-white dark:placeholder-gray-400
                 dark:focus:ring-blue-900/50 dark:focus:border-blue-500
-                vibrant:bg-white/80 vibrant:border-purple-200 vibrant:focus:ring-purple-200 vibrant:focus:border-purple-500"
+                vibrant:bg-white/80 vibrant:border-campus-border vibrant:focus:ring-campus-border vibrant:focus:border-campus-accent"
             />
           </div>
 
           {/* Filter row */}
           <div className="flex flex-wrap items-center gap-3">
-            <Filter className="w-4 h-4 text-gray-400 dark:text-gray-500 vibrant:text-purple-400 shrink-0" />
+            <Filter className="w-4 h-4 text-gray-400 dark:text-gray-400 vibrant:text-campus-muted shrink-0" />
 
             {/* Location type */}
             {LOCATION_TYPES.map((lt) => (
@@ -179,8 +179,8 @@ export default function EventsBrowsePage({ likedOnly = false }: { likedOnly?: bo
                 onClick={() => { setLocationType(locationType === lt.value ? "" : lt.value); setPage(1); }}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   locationType === lt.value
-                    ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 vibrant:bg-purple-100 vibrant:text-purple-700 ring-2 ring-offset-1 ring-blue-400 dark:ring-blue-500 vibrant:ring-purple-400"
-                    : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 vibrant:bg-purple-50 vibrant:text-purple-400 hover:bg-gray-200 dark:hover:bg-gray-700 vibrant:hover:bg-purple-100"
+                    ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200 vibrant:bg-campus-soft vibrant:text-campus-ink ring-2 ring-offset-1 ring-blue-400 dark:ring-blue-500 vibrant:ring-campus-gold"
+                    : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-300 vibrant:bg-campus-surface vibrant:text-campus-muted hover:bg-gray-200 dark:hover:bg-gray-700 vibrant:hover:bg-campus-soft"
                 }`}
               >
                 <MapPin className="w-3 h-3 inline mr-1" />
@@ -188,7 +188,7 @@ export default function EventsBrowsePage({ likedOnly = false }: { likedOnly?: bo
               </button>
             ))}
 
-            <div className="h-5 w-px bg-gray-200 dark:bg-gray-700 vibrant:bg-purple-200 mx-1" />
+            <div className="h-5 w-px bg-gray-200 dark:bg-gray-700 vibrant:bg-campus-soft mx-1" />
 
             {/* Date range */}
             <div className="flex flex-wrap items-center gap-2 max-w-full">
@@ -200,7 +200,7 @@ export default function EventsBrowsePage({ likedOnly = false }: { likedOnly?: bo
                   setActivePreset("");
                   setPage(1);
                 }}
-                className="px-2 py-1.5 rounded-lg text-xs border border-gray-200 dark:border-gray-700 vibrant:border-purple-200 bg-white dark:bg-gray-900 vibrant:bg-white/80 text-gray-700 dark:text-gray-300 vibrant:text-purple-700 outline-none"
+                className="px-2 py-1.5 rounded-lg text-xs border border-gray-200 dark:border-gray-700 vibrant:border-campus-border bg-white dark:bg-gray-900 vibrant:bg-white/80 text-gray-700 dark:text-gray-200 vibrant:text-campus-ink outline-none"
                 title={t("From date")}
               />
               <span className="text-gray-400 text-xs">{t("to")}</span>
@@ -212,13 +212,13 @@ export default function EventsBrowsePage({ likedOnly = false }: { likedOnly?: bo
                   setActivePreset("");
                   setPage(1);
                 }}
-                className="px-2 py-1.5 rounded-lg text-xs border border-gray-200 dark:border-gray-700 vibrant:border-purple-200 bg-white dark:bg-gray-900 vibrant:bg-white/80 text-gray-700 dark:text-gray-300 vibrant:text-purple-700 outline-none"
+                className="px-2 py-1.5 rounded-lg text-xs border border-gray-200 dark:border-gray-700 vibrant:border-campus-border bg-white dark:bg-gray-900 vibrant:bg-white/80 text-gray-700 dark:text-gray-200 vibrant:text-campus-ink outline-none"
                 title={t("To date")}
               />
             </div>
 
             {/* Quick Presets */}
-  <div className="flex flex-wrap items-center gap-1.5 max-w-full sm:pl-4 sm:border-l border-gray-200 dark:border-gray-700 vibrant:border-purple-200">
+  <div className="flex flex-wrap items-center gap-1.5 max-w-full sm:pl-4 sm:border-l border-gray-200 dark:border-gray-700 vibrant:border-campus-border">
     {(likedOnly ? [
       { id: "upcoming", label: t("Upcoming") },
       { id: "past", label: t("Past") },
@@ -236,8 +236,8 @@ export default function EventsBrowsePage({ likedOnly = false }: { likedOnly?: bo
         aria-pressed={activePreset === preset.id}
         className={`px-2.5 py-1 text-xs font-bold rounded-md transition-all ${
           activePreset === preset.id
-            ? "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 vibrant:bg-purple-200 vibrant:text-purple-800 shadow-sm"
-            : "text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-300 vibrant:text-purple-500 vibrant:hover:bg-purple-100"
+            ? "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 vibrant:bg-campus-soft vibrant:text-campus-ink shadow-sm"
+            : "text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-200 vibrant:text-campus-muted vibrant:hover:bg-campus-soft"
         }`}
       >
         {preset.label}
@@ -260,9 +260,9 @@ export default function EventsBrowsePage({ likedOnly = false }: { likedOnly?: bo
             ))}
           </div>
         ) : loadError ? (
-          <div role="alert" className="py-16 text-center text-gray-700 dark:text-gray-300 vibrant:text-purple-800">
+          <div role="alert" className="py-16 text-center text-gray-700 dark:text-gray-200 vibrant:text-campus-ink">
             <p>{t("Could not load events. Please try again.")}</p>
-            <button onClick={() => setRetry(value => value + 1)} className="mt-4 rounded-lg bg-blue-600 vibrant:bg-purple-600 px-4 py-2 text-white">{t("Retry")}</button>
+            <button onClick={() => setRetry(value => value + 1)} className="mt-4 rounded-lg bg-blue-600 vibrant:bg-campus-accent px-4 py-2 text-white">{t("Retry")}</button>
           </div>
         ) : events.length > 0 ? (
           <>
@@ -277,11 +277,11 @@ export default function EventsBrowsePage({ likedOnly = false }: { likedOnly?: bo
           </>
         ) : (
           <div className="text-center py-20">
-            <div className="bg-gray-100 dark:bg-gray-800 vibrant:bg-purple-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors">
-              <CalendarDays className="w-8 h-8 text-gray-400 dark:text-gray-500 vibrant:text-purple-400" />
+            <div className="bg-gray-100 dark:bg-gray-800 vibrant:bg-campus-soft w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors">
+              <CalendarDays className="w-8 h-8 text-gray-400 dark:text-gray-400 vibrant:text-campus-muted" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors">{likedOnly ? t("No liked events found") : t("No events found")}</h3>
-            <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-400 mt-2 transition-colors">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-gray-900 transition-colors">{likedOnly ? t("No liked events found") : t("No events found")}</h3>
+            <p className="text-gray-500 dark:text-gray-300 vibrant:text-campus-muted mt-2 transition-colors">
               {likedOnly ? t("Like events on this device to see them here, or try another filter.") : hasFilters ? t("Try adjusting your filters.") : t("Check back soon for upcoming events.")}
             </p>
           </div>
@@ -306,7 +306,7 @@ function BrowseEventCard({ event }: { event: IEvent }) {
     <Link
       href={`/event/${event.id}`}
       className={`browse-event-card group block bg-white dark:bg-gray-900 vibrant:bg-white/80 rounded-2xl border overflow-hidden
-        border-gray-200 dark:border-gray-800 vibrant:border-purple-200
+        border-gray-200 dark:border-gray-800 vibrant:border-campus-border
         ${isPast ? "opacity-60" : ""}
       `}
     >
@@ -322,19 +322,19 @@ function BrowseEventCard({ event }: { event: IEvent }) {
           />
         </div>
       ) : (
-        <div className="w-full h-3 bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 vibrant:from-purple-500 vibrant:to-pink-500" />
+        <div className="w-full h-3 bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 vibrant:from-campus-accent vibrant:to-campus-accent" />
       )}
 
       <div className="p-5">
         {/* Date badge + location type */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <div className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800 vibrant:bg-purple-50 border border-gray-200 dark:border-gray-700 vibrant:border-purple-200 rounded-lg w-11 h-11 shrink-0 transition-colors">
+            <div className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800 vibrant:bg-campus-surface border border-gray-200 dark:border-gray-700 vibrant:border-campus-border rounded-lg w-11 h-11 shrink-0 transition-colors">
               <span className="text-[9px] font-bold text-red-500 dark:text-red-400 uppercase leading-none">{monthName}</span>
               <span className="text-sm font-extrabold text-gray-900 dark:text-white leading-none">{dayNumber}</span>
             </div>
             <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-purple-400 font-medium">
+              <p className="text-xs text-gray-500 dark:text-gray-300 vibrant:text-campus-muted font-medium">
                 <Clock className="w-3 h-3 inline mr-0.5" />
                 {event.startTime} - {event.endTime}
               </p>
@@ -350,12 +350,15 @@ function BrowseEventCard({ event }: { event: IEvent }) {
         </div>
 
         {/* Title */}
-        <h3 className="text-base font-bold text-gray-900 dark:text-white vibrant:text-purple-900 group-hover:text-blue-600 dark:group-hover:text-blue-400 vibrant:group-hover:text-pink-600 leading-snug mb-1.5 line-clamp-2 transition-colors">
+        <h3 className="text-base font-bold text-gray-900 dark:text-white vibrant:text-gray-900 group-hover:text-blue-600 dark:group-hover:text-blue-300 vibrant:group-hover:text-campus-accent leading-snug mb-1.5 line-clamp-2 transition-colors">
           {event.title}
         </h3>
 
         {/* Club name */}
-        <p className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-purple-400 mb-3 transition-colors">
+        {event.organizerInstagram && (
+          <p className="mb-1.5 truncate text-[15px] font-medium text-gray-600 dark:text-gray-200 vibrant:text-campus-ink">@{event.organizerInstagram}</p>
+        )}
+        <p className="text-xs text-gray-500 dark:text-gray-300 vibrant:text-campus-muted mb-3 transition-colors">
           {event.clubName} · {event.location}
         </p>
 
@@ -363,18 +366,18 @@ function BrowseEventCard({ event }: { event: IEvent }) {
         {event.tags && event.tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-3">
             {event.tags.slice(0, 3).map((tag) => (
-              <span key={tag} className="flex items-center gap-0.5 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 vibrant:bg-purple-50 vibrant:text-purple-500">
+              <span key={tag} className="flex items-center gap-0.5 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-300 vibrant:bg-campus-surface vibrant:text-campus-muted">
                 <TagIcon className="w-2.5 h-2.5" /> {tag}
               </span>
             ))}
             {event.tags.length > 3 && (
-              <span className="text-[10px] text-gray-400 dark:text-gray-500">+{event.tags.length - 3}</span>
+              <span className="text-[10px] text-gray-400 dark:text-gray-400">+{event.tags.length - 3}</span>
             )}
           </div>
         )}
 
         {/* Stats row */}
-        <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500 vibrant:text-purple-400">
+        <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-400 vibrant:text-campus-muted">
           <span className="flex items-center gap-1">
             <Heart className="w-3 h-3" /> {event.likes}
           </span>

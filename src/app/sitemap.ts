@@ -10,7 +10,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [events, clubs, announcements] = await Promise.all([
     sitemapItems('events'), sitemapItems('clubs'), sitemapItems('announcements'),
   ]);
-  const paths = ['/main', '/events', '/clubs', '/announcements', '/about-us', '/contact',
+  const paths = ['/main', '/events', '/clubs', '/announcements', '/about-us', '/team', '/contact',
     '/legal/privacy', '/legal/terms', '/legal/cookies',
     ...events.map(item => `/event/${encodeURIComponent(item.id)}`),
     ...clubs.map(item => `/club/${encodeURIComponent(item.id)}`),

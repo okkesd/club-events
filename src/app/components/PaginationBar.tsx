@@ -24,7 +24,7 @@ export default function PaginationBar({ pagination, onPageChange }: PaginationBa
       <button
         onClick={() => onPageChange(page - 1)}
         disabled={page <= 1}
-        className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 vibrant:border-purple-200 text-gray-600 dark:text-gray-400 vibrant:text-purple-600 hover:bg-gray-100 dark:hover:bg-gray-800 vibrant:hover:bg-purple-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 vibrant:border-campus-border text-gray-600 dark:text-gray-400 vibrant:text-campus-ink hover:bg-gray-100 dark:hover:bg-gray-800 vibrant:hover:bg-campus-soft disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         aria-label={t("Previous page")}
       >
         <ChevronLeft className="w-4 h-4" />
@@ -41,8 +41,8 @@ export default function PaginationBar({ pagination, onPageChange }: PaginationBa
             onClick={() => onPageChange(p as number)}
             className={`min-w-[36px] h-9 rounded-lg text-sm font-medium transition-colors ${
               p === page
-                ? "bg-blue-600 dark:bg-blue-600 vibrant:bg-purple-600 text-white shadow-sm"
-                : "border border-gray-200 dark:border-gray-700 vibrant:border-purple-200 text-gray-700 dark:text-gray-300 vibrant:text-purple-700 hover:bg-gray-100 dark:hover:bg-gray-800 vibrant:hover:bg-purple-100"
+                ? "bg-blue-600 dark:bg-blue-600 vibrant:bg-campus-accent text-white shadow-sm"
+                : "border border-gray-200 dark:border-gray-700 vibrant:border-campus-border text-gray-700 dark:text-gray-300 vibrant:text-campus-ink hover:bg-gray-100 dark:hover:bg-gray-800 vibrant:hover:bg-campus-soft"
             }`}
           >
             {p}
@@ -53,13 +53,13 @@ export default function PaginationBar({ pagination, onPageChange }: PaginationBa
       <button
         onClick={() => onPageChange(page + 1)}
         disabled={page >= totalPages}
-        className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 vibrant:border-purple-200 text-gray-600 dark:text-gray-400 vibrant:text-purple-600 hover:bg-gray-100 dark:hover:bg-gray-800 vibrant:hover:bg-purple-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 vibrant:border-campus-border text-gray-600 dark:text-gray-400 vibrant:text-campus-ink hover:bg-gray-100 dark:hover:bg-gray-800 vibrant:hover:bg-campus-soft disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         aria-label={t("Next page")}
       >
         <ChevronRight className="w-4 h-4" />
       </button>
 
-      <span className="ml-3 text-sm text-gray-500 dark:text-gray-400 vibrant:text-purple-500">
+      <span className="ml-3 text-sm text-gray-500 dark:text-gray-400 vibrant:text-campus-muted">
         {t(new Intl.PluralRules(locale).select(total) === "one" ? "{count} result" : "{count} results", {count: total.toLocaleString(locale)})}
       </span>
     </div>

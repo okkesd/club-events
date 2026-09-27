@@ -1,4 +1,6 @@
 "use client";
+import EventCategoryField from './EventCategoryField';
+import type { EventCategory } from '@/app/lib/eventCategories';
 import {useUI} from "@/i18n/useUI";
 
 
@@ -742,6 +744,7 @@ function ReviewModal({
                         </div>
 
                         {/* Club picker — prominent when unmatched, muted when publishing as admin */}
+                        {kind === "event" && <EventCategoryField value={form.category || ""} onChange={value => set("category", (value || null) as EventCategory | null)} />}
                         <div className={!row.clubId && !form.publishAsAdmin ? "p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800" : ""}>
                             <label className={labelClass}>
                                 {t("Club")} {!form.publishAsAdmin && <span className="text-red-500">*</span>}

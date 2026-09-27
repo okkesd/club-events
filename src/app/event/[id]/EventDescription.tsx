@@ -48,10 +48,10 @@ function DescriptionContent({ eventId, description }: { eventId: string; descrip
 
   return <>
     <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-      <h3 className="text-lg font-bold text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors">{t("About Event")}</h3>
+      <h3 className="text-lg font-bold text-gray-900 dark:text-white vibrant:text-gray-900 transition-colors">{t("About Event")}</h3>
       {language !== 'tr' && description.trim() && (
         <button type="button" onClick={toggleTranslation} disabled={loading} aria-controls="event-description" aria-pressed={showTranslation}
-          className="ml-auto inline-flex items-center gap-1.5 rounded text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 vibrant:text-purple-600 vibrant:hover:text-purple-800 focus-visible:outline-2 focus-visible:outline-offset-4 disabled:opacity-60 disabled:cursor-wait">
+          className="ml-auto inline-flex items-center gap-1.5 rounded text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-200 vibrant:text-campus-ink vibrant:hover:text-campus-accent focus-visible:outline-2 focus-visible:outline-offset-4 disabled:opacity-60 disabled:cursor-wait">
           {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Languages className="h-4 w-4" aria-hidden="true" />}
           {loading ? t("Translating...") : showTranslation ? t("Show original") : t("Translate description")}
         </button>
@@ -59,7 +59,7 @@ function DescriptionContent({ eventId, description }: { eventId: string; descrip
     </div>
     {error && <p role="alert" className="mb-3 text-sm text-red-600 dark:text-red-400">{t("Translation failed. Please try again.")}</p>}
     <div id="event-description" aria-live="polite" aria-busy={loading} lang={showTranslation ? language : undefined}
-      className="prose prose-blue prose-sm md:prose-base dark:prose-invert text-gray-600 dark:text-gray-300 vibrant:text-purple-700 whitespace-pre-line [overflow-wrap:anywhere] leading-relaxed max-w-none transition-colors">
+      className="prose prose-blue prose-sm md:prose-base dark:prose-invert text-gray-600 dark:text-gray-200 vibrant:text-campus-ink whitespace-pre-line [overflow-wrap:anywhere] leading-relaxed max-w-none transition-colors">
       {showTranslation ? translation : description}
     </div>
   </>;

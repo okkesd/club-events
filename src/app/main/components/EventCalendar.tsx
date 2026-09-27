@@ -147,7 +147,7 @@ export default function EventCalendar() {
     if (error) return <ErrorState message={error} retry={() => setCurrentDate(new Date(currentDate))} />;
 
     return (
-        <div ref={calendarRef} className="flex flex-col w-full bg-white dark:bg-gray-950 vibrant:bg-transparent text-slate-800 dark:text-gray-100 vibrant:text-indigo-950 transition-colors duration-300">
+        <div ref={calendarRef} className="flex flex-col w-full bg-white dark:bg-gray-950 vibrant:bg-transparent text-slate-800 dark:text-gray-50 vibrant:text-gray-900 transition-colors duration-300">
             {/* Header Section */}
             <CalendarHeader
                 weekHeader={formatWeekHeader(weekDays, false, locale)}
@@ -167,7 +167,7 @@ export default function EventCalendar() {
                 ) : viewMode === "grid" ? (
                     // Grid View (original 7-column calendar)
                     <div className="overflow-x-auto">
-                        <div className="grid grid-cols-7 min-w-[1000px] divide-x divide-slate-300 dark:divide-gray-700 vibrant:divide-purple-300">
+                        <div className="grid grid-cols-7 min-w-[1000px] divide-x divide-slate-300 dark:divide-gray-700 vibrant:divide-campus-border">
                             {weekDays.map((day, index) => (
                                 <DayColumn
                                     key={day.toISOString()}

@@ -7,7 +7,7 @@ import PosterPreview from './PosterPreview';
 import { useUI } from '@/i18n/useUI';
 import { emptySuggestion, suggestionMissingInfo, type SuggestionDraft } from '@/app/lib/suggestions';
 
-const inputClass = 'mt-1.5 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-950/50 dark:text-white vibrant:border-purple-200 vibrant:focus:ring-purple-500';
+const inputClass = 'mt-1.5 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-950/50 dark:text-white vibrant:border-campus-border vibrant:focus:ring-campus-accent';
 const categories = ['general', 'internship', 'job', 'scholarship', 'competition', 'recruitment', 'academic', 'workshop'] as const;
 
 export default function SuggestionForm({ initialData = emptySuggestion, onSubmit, reviewing = false, readOnly = false }: {
@@ -49,7 +49,7 @@ export default function SuggestionForm({ initialData = emptySuggestion, onSubmit
   }
   const update = (key: keyof SuggestionDraft, value: string) => setDraft(prev => ({ ...prev, [key]: value }));
   const missingInfo = suggestionMissingInfo(draft);
-  const choiceClass = (selected: boolean) => `flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${selected ? 'bg-white text-blue-600 shadow-sm dark:bg-gray-900 dark:text-blue-400 vibrant:text-purple-700' : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white'}`;
+  const choiceClass = (selected: boolean) => `flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${selected ? 'bg-white text-blue-600 shadow-sm dark:bg-gray-900 dark:text-blue-400 vibrant:text-campus-ink' : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white'}`;
   const field = (key: keyof SuggestionDraft, label: string, type = 'text', required = false) => (
     <label className="block text-sm font-medium" key={key}>
       {t(label)}{required && <span className="text-red-500"> *</span>}
@@ -109,12 +109,12 @@ export default function SuggestionForm({ initialData = emptySuggestion, onSubmit
     finally { setBusy(false); }
   }}>
     <fieldset disabled={busy || extracting} className="space-y-6 disabled:opacity-70">
-      {reviewing && <div className="flex items-start gap-3 rounded-xl bg-blue-50 p-4 text-sm leading-relaxed text-blue-800 dark:bg-blue-950/40 dark:text-blue-200 vibrant:bg-purple-50 vibrant:text-purple-800">
+      {reviewing && <div className="flex items-start gap-3 rounded-xl bg-blue-50 p-4 text-sm leading-relaxed text-blue-800 dark:bg-blue-950/40 dark:text-blue-200 vibrant:bg-campus-surface vibrant:text-campus-ink">
         <Info size={20} className="mt-0.5 shrink-0" aria-hidden="true" />
         <p>{t('Not in the mood to fill in the details? Let the poster do the talking. Upload it and you are done! Without a poster, events need a title, description, date, location, start and end time; announcements just need a title and description.')}</p>
       </div>}
       <div className="grid items-start gap-6 lg:grid-cols-2 lg:gap-8">
-      <div className="min-w-0 rounded-2xl border border-dashed border-gray-200 bg-gray-50/50 p-5 dark:border-gray-700 dark:bg-gray-950/30 vibrant:border-purple-200">
+      <div className="min-w-0 rounded-2xl border border-dashed border-gray-200 bg-gray-50/50 p-5 dark:border-gray-700 dark:bg-gray-950/30 vibrant:border-campus-border">
         {draft.image ? <div className="space-y-3">
           {reviewing ? <PosterPreview src={draft.image} /> : (
             // eslint-disable-next-line @next/next/no-img-element
@@ -123,7 +123,7 @@ export default function SuggestionForm({ initialData = emptySuggestion, onSubmit
           <button hidden={reviewing} disabled={reviewing} type="button" className="mx-auto flex items-center gap-1 text-sm text-red-500" onClick={() => update('image', '')}><X size={16} />{t('Remove poster')}</button>
         </div> : <div className="text-center"><Upload className="mx-auto mb-3 text-gray-400" size={24} /><p className="text-sm font-semibold">{t('A poster is enough. Everything else is optional.')}</p></div>}
         <label hidden={reviewing} htmlFor={`${id}-image`} className="mt-3 block text-center text-xs text-gray-500 dark:text-gray-400">{t('Choose a JPG, PNG or WebP image up to 5 MB.')}</label>
-        <input hidden={reviewing} id={`${id}-image`} type="file" accept="image/jpeg,image/png,image/webp" disabled={reading} className="mt-3 block w-full text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-white file:transition-colors hover:file:bg-blue-700 vibrant:file:bg-purple-600 vibrant:hover:file:bg-purple-700 vibrant:text-purple-700" onChange={e => { void readImage(e.target.files?.[0]); e.target.value = ''; }} />
+        <input hidden={reviewing} id={`${id}-image`} type="file" accept="image/jpeg,image/png,image/webp" disabled={reading} className="mt-3 block w-full text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-white file:transition-colors hover:file:bg-blue-700 vibrant:file:bg-campus-accent vibrant:hover:file:bg-campus-accent-dark vibrant:text-campus-ink" onChange={e => { void readImage(e.target.files?.[0]); e.target.value = ''; }} />
         {reading && <p role="status" className="mt-2 text-sm">{t('Loading...')}</p>}
         {reviewing && !readOnly && draft.image && <div className="mt-5 border-t border-blue-200 pt-4 dark:border-gray-700">
           <button type="button" onClick={fillWithAI} disabled={reading || extracting} className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:from-blue-500 hover:to-purple-500 disabled:opacity-60" aria-busy={extracting}>
@@ -138,7 +138,7 @@ export default function SuggestionForm({ initialData = emptySuggestion, onSubmit
       <div className="min-w-0 space-y-4">
       <fieldset>
         <legend className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{t('Content type')}</legend>
-        <div className="flex rounded-xl bg-gray-100 p-1 dark:bg-gray-800 vibrant:bg-purple-100">
+        <div className="flex rounded-xl bg-gray-100 p-1 dark:bg-gray-800 vibrant:bg-campus-soft">
           {(['event', 'announcement'] as const).map(kind => <button key={kind} type="button" disabled={readOnly} aria-pressed={draft.kind === kind} onClick={() => update('kind', kind)} className={choiceClass(draft.kind === kind)}>
             {kind === 'event' ? <CalendarDays size={16} /> : <Megaphone size={16} />}{t(kind === 'event' ? 'Event suggestion' : 'Announcement suggestion')}
           </button>)}
@@ -162,7 +162,7 @@ export default function SuggestionForm({ initialData = emptySuggestion, onSubmit
       </div>
       {!reviewing && missingInfo && <p id={`${id}-missing`} aria-live="polite" className="text-sm font-medium text-red-600 dark:text-red-400">{t(missingInfo)}</p>}
       {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error}</p>}
-      <button hidden={readOnly} disabled={busy || reading || (!reviewing && Boolean(missingInfo))} aria-describedby={missingInfo ? `${id}-missing` : undefined} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 disabled:opacity-50 vibrant:bg-purple-600"><Send size={17} />{t(busy ? 'Saving...' : reviewing ? 'Save review changes' : 'Send suggestion')}</button>
+      <button hidden={readOnly} disabled={busy || reading || (!reviewing && Boolean(missingInfo))} aria-describedby={missingInfo ? `${id}-missing` : undefined} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 disabled:opacity-50 vibrant:bg-campus-accent"><Send size={17} />{t(busy ? 'Saving...' : reviewing ? 'Save review changes' : 'Send suggestion')}</button>
       {reviewing && !readOnly && <div className="flex gap-3">{(['approved', 'rejected'] as const).map(status => <button key={status} type="submit" value={status} formNoValidate={status === 'rejected'} disabled={busy || reading} className="min-h-11 flex-1 rounded-xl border border-gray-300 px-4 py-2 text-sm font-semibold dark:border-gray-700">{t(status === 'approved' ? 'Approve and publish' : 'Reject')}</button>)}</div>}
     </fieldset>
   </form>;

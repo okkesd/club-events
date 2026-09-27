@@ -11,7 +11,7 @@ import { resolveImageUrl } from "@/app/lib/api";
 import { useTheme } from "next-themes";
 import LanguageSelector from "./LanguageSelector";
 
-const THEME_ORDER = ["light", "dark", "vibrant"] as const;
+const THEME_ORDER = ["vibrant", "dark", "light"] as const;
 
 const THEME_ICON: Record<string, React.ReactNode> = {
   light: <Sun className="w-5 h-5" />,
@@ -28,7 +28,6 @@ export default function Navbar() {
 
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [hasOpenedMobileMenu, setHasOpenedMobileMenu] = useState(false);
   const menuRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -66,23 +65,23 @@ export default function Navbar() {
   const navLinkClass = (href: string) =>
     `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
       pathname === href
-        ? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white vibrant:bg-purple-100 vibrant:text-purple-700'
-        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white vibrant:text-purple-700 vibrant:hover:bg-purple-50 vibrant:hover:text-purple-900'
+        ? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white vibrant:bg-campus-soft vibrant:text-campus-ink'
+        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 dark:hover:text-white vibrant:text-campus-ink vibrant:hover:bg-campus-surface vibrant:hover:text-gray-900'
     }`;
 
   return (
-    <nav ref={menuRef} className="w-full bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 vibrant:border-purple-200 sticky top-0 z-50 transition-colors duration-300">
+    <nav ref={menuRef} className="w-full bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 vibrant:border-campus-border sticky top-0 z-50 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
 
           {/* Brand/Logo */}
           <Link
             href="/main"
-            className="flex shrink-0 items-center gap-1.5 text-base sm:gap-2 sm:text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-700 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600 transition-colors"
+            className="flex shrink-0 items-center gap-1.5 text-base sm:gap-2 sm:text-xl font-bold text-gray-900 dark:text-white vibrant:text-campus-ink hover:text-blue-600 dark:hover:text-blue-300 vibrant:hover:text-campus-accent transition-colors"
           >
-            <CalendarDays className="w-6 h-6 text-blue-600 dark:text-blue-500 vibrant:text-purple-600" />
+            <CalendarDays className="w-6 h-6 text-blue-600 dark:text-blue-500 vibrant:text-campus-ink" />
             <span className="vibrant-gradient-text">evenements</span>
-            <span className="hidden sm:inline px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 vibrant:bg-purple-100 vibrant:text-purple-700 border border-blue-200 dark:border-blue-800 vibrant:border-purple-300">
+            <span className="hidden sm:inline px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200 vibrant:bg-campus-soft vibrant:text-campus-ink border border-blue-200 dark:border-blue-800 vibrant:border-campus-border">
               {t("Beta")}</span>
           </Link>
 
@@ -105,7 +104,7 @@ export default function Navbar() {
           {/* Right side actions */}
           <div className="flex shrink-0 items-center gap-1 sm:gap-3">
             <Link href="/my-likes" title={t("My Likes")} aria-label={t("My Likes")} aria-current={pathname === "/my-likes" ? "page" : undefined}
-              className={`hidden lg:inline-flex items-center justify-center rounded-lg p-2 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 ${pathname === "/my-likes" ? "bg-rose-50 text-rose-600 dark:bg-rose-950 dark:text-rose-300 vibrant:bg-pink-100 vibrant:text-pink-700" : "text-gray-500 hover:bg-rose-50 hover:text-rose-600 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-rose-400 vibrant:text-purple-600 vibrant:hover:bg-pink-50"}`}>
+              className={`hidden lg:inline-flex items-center justify-center rounded-lg p-2 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 ${pathname === "/my-likes" ? "bg-rose-50 text-rose-600 dark:bg-rose-950 dark:text-rose-300 vibrant:bg-campus-soft vibrant:text-campus-ink" : "text-gray-500 hover:bg-rose-50 hover:text-rose-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-rose-400 vibrant:text-campus-ink vibrant:hover:bg-campus-surface"}`}>
               <Heart className="h-5 w-5" aria-hidden="true" />
             </Link>
 
@@ -113,7 +112,7 @@ export default function Navbar() {
               <LanguageSelector />
             </div>
 
-            <Link href="/suggest" className="hidden lg:inline-flex items-center gap-2 rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700 vibrant:bg-purple-600">
+            <Link href="/suggest" className="hidden lg:inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800 dark:hover:text-white vibrant:border-campus-border vibrant:text-campus-ink vibrant:hover:bg-campus-surface vibrant:hover:text-campus-accent transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500">
               <Plus className="h-4 w-4" aria-hidden="true" />{t('Suggest an event')}
             </Link>
 
@@ -121,7 +120,7 @@ export default function Navbar() {
             {mounted ? (
               <button
                 onClick={cycleTheme}
-                className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 vibrant:text-purple-500 vibrant:hover:bg-purple-100 transition-all"
+                className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 vibrant:text-campus-muted vibrant:hover:bg-campus-soft transition-all"
                 aria-label={t("Current theme: {theme}. Click to switch.", {theme: t(currentTheme)})}
                 title={t("Theme: {theme}", {theme: t(currentTheme)})}
               >
@@ -133,10 +132,10 @@ export default function Navbar() {
 
             {/* Auth Logic - Desktop */}
             {isLoginPage ? (
-              <Link href="/signup" className="hidden lg:inline text-sm font-semibold text-gray-600 dark:text-gray-300 vibrant:text-purple-700 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600">
+              <Link href="/signup" className="hidden lg:inline text-sm font-semibold text-gray-600 dark:text-gray-200 vibrant:text-campus-ink hover:text-blue-600 dark:hover:text-blue-300 vibrant:hover:text-campus-accent">
                 {t("Create new club")}</Link>
             ) : isSignupPage ? (
-              <Link href="/login" className="hidden lg:inline text-sm font-semibold text-gray-600 dark:text-gray-300 vibrant:text-purple-700 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600">
+              <Link href="/login" className="hidden lg:inline text-sm font-semibold text-gray-600 dark:text-gray-200 vibrant:text-campus-ink hover:text-blue-600 dark:hover:text-blue-300 vibrant:hover:text-campus-accent">
                 {t("Already have a club?")}</Link>
             ) : (
               <>
@@ -146,7 +145,7 @@ export default function Navbar() {
                     <>
                       <Link
                         href="/event/create"
-                        className="hidden md:flex items-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 vibrant:bg-purple-600 vibrant:hover:bg-purple-700 text-white px-4 py-2 rounded-xl font-bold text-sm transition-all shadow-sm hover:shadow-md active:scale-95"
+                        className="hidden md:flex items-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 vibrant:bg-campus-accent vibrant:hover:bg-campus-accent-dark text-white px-4 py-2 rounded-xl font-bold text-sm transition-all shadow-sm hover:shadow-md active:scale-95"
                       >
                         <Plus className="w-4 h-4" />
                         <span>{t("Create Event")}</span>
@@ -154,7 +153,7 @@ export default function Navbar() {
 
                       <Link
                         href="/announcements/create"
-                        className="hidden md:flex items-center gap-2 border border-gray-200 dark:border-gray-700 vibrant:border-purple-300 text-gray-700 dark:text-gray-200 vibrant:text-purple-700 hover:bg-gray-50 dark:hover:bg-gray-800 vibrant:hover:bg-purple-50 px-4 py-2 rounded-xl font-bold text-sm transition-all"
+                        className="hidden md:flex items-center gap-2 border border-gray-200 dark:border-gray-700 vibrant:border-campus-border text-gray-700 dark:text-gray-100 vibrant:text-campus-ink hover:bg-gray-50 dark:hover:bg-gray-800 vibrant:hover:bg-campus-surface px-4 py-2 rounded-xl font-bold text-sm transition-all"
                       >
                         <Megaphone className="w-4 h-4" />
                         <span>{t("Post")}</span>
@@ -162,7 +161,7 @@ export default function Navbar() {
 
                       <Link
                         href={user.role === 'admin' ? '/admin' : `/club/${user.id}`}
-                        className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-800 vibrant:bg-purple-100 border border-gray-200 dark:border-gray-700 vibrant:border-purple-300 flex items-center justify-center text-gray-600 dark:text-gray-300 vibrant:text-purple-600 hover:bg-gray-200 dark:hover:bg-gray-700 vibrant:hover:bg-purple-200 transition-colors"
+                        className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-800 vibrant:bg-campus-soft border border-gray-200 dark:border-gray-700 vibrant:border-campus-border flex items-center justify-center text-gray-600 dark:text-gray-200 vibrant:text-campus-ink hover:bg-gray-200 dark:hover:bg-gray-700 vibrant:hover:bg-campus-soft transition-colors"
                         title={t("Logged in as {name}", {name: user.club_name || t("My Club")})}
                       >
                         {user.avatarUrl ? (
@@ -174,7 +173,7 @@ export default function Navbar() {
 
                       <button
                         onClick={logout}
-                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-red-900/20 vibrant:hover:text-pink-600 vibrant:hover:bg-pink-50 rounded-lg transition-colors"
+                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-red-900/20 vibrant:hover:text-campus-accent vibrant:hover:bg-campus-surface rounded-lg transition-colors"
                         title={t("Sign Out")}
                       >
                         <LogOut className="w-5 h-5" />
@@ -183,7 +182,7 @@ export default function Navbar() {
                   ) : (
                     <Link
                       href="/login"
-                      className="flex items-center justify-center gap-2 rounded-xl bg-gray-900 dark:bg-gray-100 vibrant:bg-purple-600 px-4 py-2 text-sm font-semibold text-white dark:text-gray-900 vibrant:text-white shadow-sm hover:bg-gray-800 dark:hover:bg-gray-200 vibrant:hover:bg-purple-700 transition-colors"
+                      className="flex items-center justify-center gap-2 rounded-lg px-2 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100 vibrant:text-campus-muted vibrant:hover:text-campus-accent transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
                     >
                       <LogIn className="w-4 h-4" />
                       {t("Club Login")}</Link>
@@ -194,20 +193,14 @@ export default function Navbar() {
             )}
             {/* Mobile hamburger button */}
             <button
-              onClick={() => {
-                setHasOpenedMobileMenu(true);
-                setMobileMenuOpen((prev) => !prev);
-              }}
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
               type="button"
-              className={`relative isolate overflow-hidden lg:hidden inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-500 ${!hasOpenedMobileMenu ? "mobile-menu-intro" : ""} ${mobileMenuOpen
-                ? "border-gray-200 bg-gray-100 text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white vibrant:border-purple-200 vibrant:bg-purple-100 vibrant:text-purple-900"
-                : "border-blue-500 bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/25 hover:from-blue-500 hover:to-indigo-500 dark:border-blue-400/60 dark:shadow-blue-500/30 vibrant:border-purple-400 vibrant:from-purple-600 vibrant:to-pink-600 vibrant:shadow-purple-500/25 vibrant:hover:from-purple-500 vibrant:hover:to-pink-500"
-              }`}
+              className="lg:hidden inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border-0 bg-transparent text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 vibrant:text-campus-muted vibrant:hover:bg-campus-soft transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-500"
               aria-label={t(mobileMenuOpen ? "Close" : "Toggle menu")}
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-navigation"
             >
-              {mobileMenuOpen ? <X className="relative z-10 h-6 w-6 shrink-0" aria-hidden="true" /> : <Menu className="relative z-10 h-6 w-6 shrink-0" aria-hidden="true" />}
+              {mobileMenuOpen ? <X className="h-5 w-5 shrink-0" aria-hidden="true" /> : <Menu className="h-5 w-5 shrink-0" aria-hidden="true" />}
             </button>
           </div>
         </div>
@@ -217,10 +210,10 @@ export default function Navbar() {
       {mobileMenuOpen && (
         <div
           id="mobile-navigation"
-          className="lg:hidden absolute left-0 right-0 top-16 border-t border-gray-200 dark:border-gray-800 vibrant:border-purple-200 bg-white dark:bg-gray-900 vibrant:bg-white/95 vibrant:backdrop-blur-sm shadow-lg z-50"
+          className="lg:hidden absolute left-0 right-0 top-16 border-t border-gray-200 dark:border-gray-800 vibrant:border-campus-border bg-white dark:bg-gray-900 vibrant:bg-white/95 vibrant:backdrop-blur-sm shadow-lg z-50"
         >
           <div className="px-4 py-3 space-y-1">
-            <Link href="/suggest" className="mb-3 flex items-center gap-2 rounded-xl bg-blue-600 px-3 py-3 text-sm font-semibold text-white hover:bg-blue-700 vibrant:bg-purple-600">
+            <Link href="/suggest" className="mb-3 flex items-center gap-2 rounded-xl bg-blue-600 px-3 py-3 text-sm font-semibold text-white hover:bg-blue-700 vibrant:bg-campus-accent">
               <Plus className="h-4 w-4" aria-hidden="true" />{t('Suggest an event')}
             </Link>
             <Link href="/events" className={navLinkClass("/events")}>
@@ -236,10 +229,10 @@ export default function Navbar() {
               <Megaphone className="w-4 h-4" />
               {t("Announcements")}</Link>
 
-            <div className="border-t border-gray-100 dark:border-gray-800 vibrant:border-purple-100 my-2" />
+            <div className="border-t border-gray-100 dark:border-gray-800 vibrant:border-campus-border my-2" />
 
             <LanguageSelector expanded />
-            <div className="border-t border-gray-100 dark:border-gray-800 vibrant:border-purple-100 my-2" />
+            <div className="border-t border-gray-100 dark:border-gray-800 vibrant:border-campus-border my-2" />
 
             {isLoginPage || isSignupPage ? (
               <Link href={isLoginPage ? "/signup" : "/login"} className={navLinkClass(isLoginPage ? "/signup" : "/login")}>
@@ -267,7 +260,7 @@ export default function Navbar() {
                 </Link>
                 <button
                   onClick={() => { logout(); setMobileMenuOpen(false); }}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium w-full text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 vibrant:text-pink-600 vibrant:hover:bg-pink-50 transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium w-full text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 vibrant:text-campus-ink vibrant:hover:bg-campus-surface transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
                   {t("Sign Out")}</button>
@@ -275,7 +268,7 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900 vibrant:bg-purple-600 vibrant:text-white transition-colors"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900 vibrant:bg-campus-accent vibrant:text-white transition-colors"
               >
                 <LogIn className="w-4 h-4" />
                 {t("Club Login")}</Link>

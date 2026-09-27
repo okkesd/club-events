@@ -62,7 +62,7 @@ export default function AnnouncementDetailClient({ initialAnnouncement }: { init
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 vibrant:bg-transparent flex flex-col items-center justify-center gap-4 transition-colors">
         <Megaphone className="w-12 h-12 text-gray-300 dark:text-gray-700" />
         <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t("Announcement not found")}</h2>
-        <Link href="/announcements" className="text-blue-600 dark:text-blue-400 vibrant:text-purple-600 font-semibold hover:underline">
+        <Link href="/announcements" className="text-blue-600 dark:text-blue-400 vibrant:text-campus-ink font-semibold hover:underline">
           {t("Back to Announcements")}</Link>
       </div>
     );
@@ -75,7 +75,7 @@ export default function AnnouncementDetailClient({ initialAnnouncement }: { init
         <div className="flex justify-between items-center mb-6">
           <Link
             href="/announcements"
-            className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 vibrant:text-purple-600 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600 transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 vibrant:text-campus-ink hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-campus-accent transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
             {t("Back to Announcements")}</Link>
@@ -106,7 +106,7 @@ export default function AnnouncementDetailClient({ initialAnnouncement }: { init
         <div className={`grid grid-cols-1 gap-8 items-start ${announcement.coverImage ? "lg:grid-cols-3" : ""}`}>
           {/* Cover image */}
           {announcement.coverImage && (
-            <div className="lg:sticky lg:top-8 rounded-2xl border border-gray-200 dark:border-gray-800 vibrant:border-purple-200 bg-white dark:bg-gray-900 vibrant:bg-white/80 shadow-sm overflow-hidden transition-colors">
+            <div className="lg:sticky lg:top-8 rounded-2xl border border-gray-200 dark:border-gray-800 vibrant:border-campus-border bg-white dark:bg-gray-900 vibrant:bg-white/80 shadow-sm overflow-hidden transition-colors">
               <EventBrochure
                 src={resolveImageUrl(announcement.coverImage)}
                 alt={announcement.title}
@@ -115,7 +115,7 @@ export default function AnnouncementDetailClient({ initialAnnouncement }: { init
           )}
 
         {/* Announcement content */}
-        <article className={`${announcement.coverImage ? "lg:col-span-2" : ""} min-w-0 break-words bg-white dark:bg-gray-900 vibrant:bg-white/80 rounded-2xl border border-gray-200 dark:border-gray-800 vibrant:border-purple-200 shadow-sm overflow-hidden transition-colors`}>
+        <article className={`${announcement.coverImage ? "lg:col-span-2" : ""} min-w-0 break-words bg-white dark:bg-gray-900 vibrant:bg-white/80 rounded-2xl border border-gray-200 dark:border-gray-800 vibrant:border-campus-border shadow-sm overflow-hidden transition-colors`}>
           <div className="p-6 md:p-8">
             {/* Badges */}
             <div className="flex items-center gap-2 flex-wrap mb-4">
@@ -137,15 +137,15 @@ export default function AnnouncementDetailClient({ initialAnnouncement }: { init
             </div>
 
             {/* Title */}
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900 leading-tight mb-4 transition-colors">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white vibrant:text-gray-900 leading-tight mb-4 transition-colors">
               {announcement.title}
             </h1>
 
             {/* Meta row */}
-            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400 vibrant:text-purple-500 mb-6 pb-6 border-b border-gray-100 dark:border-gray-800 vibrant:border-purple-100 transition-colors">
+            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400 vibrant:text-campus-muted mb-6 pb-6 border-b border-gray-100 dark:border-gray-800 vibrant:border-campus-border transition-colors">
               <Link
                 href={`/club/${announcement.clubId}`}
-                className="flex items-center gap-1.5 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600 transition-colors"
+                className="flex items-center gap-1.5 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-campus-accent transition-colors"
               >
                 <User className="w-4 h-4" />
                 <span className="font-semibold">{announcement.clubName}</span>
@@ -163,7 +163,7 @@ export default function AnnouncementDetailClient({ initialAnnouncement }: { init
             </div>
 
             {/* Body */}
-            <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 vibrant:text-purple-800 whitespace-pre-line leading-relaxed mb-6 transition-colors">
+            <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 vibrant:text-campus-ink whitespace-pre-line leading-relaxed mb-6 transition-colors">
               {announcement.body}
             </div>
 
@@ -173,7 +173,7 @@ export default function AnnouncementDetailClient({ initialAnnouncement }: { init
                 {announcement.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 vibrant:bg-purple-50 vibrant:text-purple-600 transition-colors"
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 vibrant:bg-campus-surface vibrant:text-campus-ink transition-colors"
                   >
                     <TagIcon className="w-3 h-3" /> {tag}
                   </span>
@@ -183,14 +183,14 @@ export default function AnnouncementDetailClient({ initialAnnouncement }: { init
 
             {/* Announcement actions */}
             {(announcement.link || (announcement.sourcePostUrl && /^https:\/\/www\.instagram\.com\/p\/[A-Za-z0-9_-]+\/$/.test(announcement.sourcePostUrl))) && (
-              <div className="flex flex-col gap-3 border-t border-gray-100 pt-6 dark:border-gray-800 vibrant:border-purple-100 sm:flex-row sm:flex-wrap">
+              <div className="flex flex-col gap-3 border-t border-gray-100 pt-6 dark:border-gray-800 vibrant:border-campus-border sm:flex-row sm:flex-wrap">
               {announcement.link && (
               <a
                 href={announcement.link}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group inline-flex min-h-12 w-full items-center justify-center gap-3 rounded-xl border border-transparent px-5 py-3 text-sm font-semibold shadow-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 sm:w-auto
-                  bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 vibrant:bg-purple-600 vibrant:hover:bg-purple-700 text-white"
+                  bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 vibrant:bg-campus-accent vibrant:hover:bg-campus-accent-dark text-white"
               >
                 <Link2 className="h-4 w-4 shrink-0" aria-hidden="true" />
                 {t("Visit Link")}

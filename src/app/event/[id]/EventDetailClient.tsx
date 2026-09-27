@@ -102,10 +102,10 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
              <div className="max-w-3xl mx-auto">
                 <button
                     onClick={() => setIsEditing(false)}
-                    className="mb-6 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 vibrant:text-purple-400 hover:text-gray-900 dark:hover:text-white vibrant:hover:text-purple-900 transition-colors"
+                    className="mb-6 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-300 vibrant:text-campus-muted hover:text-gray-900 dark:hover:text-white vibrant:hover:text-gray-900 transition-colors"
                 >
                     <ChevronLeft className="w-4 h-4" />  {t("Cancel Editing")}</button>
-                <div className="bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 vibrant:border-purple-200 p-6 transition-colors">
+                <div className="bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 vibrant:border-campus-border p-6 transition-colors">
                     <EventForm 
                         initialData={currentEvent} 
                         onSubmit={handleUpdate} 
@@ -126,7 +126,7 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
       <div className="max-w-[1400px] mx-auto mb-6 flex justify-between items-center">
         <Link 
           href="/main"
-          className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 vibrant:text-purple-500 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-purple-900 transition-colors"
+          className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300 vibrant:text-campus-muted hover:text-blue-600 dark:hover:text-blue-300 vibrant:hover:text-gray-900 transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
           {t("Back to Calendar")}</Link>
@@ -137,8 +137,8 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                 onClick={() => setIsEditing(true)}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold shadow-sm transition-all
                            bg-white text-gray-700 border border-gray-200 hover:border-blue-400 hover:text-blue-600
-                           dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-700 dark:hover:text-blue-400
-                           vibrant:bg-white/80 vibrant:text-purple-700 vibrant:border-purple-200 vibrant:hover:border-purple-400 vibrant:hover:text-purple-900"
+                           dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700 dark:hover:bg-gray-700 dark:hover:text-blue-300
+                           vibrant:bg-white/80 vibrant:text-campus-ink vibrant:border-campus-border vibrant:hover:border-campus-gold vibrant:hover:text-gray-900"
             >
                 <Edit3 className="w-4 h-4" />
                 {t("Edit Event")}</button>
@@ -148,7 +148,7 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                 className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold shadow-sm transition-all
                            bg-white text-red-600 border border-gray-200 hover:border-red-400 hover:bg-red-50
                            dark:bg-gray-800 dark:text-red-400 dark:border-gray-700 dark:hover:bg-gray-700 dark:hover:border-red-500
-                           vibrant:bg-white/80 vibrant:text-red-600 vibrant:border-purple-200 vibrant:hover:border-red-400 vibrant:hover:bg-red-50
+                           vibrant:bg-white/80 vibrant:text-campus-ink vibrant:border-campus-border vibrant:hover:border-campus-gold vibrant:hover:bg-campus-surface
                            disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 <Trash2 className="w-4 h-4" />
@@ -164,7 +164,7 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
           {/* 1. BROCHURE */}
           {hasBrochure && (
             <div className="lg:col-span-3 order-1">
-              <div className="bg-white dark:bg-gray-800 vibrant:bg-white/80 vibrant:backdrop-blur-sm rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 vibrant:border-purple-200 overflow-hidden sticky top-8 transition-colors">
+              <div className="bg-white dark:bg-gray-800 vibrant:bg-white/80 vibrant:backdrop-blur-sm rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 vibrant:border-campus-border overflow-hidden sticky top-8 transition-colors">
                 <EventBrochure src={resolveImageUrl(currentEvent.coverImage)} alt={currentEvent.title} />
               </div>
             </div>
@@ -172,24 +172,27 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
 
           {/* 2. INFO */}
           <div className={`${infoColSpan} min-w-0 order-2 space-y-6`}>
-            <div className="bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 vibrant:border-purple-200 p-6 md:p-8 transition-colors">
-                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900 mb-4 leading-tight transition-colors">
+            <div className="bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 vibrant:border-campus-border p-6 md:p-8 transition-colors">
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white vibrant:text-gray-900 mb-4 leading-tight transition-colors">
                     {currentEvent.title}
                 </h1>
-                
-                <Link 
-                    href={`/club/${currentEvent.clubId}`} 
-                    className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 vibrant:text-purple-500 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-purple-900 font-medium transition-colors"
+                {currentEvent.organizerInstagram && (
+                <a
+                    href={`https://www.instagram.com/${encodeURIComponent(currentEvent.organizerInstagram)}/`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-300 vibrant:text-campus-muted hover:text-blue-600 dark:hover:text-blue-300 vibrant:hover:text-gray-900 font-medium transition-colors"
                 >
-                    <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 vibrant:bg-purple-100 flex items-center justify-center transition-colors">
+                    <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 vibrant:bg-campus-soft flex items-center justify-center transition-colors">
                         <Users className="w-4 h-4" />
                     </div>
                     <span>
-                        {t("Hosted by")} <span className="underline decoration-dotted text-gray-900 dark:text-gray-200 vibrant:text-purple-900 hover:text-blue-600 dark:hover:text-blue-400 vibrant:hover:text-pink-600 transition-colors">{currentEvent.clubName}</span>
+                        {t("Hosted by")} <span className="underline decoration-dotted text-gray-900 dark:text-gray-100 vibrant:text-gray-900 hover:text-blue-600 dark:hover:text-blue-300 vibrant:hover:text-campus-accent transition-colors">@{currentEvent.organizerInstagram}</span>
                     </span>
-                </Link>
+                </a>
+                )}
 
-                <hr className="my-8 border-gray-100 dark:border-gray-800 vibrant:border-purple-100 transition-colors" />
+                <hr className="my-8 border-gray-100 dark:border-gray-800 vibrant:border-campus-border transition-colors" />
                 
                 <EventDescription eventId={currentEvent.id} description={currentEvent.description} />
                 <SourcePostButton url={currentEvent.sourcePostUrl} />
@@ -203,28 +206,28 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
         <div className="rounded-2xl shadow-lg border overflow-hidden transition-colors
                         bg-white border-gray-100 
                         dark:bg-gray-900 dark:border-gray-800 
-                        vibrant:bg-white vibrant:border-purple-200 vibrant:shadow-purple-500/10">
+                        vibrant:bg-white vibrant:border-campus-border vibrant:shadow-stone-400/10">
             
             {/* Date Header */}
             <div className="p-4 border-b flex items-center gap-4 transition-colors
                             bg-gray-50 border-gray-100 
                             dark:bg-gray-800 dark:border-gray-700
-                            vibrant:bg-purple-50/50 vibrant:border-purple-100">
+                            vibrant:bg-campus-surface/50 vibrant:border-campus-border">
                 {/* Date Square */}
                 <div className="flex flex-col items-center justify-center rounded-lg w-14 h-14 shadow-sm shrink-0 transition-colors border
                                 bg-white border-gray-200 
                                 dark:bg-gray-900 dark:border-gray-700
-                                vibrant:bg-white vibrant:border-purple-200">
+                                vibrant:bg-white vibrant:border-campus-border">
                     <span className="text-[10px] font-bold uppercase
-                                     text-red-500 dark:text-red-400 vibrant:text-pink-500">{monthName}</span>
+                                     text-red-500 dark:text-red-400 vibrant:text-campus-muted">{monthName}</span>
                     <span className="text-xl font-extrabold 
-                                     text-gray-900 dark:text-white vibrant:text-purple-900">{dayNumber}</span>
+                                     text-gray-900 dark:text-white vibrant:text-gray-900">{dayNumber}</span>
                 </div>
                 <div>
                     <p className="text-xs font-medium uppercase transition-colors
-                                  text-gray-500 dark:text-gray-400 vibrant:text-purple-500">{weekdayStr}</p>
+                                  text-gray-500 dark:text-gray-300 vibrant:text-campus-muted">{weekdayStr}</p>
                     <p className="text-sm font-bold transition-colors
-                                  text-gray-900 dark:text-white vibrant:text-purple-950">
+                                  text-gray-900 dark:text-white vibrant:text-gray-950">
                         {currentEvent.startTime} - {currentEvent.endTime}
                     </p>
                 </div>
@@ -236,20 +239,20 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                 <div className="flex items-start gap-3">
                     <div className="p-2 rounded-lg shrink-0 transition-colors
                                     bg-blue-50 text-blue-600 
-                                    dark:bg-blue-900/20 dark:text-blue-400
-                                    vibrant:bg-purple-100 vibrant:text-purple-600">
+                                    dark:bg-blue-900/20 dark:text-blue-300
+                                    vibrant:bg-campus-soft vibrant:text-campus-ink">
                         <MapPin className="w-5 h-5" />
                     </div>
                     <div>
                         <p className="text-xs font-medium uppercase mb-0.5 transition-colors
-                                      text-gray-500 dark:text-gray-400 vibrant:text-purple-500">{t("Location")}</p>
+                                      text-gray-500 dark:text-gray-300 vibrant:text-campus-muted">{t("Location")}</p>
                         <p className="text-sm font-semibold leading-snug transition-colors
-                                      text-gray-900 dark:text-gray-200 vibrant:text-purple-900">{currentEvent.location}</p>
+                                      text-gray-900 dark:text-gray-100 vibrant:text-gray-900">{currentEvent.location}</p>
                         {currentEvent.locationType === 'off-campus' && (
                             <span className="text-[10px] font-bold px-1.5 py-0.5 rounded mt-1 inline-block transition-colors
                                              bg-orange-100 text-orange-700 
                                              dark:bg-orange-900/30 dark:text-orange-400
-                                             vibrant:bg-pink-100 vibrant:text-pink-700">{t("Off Campus")}</span>
+                                             vibrant:bg-campus-soft vibrant:text-campus-ink">{t("Off Campus")}</span>
                         )}
                     </div>
                 </div>
@@ -260,20 +263,20 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                         <div className="p-2 rounded-lg shrink-0 transition-colors
                                         bg-purple-50 text-purple-600 
                                         dark:bg-purple-900/20 dark:text-purple-400
-                                        vibrant:bg-pink-50 vibrant:text-pink-600">
+                                        vibrant:bg-campus-surface vibrant:text-campus-ink">
                             <Ticket className="w-5 h-5" />
                         </div>
                         <div>
                             <p className="text-xs font-medium uppercase mb-0.5 transition-colors
-                                          text-gray-500 dark:text-gray-400 vibrant:text-purple-500">
+                                          text-gray-500 dark:text-gray-300 vibrant:text-campus-muted">
                                 {t("Capacity")}</p>
                             <p className="text-sm font-semibold leading-snug transition-colors
-                                          text-gray-900 dark:text-gray-200 vibrant:text-purple-900">
+                                          text-gray-900 dark:text-gray-100 vibrant:text-gray-900">
                                 {currentEvent.capacity && currentEvent.capacity > 0 ? (
                                     <>
                                         {t("Limited to {count} spots", {count: currentEvent.capacity})}</>
                                 ) : (
-                                    <span className="text-purple-700 dark:text-purple-400 vibrant:text-pink-600">{t("Unlimited spots")}</span>
+                                    <span className="text-purple-700 dark:text-purple-400 vibrant:text-campus-ink">{t("Unlimited spots")}</span>
                                 )}
                             </p>
                         </div>
@@ -285,22 +288,22 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                     <div className="flex items-start gap-3">
                         <div className="p-2 rounded-lg shrink-0 transition-colors
                                         bg-gray-50 text-gray-500 
-                                        dark:bg-gray-800 dark:text-gray-400
-                                        vibrant:bg-purple-50 vibrant:text-purple-500">
+                                        dark:bg-gray-800 dark:text-gray-300
+                                        vibrant:bg-campus-surface vibrant:text-campus-muted">
                             <Eye className="w-5 h-5" />
                         </div>
                         <div>
                             <p className="text-xs font-medium uppercase mb-0.5 transition-colors
-                                          text-gray-500 dark:text-gray-400 vibrant:text-purple-500">{t("Views")}</p>
+                                          text-gray-500 dark:text-gray-300 vibrant:text-campus-muted">{t("Views")}</p>
                             <p className="text-sm font-semibold leading-snug transition-colors
-                                          text-gray-900 dark:text-gray-200 vibrant:text-purple-900">
+                                          text-gray-900 dark:text-gray-100 vibrant:text-gray-900">
                                 {currentEvent.viewCount.toLocaleString(locale)}
                             </p>
                         </div>
                     </div>
                 )}
 
-                        <hr className="border-gray-100 dark:border-gray-800 vibrant:border-purple-100 transition-colors" />
+                        <hr className="border-gray-100 dark:border-gray-800 vibrant:border-campus-border transition-colors" />
 
                         {/* Registration Button Logic */}
 
@@ -311,15 +314,15 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
             className="flex items-center justify-center w-full py-3.5 px-4 rounded-xl font-bold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all gap-2
                        bg-blue-600 hover:bg-blue-700 text-white
                        dark:bg-blue-600 dark:hover:bg-blue-500
-                       vibrant:bg-gradient-to-r vibrant:from-purple-600 vibrant:to-pink-600 vibrant:hover:from-purple-700 vibrant:hover:to-pink-700 vibrant:text-white vibrant:shadow-purple-500/25"
+                       vibrant:bg-gradient-to-r vibrant:from-campus-accent vibrant:to-campus-accent vibrant:hover:from-campus-accent-dark vibrant:hover:to-campus-accent-dark vibrant:text-white vibrant:shadow-stone-400/25"
         >
             <ExternalLink className="w-5 h-5" />
             {t("Register Now")}</button>
     ) : (
         <button disabled className="flex items-center justify-center w-full py-3.5 px-4 font-bold rounded-xl cursor-not-allowed border transition-colors
                                     bg-gray-100 text-gray-400 border-gray-200
-                                    dark:bg-gray-800 dark:text-gray-500 dark:border-gray-700 
-                                    vibrant:bg-purple-50/50 vibrant:text-purple-300 vibrant:border-purple-100">
+                                    dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700 
+                                    vibrant:bg-campus-surface/50 vibrant:text-campus-muted vibrant:border-campus-border">
             {t("Registration Closed")}</button>
     )
 )}
@@ -340,14 +343,14 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                         {!isEventInPast && <div className="grid grid-cols-2 gap-3 flex-grow">
                             <button type="button" onClick={handleCalendarDownload} aria-label={t("Add to Cal")} className="flex items-center justify-center gap-2 py-2 px-3 border rounded-lg text-sm font-semibold transition-colors
                                                border-gray-200 text-gray-700 hover:bg-gray-50 
-                                               dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800
-                                               vibrant:border-purple-200 vibrant:text-purple-700 vibrant:hover:bg-purple-50">
-                                <CalendarPlus className="w-4 h-4 text-gray-500 dark:text-gray-400 vibrant:text-purple-500" /> 
+                                               dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800
+                                               vibrant:border-campus-border vibrant:text-campus-ink vibrant:hover:bg-campus-surface">
+                                <CalendarPlus className="w-4 h-4 text-gray-500 dark:text-gray-300 vibrant:text-campus-muted" /> 
                                 <span className="hidden sm:inline">{t("Add to Cal")}</span>
                                 <span className="sm:hidden">{t("Cal")}</span>
                             </button>
                             {/* Assuming ShareButton internally accepts classes or you will style it similarly */}
-                            <ShareButton />
+                            <ShareButton title={currentEvent.title} />
                         </div>}
                     </div>
                     
@@ -365,17 +368,17 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="bg-white dark:bg-gray-900 vibrant:bg-white vibrant:border-purple-200 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 max-w-sm w-full transition-colors">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white vibrant:text-purple-950 mb-2">{t("Delete Event")}</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 vibrant:text-purple-600 mb-6">
+          <div className="bg-white dark:bg-gray-900 vibrant:bg-white vibrant:border-campus-border rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 max-w-sm w-full transition-colors">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white vibrant:text-gray-950 mb-2">{t("Delete Event")}</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300 vibrant:text-campus-ink mb-6">
               {t("Are you sure you want to delete this event? This cannot be undone.")}</p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
                 disabled={isDeleting}
                 className="px-4 py-2 text-sm font-semibold rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50
-                           dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800
-                           vibrant:border-purple-200 vibrant:text-purple-700 vibrant:hover:bg-purple-50 transition-colors
+                           dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800
+                           vibrant:border-campus-border vibrant:text-campus-ink vibrant:hover:bg-campus-surface transition-colors
                            disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t("Cancel")}</button>
@@ -398,23 +401,23 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
         <div className="rounded-2xl p-6 max-w-md w-full shadow-2xl border animate-in fade-in zoom-in-95 duration-200
                         bg-white border-gray-200 
                         dark:bg-gray-800 dark:border-gray-700 
-                        vibrant:bg-white vibrant:border-purple-200 vibrant:shadow-purple-900/10">
+                        vibrant:bg-white vibrant:border-campus-border vibrant:shadow-stone-900/10">
             
             <h3 className="text-xl font-bold mb-2
-                           text-gray-900 dark:text-white vibrant:text-purple-950">
+                           text-gray-900 dark:text-white vibrant:text-gray-950">
                 {t("Leaving eventmnts")}</h3>
             
             <p className="mb-4 text-sm leading-relaxed
-                          text-gray-600 dark:text-gray-300 vibrant:text-purple-700">
+                          text-gray-600 dark:text-gray-200 vibrant:text-campus-ink">
                 {t("You are about to be redirected to an external website for registration. Do you trust this link?")}</p>
             
             {/* Link Container */}
             <div className="p-3 rounded-xl mb-6 break-all border 
                             bg-gray-50 border-gray-100 
                             dark:bg-gray-900 dark:border-gray-700
-                            vibrant:bg-purple-50 vibrant:border-purple-100">
+                            vibrant:bg-campus-surface vibrant:border-campus-border">
                 <span className="text-sm font-medium
-                                 text-blue-600 dark:text-blue-400 vibrant:text-purple-600">
+                                 text-blue-600 dark:text-blue-300 vibrant:text-campus-ink">
                     {currentEvent.registrationLink}
                 </span>
             </div>
@@ -425,8 +428,8 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                     onClick={() => setShowExternalLinkModal(false)}
                     className="px-5 py-2.5 rounded-xl font-semibold transition-colors
                                bg-gray-100 text-gray-700 hover:bg-gray-200 
-                               dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 
-                               vibrant:bg-purple-100 vibrant:text-purple-800 vibrant:hover:bg-purple-200"
+                               dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 
+                               vibrant:bg-campus-soft vibrant:text-campus-ink vibrant:hover:bg-campus-soft"
                 >
                     {t("Cancel")}</button>
                 
@@ -439,7 +442,7 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                     className="px-5 py-2.5 rounded-xl font-semibold text-white text-center transition-colors
                                bg-blue-600 hover:bg-blue-700 
                                dark:bg-blue-600 dark:hover:bg-blue-500 
-                               vibrant:bg-gradient-to-r vibrant:from-purple-600 vibrant:to-pink-600 vibrant:hover:from-purple-700 vibrant:hover:to-pink-700"
+                               vibrant:bg-gradient-to-r vibrant:from-campus-accent vibrant:to-campus-accent vibrant:hover:from-campus-accent-dark vibrant:hover:to-campus-accent-dark"
                 >
                     {t("Yes, take me to the link")}</a>
             </div>

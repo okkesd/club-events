@@ -41,26 +41,6 @@
   }
 }
 
-/* Five gentle color sweeps on arrival; stop immediately after interaction. */
-@media (prefers-reduced-motion: no-preference) {
-  .mobile-menu-intro::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: linear-gradient(120deg, #4338ca, #a21caf, #1d4ed8);
-    background-size: 200% 200%;
-    opacity: 0;
-    animation: mobile-menu-color 2.4s ease-in-out 0.5s 5;
-  }
-}
-
-@keyframes mobile-menu-color {
-  0%, 100% { opacity: 0; background-position: 0% 50%; }
-  40%, 60% { opacity: 1; }
-  80% { background-position: 100% 50%; }
-}
-
 :root {
   /* Light Mode */
   --background: #ffffff;
@@ -74,9 +54,20 @@
 }
 
 .vibrant {
-  /* Vibrant Mode */
-  --background: #faf5ff;
-  --foreground: #1e1b4b;
+  /* GSÜ theme: white surfaces, red accents, gold details. */
+  --background: #ffffff;
+  --foreground: #18181b;
+}
+
+@theme {
+  --color-campus-surface: #faf9f6;
+  --color-campus-soft: #f7f0dc;
+  --color-campus-border: #e4e1da;
+  --color-campus-ink: #39434a;
+  --color-campus-muted: #737873;
+  --color-campus-accent: #a51c30;
+  --color-campus-accent-dark: #831728;
+  --color-campus-gold: #d2aa3c;
 }
 
 @theme inline {
@@ -99,37 +90,60 @@ html, body {
    VIBRANT THEME — Global Overrides
    ============================================ */
 
-/* Gradient background for page body */
+/* Clean white page background */
 .vibrant body,
 .vibrant .vibrant-page-bg {
-  background: linear-gradient(160deg, #faf5ff 0%, #fdf2f8 40%, #fffbeb 100%);
+  background: #ffffff;
 }
 
 /* Gradient text utility */
 .vibrant .vibrant-gradient-text {
-  background: linear-gradient(135deg, #7c3aed, #ec4899);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  background: none;
+  color: var(--color-campus-accent);
+  -webkit-text-fill-color: currentColor;
 }
 
 /* Colored card shadows */
 .vibrant .vibrant-shadow {
-  box-shadow: 0 4px 14px -2px rgba(124, 58, 237, 0.12);
+  box-shadow: 0 4px 14px -2px rgba(41, 50, 56, 0.06);
 }
 .vibrant .vibrant-shadow:hover {
-  box-shadow: 0 8px 25px -5px rgba(124, 58, 237, 0.22);
+  box-shadow: 0 8px 25px -5px rgba(41, 50, 56, 0.10);
 }
 
 /* Vibrant heading font — applied when the font variable is loaded */
 .vibrant h1,
 .vibrant h2,
 .vibrant h3 {
-  font-family: var(--font-vibrant-heading, var(--font-geist-sans)), sans-serif;
+  font-family: var(--font-geist-sans), sans-serif;
   letter-spacing: -0.01em;
 }
 
 /* Vibrant scrollbar accent */
 .vibrant ::-webkit-scrollbar-thumb {
-  background-color: #c4b5fd;
+  background-color: #c4c0b6;
+}
+
+.vibrant .gs-event-stripe {
+  position: relative;
+  overflow: hidden;
+  border-left-width: 0;
+  padding-left: calc(0.5rem + 3px);
+}
+
+.vibrant .gs-event-stripe::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: linear-gradient(to bottom, #e8b827, #b51f32);
+  pointer-events: none;
+}
+
+.vibrant .gs-event-stripe-modal {
+  padding-left: calc(0.75rem + 4px);
+}
+
+.vibrant .gs-event-stripe-modal::before {
+  width: 4px;
 }

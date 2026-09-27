@@ -1,15 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import { useTheme } from "next-themes";
 
 export default function ThemeFavicon() {
-  const { resolvedTheme } = useTheme();
-
   useEffect(() => {
-    if (!resolvedTheme) return;
-    const theme = resolvedTheme === "dark" || resolvedTheme === "vibrant" ? resolvedTheme : "light";
-    const href = `/favicons/calendar-${theme}.svg`;
+    const href = "/favicons/calendar-vibrant.svg?v=2";
 
     const syncIcons = () => {
       // Update every tab-icon candidate, including the ICO fallback, so browsers
@@ -31,7 +26,7 @@ export default function ThemeFavicon() {
       attributeFilter: ["href", "rel", "type", "sizes"],
     });
     return () => observer.disconnect();
-  }, [resolvedTheme]);
+  }, []);
 
   return null;
 }

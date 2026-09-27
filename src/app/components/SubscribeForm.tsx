@@ -81,15 +81,15 @@ export default function SubscribeForm({ selectedCategories = [], layout = "inlin
               className="w-full pl-10 pr-4 py-2.5 rounded-xl border transition-colors outline-none text-base sm:text-sm
                 border-gray-200 dark:border-gray-700 vibrant:border-purple-200
                 bg-white dark:bg-gray-800 vibrant:bg-white/80
-                text-gray-900 dark:text-white vibrant:text-purple-900
-                focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-900/50 vibrant:focus:ring-purple-200
-                focus:border-blue-500 vibrant:focus:border-purple-500"
+                text-gray-900 dark:text-white vibrant:text-gray-900
+                focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-900/50 vibrant:focus:ring-campus-border
+                focus:border-blue-500 vibrant:focus:border-campus-accent"
             />
           </div>
           <button
             type="submit"
             disabled={status === "loading" || !agreedToPrivacy}
-            className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 vibrant:bg-purple-600 vibrant:hover:bg-purple-700 disabled:opacity-50 transition-colors shadow-sm"
+            className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 vibrant:bg-campus-accent vibrant:hover:bg-campus-accent-dark disabled:opacity-50 transition-colors shadow-sm"
           >
             {status === "loading" ? "..." : t("Subscribe")}
           </button>
@@ -102,11 +102,11 @@ export default function SubscribeForm({ selectedCategories = [], layout = "inlin
             disabled={status === "loading"}
             checked={agreedToPrivacy}
             onChange={(e) => setAgreedToPrivacy(e.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 vibrant:text-purple-600 vibrant:focus:ring-purple-500"
+            className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 vibrant:text-campus-ink vibrant:focus:ring-campus-accent"
           />
           <label htmlFor={`${formId}-privacy`} className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-purple-500">
             {t("I have read and accept the")}{" "}
-            <Link href="/legal/privacy" className="text-blue-600 dark:text-blue-400 vibrant:text-pink-600 hover:underline">
+            <Link href="/legal/privacy" className="text-blue-600 dark:text-blue-400 vibrant:text-campus-ink hover:underline">
               {t("Privacy Policy")}</Link>
           </label>
         </div>

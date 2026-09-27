@@ -7,6 +7,8 @@ import {
   Calendar, Clock, MapPin, Upload, Image as ImageIcon, Type, Map, Users, Link2
 } from 'lucide-react';
 import { uploadImage, resolveImageUrl } from '@/app/lib/api';
+import OrganizerInstagramField from './OrganizerInstagramField';
+import EventCategoryField from './EventCategoryField';
 
 interface EventFormProps {
     initialData?: any; // If provided, we are in Edit Mode
@@ -19,6 +21,8 @@ export default function EventForm({ initialData, onSubmit, onCancel, isSubmittin
   const {t} = useUI();
     const [formData, setFormData] = useState({
         title: initialData?.title || "",
+        organizerInstagram: initialData?.organizerInstagram || "",
+        category: initialData?.categoryOverride || "",
         description: initialData?.description || "",
         coverImage: initialData?.coverImage || "",
         date: initialData?.date || new Date().toISOString().split('T')[0],
@@ -72,18 +76,18 @@ export default function EventForm({ initialData, onSubmit, onCancel, isSubmittin
         // timeMode only drives the endTime calculation above — it isn't part of
         // the API schema, so keep it out of the request body.
         const { timeMode, ...payload } = formData;
-        onSubmit(payload);
+        onSubmit({ ...payload, category: payload.category || null, organizerInstagram: payload.organizerInstagram.trim().replace(/^@+/, '').trim() || null });
     };
 
     return (
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm p-6 rounded-2xl border border-gray-200 dark:border-gray-800 vibrant:border-purple-200 shadow-lg space-y-6 animate-in fade-in slide-in-from-bottom-4 transition-colors">
-            <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white vibrant:text-purple-900">{initialData ? t("Edit Event") : t("Create Event")}</h2>
+        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm p-6 rounded-2xl border border-gray-200 dark:border-gray-800 vibrant:border-campus-border shadow-lg space-y-6 animate-in fade-in slide-in-from-bottom-4 transition-colors">
+            <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white vibrant:text-gray-900">{initialData ? t("Edit Event") : t("Create Event")}</h2>
             
             {/* Title */}
             <div>
                 <div className="flex items-center justify-between mb-1">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700">{t("Event Title")}</label>
-                    <span className={`text-xs ${titleOverLimit ? "text-red-500 font-bold" : "text-gray-400 dark:text-gray-500 vibrant:text-purple-400"}`}>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-campus-ink">{t("Event Title")}</label>
+                    <span className={`text-xs ${titleOverLimit ? "text-red-500 font-bold" : "text-gray-400 dark:text-gray-500 vibrant:text-campus-muted"}`}>
                         {formData.title.length}/{TITLE_MAX}
                     </span>
                 </div>
@@ -91,18 +95,20 @@ export default function EventForm({ initialData, onSubmit, onCancel, isSubmittin
                     type="text" required value={formData.title}
                     maxLength={TITLE_MAX}
                     onChange={e => setFormData({...formData, title: e.target.value})}
-                    className={`w-full p-3 rounded-xl border bg-white dark:bg-gray-800 vibrant:bg-white/70 text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors ${titleOverLimit ? "border-red-400 focus:ring-red-300" : "border-gray-200 dark:border-gray-700 vibrant:border-purple-200"}`}
+                    className={`w-full p-3 rounded-xl border bg-white dark:bg-gray-800 vibrant:bg-white/70 text-gray-900 dark:text-white vibrant:text-gray-900 transition-colors ${titleOverLimit ? "border-red-400 focus:ring-red-300" : "border-gray-200 dark:border-gray-700 vibrant:border-campus-border"}`}
                 />
             </div>
 
             {/* Image */}
+            <EventCategoryField value={formData.category} onChange={category => setFormData(prev => ({ ...prev, category }))} />
+            <OrganizerInstagramField value={formData.organizerInstagram} onChange={organizerInstagram => setFormData(prev => ({ ...prev, organizerInstagram }))} />
             <div className="flex items-center gap-4">
-                <div className="w-24 h-24 rounded-xl bg-gray-100 dark:bg-gray-800 vibrant:bg-purple-100 overflow-hidden relative transition-colors">
+                <div className="w-24 h-24 rounded-xl bg-gray-100 dark:bg-gray-800 vibrant:bg-campus-soft overflow-hidden relative transition-colors">
                     {formData.coverImage ? (
                         <img src={resolveImageUrl(formData.coverImage)} className="w-full h-full object-cover" />
-                    ) : <ImageIcon className="w-8 h-8 text-gray-400 dark:text-gray-500 vibrant:text-purple-400 m-auto mt-8" />}
+                    ) : <ImageIcon className="w-8 h-8 text-gray-400 dark:text-gray-500 vibrant:text-campus-muted m-auto mt-8" />}
                 </div>
-                <label className="cursor-pointer px-4 py-2 bg-gray-100 dark:bg-gray-800 vibrant:bg-purple-100 text-gray-700 dark:text-gray-300 vibrant:text-purple-700 rounded-lg font-bold text-sm transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 vibrant:hover:bg-purple-200">
+                <label className="cursor-pointer px-4 py-2 bg-gray-100 dark:bg-gray-800 vibrant:bg-campus-soft text-gray-700 dark:text-gray-300 vibrant:text-campus-ink rounded-lg font-bold text-sm transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 vibrant:hover:bg-campus-soft">
                     {isUploading ? "..." : t("Change Image")}
                     <input type="file" className="hidden" onChange={handleImageChange} />
                 </label>
@@ -111,8 +117,8 @@ export default function EventForm({ initialData, onSubmit, onCancel, isSubmittin
             {/* Description */}
             <div>
                 <div className="flex items-center justify-between mb-1">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700">{t("Description")}</label>
-                    <span className={`text-xs ${descOverLimit ? "text-red-500 font-bold" : "text-gray-400 dark:text-gray-500 vibrant:text-purple-400"}`}>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-campus-ink">{t("Description")}</label>
+                    <span className={`text-xs ${descOverLimit ? "text-red-500 font-bold" : "text-gray-400 dark:text-gray-500 vibrant:text-campus-muted"}`}>
                         {formData.description.length}/{DESC_MAX}
                     </span>
                 </div>
@@ -120,18 +126,18 @@ export default function EventForm({ initialData, onSubmit, onCancel, isSubmittin
                     rows={4} required value={formData.description}
                     maxLength={DESC_MAX}
                     onChange={e => setFormData({...formData, description: e.target.value})}
-                    className={`w-full p-3 rounded-xl border bg-white dark:bg-gray-800 vibrant:bg-white/70 text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors ${descOverLimit ? "border-red-400 focus:ring-red-300" : "border-gray-200 dark:border-gray-700 vibrant:border-purple-200"}`}
+                    className={`w-full p-3 rounded-xl border bg-white dark:bg-gray-800 vibrant:bg-white/70 text-gray-900 dark:text-white vibrant:text-gray-900 transition-colors ${descOverLimit ? "border-red-400 focus:ring-red-300" : "border-gray-200 dark:border-gray-700 vibrant:border-campus-border"}`}
                 />
             </div>
 
             {/* Time & Place (Simplified for brevity) */}
             <div className="grid grid-cols-2 gap-4">
-                <input type="date" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="p-3 border rounded-xl border-gray-200 dark:border-gray-700 vibrant:border-purple-200 bg-white dark:bg-gray-800 vibrant:bg-white/70 text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors" />
-                <input type="time" value={formData.startTime} onChange={e => setFormData({...formData, startTime: e.target.value})} className="p-3 border rounded-xl border-gray-200 dark:border-gray-700 vibrant:border-purple-200 bg-white dark:bg-gray-800 vibrant:bg-white/70 text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors" />
+                <input type="date" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="p-3 border rounded-xl border-gray-200 dark:border-gray-700 vibrant:border-campus-border bg-white dark:bg-gray-800 vibrant:bg-white/70 text-gray-900 dark:text-white vibrant:text-gray-900 transition-colors" />
+                <input type="time" value={formData.startTime} onChange={e => setFormData({...formData, startTime: e.target.value})} className="p-3 border rounded-xl border-gray-200 dark:border-gray-700 vibrant:border-campus-border bg-white dark:bg-gray-800 vibrant:bg-white/70 text-gray-900 dark:text-white vibrant:text-gray-900 transition-colors" />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-                <input type="number" step="0.5" value={formData.duration} onChange={e => setFormData({...formData, duration: parseFloat(e.target.value)})} className="p-3 border rounded-xl border-gray-200 dark:border-gray-700 vibrant:border-purple-200 bg-white dark:bg-gray-800 vibrant:bg-white/70 text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors" placeholder={t("Duration (hrs)")} />
+                <input type="number" step="0.5" value={formData.duration} onChange={e => setFormData({...formData, duration: parseFloat(e.target.value)})} className="p-3 border rounded-xl border-gray-200 dark:border-gray-700 vibrant:border-campus-border bg-white dark:bg-gray-800 vibrant:bg-white/70 text-gray-900 dark:text-white vibrant:text-gray-900 transition-colors" placeholder={t("Duration (hrs)")} />
             </div>
 
             {/* Location Type */}
@@ -142,8 +148,8 @@ export default function EventForm({ initialData, onSubmit, onCancel, isSubmittin
                         onClick={() => setFormData({...formData, locationType: 'on-campus'})}
                         className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all cursor-pointer border ${
                             formData.locationType === 'on-campus'
-                            ? 'bg-blue-100 text-blue-700 border-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-900/50 vibrant:bg-purple-100 vibrant:text-purple-700 vibrant:border-purple-200'
-                            : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 vibrant:bg-white/70 vibrant:border-purple-200 vibrant:text-purple-600 vibrant:hover:bg-purple-50'
+                            ? 'bg-blue-100 text-blue-700 border-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-900/50 vibrant:bg-campus-soft vibrant:text-campus-ink vibrant:border-campus-border'
+                            : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 vibrant:bg-white/70 vibrant:border-campus-border vibrant:text-campus-ink vibrant:hover:bg-campus-surface'
                         }`}
                     >
                         {t("On Campus")}</button>
@@ -152,20 +158,20 @@ export default function EventForm({ initialData, onSubmit, onCancel, isSubmittin
                         onClick={() => setFormData({...formData, locationType: 'off-campus'})}
                         className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all cursor-pointer border ${
                             formData.locationType === 'off-campus'
-                            ? 'bg-blue-100 text-blue-700 border-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-900/50 vibrant:bg-purple-100 vibrant:text-purple-700 vibrant:border-purple-200'
-                            : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 vibrant:bg-white/70 vibrant:border-purple-200 vibrant:text-purple-600 vibrant:hover:bg-purple-50'
+                            ? 'bg-blue-100 text-blue-700 border-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-900/50 vibrant:bg-campus-soft vibrant:text-campus-ink vibrant:border-campus-border'
+                            : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 vibrant:bg-white/70 vibrant:border-campus-border vibrant:text-campus-ink vibrant:hover:bg-campus-surface'
                         }`}
                     >
                         {t("Off Campus")}</button>
                 </div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-campus-ink mb-1">
                     {formData.locationType === 'on-campus' ? t("Room / Building") : t("Address / Venue")}
                 </label>
                 <input
                     type="text" required value={formData.location}
                     onChange={e => setFormData({...formData, location: e.target.value})}
                     placeholder={formData.locationType === 'on-campus' ? t("e.g. Room 101, Tech Hall") : t("e.g. 123 Main St, Downtown")}
-                    className="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-700 vibrant:border-purple-200 bg-white dark:bg-gray-800 vibrant:bg-white/70 text-gray-700 dark:text-white vibrant:text-purple-900 transition-colors"
+                    className="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-700 vibrant:border-campus-border bg-white dark:bg-gray-800 vibrant:bg-white/70 text-gray-700 dark:text-white vibrant:text-gray-900 transition-colors"
                 />
             </div>
 
@@ -181,34 +187,34 @@ export default function EventForm({ initialData, onSubmit, onCancel, isSubmittin
                         />
                         <div className="w-11 h-6 bg-gray-200 peer-focus:ring-2 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:after:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
                     </label>
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700">{t("Enable registration")}</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-campus-ink">{t("Enable registration")}</span>
                 </div>
 
                 {formData.isRegistrationOpen && (
                     <div className="space-y-4 animate-in fade-in slide-in-from-top-1 duration-200">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1">{t("Registration Link")}</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-campus-ink mb-1">{t("Registration Link")}</label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Link2 className="h-4 w-4 text-gray-400 dark:text-gray-500 vibrant:text-purple-400" />
+                                    <Link2 className="h-4 w-4 text-gray-400 dark:text-gray-500 vibrant:text-campus-muted" />
                                 </div>
                                 <input
                                     type="url"
                                     placeholder="https://forms.google.com/..."
                                     value={formData.registrationLink}
                                     onChange={(e) => setFormData({...formData, registrationLink: e.target.value})}
-                                    className="w-full pl-10 p-3 rounded-xl border border-gray-200 dark:border-gray-700 vibrant:border-purple-200 bg-white dark:bg-gray-800 vibrant:bg-white/70 text-gray-700 dark:text-white vibrant:text-purple-900 dark:placeholder-gray-500 vibrant:placeholder-purple-400 focus:ring-2 focus:ring-blue-500 vibrant:focus:ring-purple-500 transition-colors"
+                                    className="w-full pl-10 p-3 rounded-xl border border-gray-200 dark:border-gray-700 vibrant:border-campus-border bg-white dark:bg-gray-800 vibrant:bg-white/70 text-gray-700 dark:text-white vibrant:text-gray-900 dark:placeholder-gray-500 vibrant:placeholder-campus-muted focus:ring-2 focus:ring-blue-500 vibrant:focus:ring-campus-accent transition-colors"
                                 />
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-purple-700 mb-1">{t("Capacity")} <span className="text-gray-400 dark:text-gray-500 vibrant:text-purple-400 font-normal">{t("(0 = unlimited)")}</span></label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 vibrant:text-campus-ink mb-1">{t("Capacity")} <span className="text-gray-400 dark:text-gray-500 vibrant:text-campus-muted font-normal">{t("(0 = unlimited)")}</span></label>
                             <input
                                 type="number"
                                 min="0"
                                 value={formData.capacity}
                                 onChange={(e) => setFormData({...formData, capacity: parseInt(e.target.value) || 0})}
-                                className="w-40 p-3 rounded-xl border border-gray-200 dark:border-gray-700 vibrant:border-purple-200 bg-white dark:bg-gray-800 vibrant:bg-white/70 text-gray-700 dark:text-white vibrant:text-purple-900 focus:ring-2 focus:ring-blue-500 vibrant:focus:ring-purple-500 transition-colors"
+                                className="w-40 p-3 rounded-xl border border-gray-200 dark:border-gray-700 vibrant:border-campus-border bg-white dark:bg-gray-800 vibrant:bg-white/70 text-gray-700 dark:text-white vibrant:text-gray-900 focus:ring-2 focus:ring-blue-500 vibrant:focus:ring-campus-accent transition-colors"
                             />
                         </div>
                     </div>
@@ -216,14 +222,14 @@ export default function EventForm({ initialData, onSubmit, onCancel, isSubmittin
             </div>
 
             {/* Actions */}
-            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700 vibrant:border-purple-200 transition-colors">
+            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700 vibrant:border-campus-border transition-colors">
                 {onCancel && (
-                    <button type="button" onClick={onCancel} className="px-5 py-2.5 text-gray-600 dark:text-gray-400 vibrant:text-purple-600 font-bold hover:bg-gray-100 dark:hover:bg-gray-800 vibrant:hover:bg-purple-100 rounded-xl transition-colors">
+                    <button type="button" onClick={onCancel} className="px-5 py-2.5 text-gray-600 dark:text-gray-400 vibrant:text-campus-ink font-bold hover:bg-gray-100 dark:hover:bg-gray-800 vibrant:hover:bg-campus-soft rounded-xl transition-colors">
                         {t("Cancel")}</button>
                 )}
                 <button
                     type="submit" disabled={isSubmitting}
-                    className="px-6 py-2.5 bg-blue-600 dark:bg-blue-600 vibrant:bg-gradient-to-r vibrant:from-purple-600 vibrant:to-pink-600 text-white font-bold rounded-xl hover:bg-blue-700 dark:hover:bg-blue-500 vibrant:hover:from-purple-700 vibrant:hover:to-pink-700 disabled:opacity-50 transition-colors"
+                    className="px-6 py-2.5 bg-blue-600 dark:bg-blue-600 vibrant:bg-gradient-to-r vibrant:from-campus-accent vibrant:to-campus-accent text-white font-bold rounded-xl hover:bg-blue-700 dark:hover:bg-blue-500 vibrant:hover:from-campus-accent-dark vibrant:hover:to-campus-accent-dark disabled:opacity-50 transition-colors"
                 >
                     {isSubmitting ? t("Saving...") : t("Save Changes")}
                 </button>

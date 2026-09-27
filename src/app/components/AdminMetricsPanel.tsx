@@ -7,7 +7,7 @@ import { useUI } from '@/i18n/useUI';
 import { fetchAdminMetrics, metricDefinitions, type AdminMetrics } from '@/app/lib/adminMetrics';
 
 export default function AdminMetricsPanel() {
-  const { t, locale } = useUI();
+  const { t, locale, language } = useUI();
   const [data, setData] = useState<AdminMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -32,9 +32,14 @@ export default function AdminMetricsPanel() {
     const percent = (current - previous) / previous * 100;
     return `${percent > 0 ? '+' : ''}${number(percent)}% ${t('vs previous 7 days')}`;
   };
-  const panel = 'rounded-xl border border-gray-200 dark:border-gray-800 vibrant:border-purple-200 bg-gray-50 dark:bg-gray-950 vibrant:bg-purple-50/50 p-4';
+  const historyNote = {
+    tr: 'Takip başlangıcı: {date}. Haftalık değerler yalnızca ölçülen kısmı içerir; eksik dönemler karşılaştırılmaz. Bugün dahil değildir.',
+    en: 'Tracking started: {date}. Weekly values include only the measured portion; incomplete periods are not compared. Today is excluded.',
+    fr: 'Début du suivi : {date}. Les valeurs couvrent uniquement la partie mesurée ; les périodes incomplètes ne sont pas comparées. Aujourd’hui est exclu.',
+  };
+  const panel = 'rounded-xl border border-gray-200 dark:border-gray-800 vibrant:border-campus-border bg-gray-50 dark:bg-gray-950 vibrant:bg-campus-surface/50 p-4';
 
-  return <section className="p-4 md:p-6 space-y-6 text-gray-900 dark:text-gray-100 vibrant:text-purple-950" aria-busy={loading}>
+  return <section className="p-4 md:p-6 space-y-6 text-gray-900 dark:text-gray-100 vibrant:text-gray-950" aria-busy={loading}>
     <div className="flex flex-wrap justify-between items-start gap-3">
       <div>
         <h2 className="flex items-center gap-2 text-xl font-bold"><BarChart3 className="h-5 w-5 text-blue-600" />{t('Metrics')}</h2>
@@ -47,13 +52,16 @@ export default function AdminMetricsPanel() {
     </div>
     {error && <p role="alert" className="text-sm text-red-600 dark:text-red-400">{t('Metrics could not be loaded. Please refresh.')}</p>}
     {loading && !data ? <p role="status" className="py-12 text-center">{t('Loading...')}</p> : data && <>
+      {data.historyCoverage?.startedAt && !data.historyCoverage.currentComplete && <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-200">
+        {historyNote[language].replace('{date}', new Date(data.historyCoverage.startedAt).toLocaleString(locale, { timeZone: data.period.timezone }))}
+      </p>}
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
         {metricDefinitions.map(([key, label]) => {
           const metric = data.metrics[key];
           return <div key={key} className={panel}>
             <h3 className="text-sm text-gray-600 dark:text-gray-400">{t(label)}</h3>
             <p className="my-2 text-3xl font-bold tabular-nums">{number(metric?.current)}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{comparison(metric?.current, metric?.previous)}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{key !== 'scheduledEvents' && data.historyCoverage && (!data.historyCoverage.currentComplete || !data.historyCoverage.previousComplete) ? t('Comparison unavailable') : comparison(metric?.current, metric?.previous)}</p>
           </div>;
         })}
       </div>

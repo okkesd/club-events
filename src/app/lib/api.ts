@@ -1,6 +1,15 @@
 import { IEvent, ClubData, IApiResponse, IClubUpdate, IEventUpdate, SignUpData, IAnnouncement, IAnnouncementCreate, IAnnouncementUpdate, IAnnouncementFilters, PaginatedResponse, IEventFilters, ISubscribeRequest, ISubscription, IIgClubMapping, IScrapedEvent, IScrapedEventFilters, IScrapedEventUpdate, IScrapedEventApprove, IScrapedAnnouncementApprove, IScrapedImportResult } from './types';
 import { getWeekStartDate } from './dateUtils';
 import type { SuggestionDraft } from './suggestions';
+import type { IEventHighlights } from './types';
+
+export async function getEventHighlights(signal?: AbortSignal): Promise<IEventHighlights> {
+  const response = await fetch('/api/proxy/events/highlights', { cache: 'no-store', signal });
+  if (!response.ok) await handleApiError(response);
+  const result: IApiResponse<IEventHighlights> = await response.json();
+  if (!result.success || !result.data) throw new Error('Could not load event highlights');
+  return result.data;
+}
 
 /** Proposed backend contract: POST /admin/suggestions/extract, { success, data }.
  * image is a data URL; the backend authenticates the admin and calls the LLM.
@@ -824,6 +833,19 @@ export async function subscribeToClub(clubId: string, email: string) {
   return res.json();
 }
 
+// Backend contract: POST /events/{id}/reminders, { email } -> { success: true }.
+export async function createEventReminder(eventId: string, email: string): Promise<void> {
+  const response = await fetch(`${getBaseUrl()}/api/proxy/events/${encodeURIComponent(eventId)}/reminders`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: email.trim() }),
+    cache: "no-store",
+  });
+  if (!response.ok) await handleApiError(response);
+  const result = await response.json();
+  if (result?.success !== true) throw new Error("Reminder could not be saved");
+}
+
 export async function unsubscribe(token: string): Promise<IApiResponse<null>> {
   const BASE_URL = getBaseUrl();
 
@@ -1012,4 +1034,58 @@ export async function deleteIgClubMapping(clubUsername: string): Promise<IApiRes
 
   if (!res.ok) await handleApiError(res);
   return res.json();
+}
+
+
+export interface AdminReminder {
+  id: string;
+  email: string;
+  eventId: string;
+  eventTitle: string;
+  eventStart: string | null;
+  dueAt: string | null;
+  status: string;
+  displayStatus: string;
+  sentAt: string | null;
+  createdAt: string;
+}
+
+export async function getAdminReminders(page = 1): Promise<{
+  data: AdminReminder[];
+  pagination: { page: number; pageSize: number; total: number; totalPages: number };
+}> {
+  const res = await fetch(`${getBaseUrl()}/api/proxy/admin/reminders?page=${page}&page_size=20`, {
+    headers: getAuthHeader(), cache: "no-store",
+  });
+  if (!res.ok) await handleApiError(res);
+  return res.json();
+}
+
+
+export async function getOrganizerCategories(): Promise<{username: string; category: string | null}[]> {
+  const res = await fetch(`${getBaseUrl()}/api/proxy/admin/organizer-categories`, {headers: getAuthHeader(), cache: 'no-store'});
+  if (!res.ok) await handleApiError(res);
+  return (await res.json()).data;
+}
+export async function setOrganizerCategory(username: string, category: string | null) {
+  const res = await fetch(`${getBaseUrl()}/api/proxy/admin/organizer-categories/${encodeURIComponent(username)}`, {
+    method: 'PUT', headers: {...getAuthHeader(), 'Content-Type': 'application/json'}, body: JSON.stringify({category}),
+  });
+  if (!res.ok) await handleApiError(res);
+}
+
+
+export async function getCategoryClubs(): Promise<ClubData[]> {
+  const clubs: ClubData[] = [];
+  let page = 1;
+  let totalPages = 1;
+  do {
+    const res = await fetch(`${getBaseUrl()}/api/proxy/all_clubs?page=${page}&page_size=100`, {cache: 'no-store'});
+    if (!res.ok) await handleApiError(res);
+    const result = await res.json();
+    clubs.push(...result.data);
+    totalPages = result.pagination?.totalPages ?? 1;
+    page += 1;
+  } while (page <= totalPages);
+  return clubs.filter(club => club.role !== 'admin');
 }

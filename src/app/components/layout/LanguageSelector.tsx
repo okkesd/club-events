@@ -22,7 +22,7 @@ export default function LanguageSelector({ expanded = false }: LanguageSelectorP
     startTransition(() => router.refresh());
   };
   return (
-    <label className={`relative flex min-h-11 items-center gap-2 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300 vibrant:text-purple-700 hover:bg-gray-100 dark:hover:bg-gray-800 vibrant:hover:bg-purple-50 focus-within:ring-2 focus-within:ring-blue-500 transition-colors ${expanded ? "w-full px-3" : "px-2"}`}>
+    <label className={`relative flex min-h-11 items-center gap-2 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300 vibrant:text-campus-ink hover:bg-gray-100 dark:hover:bg-gray-800 vibrant:hover:bg-campus-surface focus-within:ring-2 focus-within:ring-blue-500 transition-colors ${expanded ? "w-full px-3" : "px-2"}`}>
       <Globe className="h-4 w-4 shrink-0" aria-hidden="true" />
       {expanded && <span>{t("Language")}</span>}
       <span className={expanded ? "ml-auto uppercase" : "uppercase"}>{language}</span>

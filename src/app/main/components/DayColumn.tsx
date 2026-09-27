@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { Clock, X } from "lucide-react";
 
 const ROW_HEIGHT_REM = 4.5; // Keep in sync with EventCard's row height.
-const MAX_VISIBLE_EVENTS = 3;
+const MAX_VISIBLE_EVENTS = 2;
 
 interface DayColumnProps {
     day: Date;
@@ -41,7 +41,7 @@ interface ClusterInfo {
 
 /**
  * Compute side-by-side layout for overlapping events.
- * Clusters with >3 events are capped — only the first 3 are laid out.
+ * Clusters with >2 events are capped — only the first 2 are laid out.
  */
 function computeOverlapLayout(events: IEvent[]): { layout: Map<string, LayoutInfo>; clusters: ClusterInfo[] } {
     const layout = new Map<string, LayoutInfo>();
@@ -140,24 +140,25 @@ function computeOverlapLayout(events: IEvent[]): { layout: Map<string, LayoutInf
 }
 
 /** Modal that shows all events in a crowded time slot */
-function OverflowModal({ events, onClose }: { events: IEvent[]; onClose: () => void }) {
-  const {t} = useUI();
+function OverflowModal({ day, events, onClose }: { day: Date; events: IEvent[]; onClose: () => void }) {
+  const {t, locale} = useUI();
+    const dateLabel = day.toLocaleDateString(locale, { day: 'numeric', month: 'long', weekday: 'long' });
     return (
         <div
             className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
             onClick={onClose}
         >
             <div
-                className="bg-white dark:bg-gray-800 vibrant:bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[80vh] flex flex-col relative border border-transparent dark:border-gray-700 vibrant:border-purple-200"
+                className="bg-white dark:bg-gray-800 vibrant:bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col relative border border-transparent dark:border-gray-700 vibrant:border-campus-border"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-700 vibrant:border-purple-100">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white vibrant:text-purple-900">
-                        {t("{count} overlapping events", {count: events.length})}</h3>
+                <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-700 vibrant:border-campus-border">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white vibrant:text-gray-900">
+                        {dateLabel}, {events[0].startTime} ({t("{count} events", {count: events.length})})</h3>
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-full text-gray-400 hover:bg-gray-100 dark:text-gray-500 dark:hover:bg-gray-700 vibrant:hover:bg-purple-100 transition-colors"
+                        className="p-2 rounded-full text-gray-400 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 vibrant:hover:bg-campus-soft transition-colors"
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -169,23 +170,21 @@ function OverflowModal({ events, onClose }: { events: IEvent[]; onClose: () => v
                         <Link
                             key={event.id}
                             href={`/event/${event.id}`}
-                            className="block rounded-xl border-l-4 p-3 transition-colors
+                            className="gs-event-stripe gs-event-stripe-modal block rounded-xl border-l-4 p-3 transition-colors
                                 bg-blue-50 border-blue-500 hover:bg-blue-100
                                 dark:bg-blue-900/20 dark:border-blue-500 dark:hover:bg-blue-900/40
-                                vibrant:bg-violet-50 vibrant:border-purple-500 vibrant:hover:bg-violet-100"
+                                vibrant:bg-campus-surface vibrant:border-campus-accent vibrant:hover:bg-campus-soft"
                         >
-                            <div className="font-semibold text-blue-900 dark:text-blue-100 vibrant:text-purple-900 truncate">
+                            <div className="font-semibold text-blue-900 dark:text-blue-50 vibrant:text-gray-900 truncate">
                                 {event.title}
                             </div>
-                            <div className="flex items-center text-sm text-blue-700 dark:text-blue-300 vibrant:text-purple-700 gap-1 mt-1">
+                            {event.organizerInstagram && (
+                                <p className="mt-1 truncate text-[15px] font-medium text-blue-700 dark:text-blue-100 vibrant:text-campus-ink">@{event.organizerInstagram}</p>
+                            )}
+                            <div className="flex items-center text-sm text-blue-700 dark:text-blue-200 vibrant:text-campus-ink gap-1 mt-1">
                                 <Clock size={14} />
                                 <span>{event.startTime} - {calculateEndTime(event.startTime, event.duration)}</span>
                             </div>
-                            {event.description && (
-                                <p className="text-sm text-blue-800/70 dark:text-blue-200/60 vibrant:text-purple-800/70 line-clamp-2 mt-1">
-                                    {event.description}
-                                </p>
-                            )}
                         </Link>
                     ))}
                 </div>
@@ -227,15 +226,15 @@ export function DayColumn({ day, events, isFirstDay, startHour, endHour }: DayCo
         <div className="flex flex-col flex-1 h-full min-w-0 bg-white dark:bg-gray-950 vibrant:bg-white/50 transition-colors">
             {/* Header */}
             <div className="p-2">
-                <div className="flex flex-col items-center justify-center py-3 border-b border-slate-200 dark:border-gray-800 vibrant:border-purple-200 mb-3 bg-white dark:bg-gray-900 vibrant:bg-white/80 shadow-lg rounded-md">
-                    <span className="text-xs font-medium uppercase text-slate-500 dark:text-gray-400 vibrant:text-purple-500 mb-1">
+                <div className="flex flex-col items-center justify-center py-3 border-b border-slate-200 dark:border-gray-800 vibrant:border-campus-border mb-3 bg-white dark:bg-gray-900 vibrant:bg-white/80 shadow-lg rounded-md">
+                    <span className="text-xs font-medium uppercase text-slate-500 dark:text-gray-300 vibrant:text-campus-muted mb-1">
                         {dayName}
                     </span>
                     <div className={`
                         flex items-center justify-center w-10 h-10 rounded-full text-2xl font-bold transition-colors
                         ${isToday
-                            ? 'bg-blue-600 text-white vibrant:bg-purple-600'
-                            : 'text-slate-900 dark:text-white vibrant:text-purple-900'
+                            ? 'bg-blue-600 text-white vibrant:bg-campus-accent'
+                            : 'text-slate-900 dark:text-white vibrant:text-gray-900'
                         }
                     `}>
                         {dayOfMonth}
@@ -245,7 +244,7 @@ export function DayColumn({ day, events, isFirstDay, startHour, endHour }: DayCo
 
             {/* The Grid Area */}
             <div
-                className="grid w-full relative flex-1"
+                className="grid w-full relative flex-1 pb-2"
                 style={{
                     gridTemplateRows: `repeat(${totalGridRows}, ${ROW_HEIGHT_REM}rem)`,
                     gridTemplateColumns: "1fr"
@@ -255,11 +254,11 @@ export function DayColumn({ day, events, isFirstDay, startHour, endHour }: DayCo
                 {hourSlots.map((timeLabel, index) => (
                     <div
                         key={timeLabel}
-                        className="border-b border-slate-100 dark:border-gray-800/60 vibrant:border-purple-100 relative"
+                        className="border-b border-slate-100 dark:border-gray-800/60 vibrant:border-campus-border relative"
                         style={{ gridRow: index + 1, gridColumn: "1 / -1" }}
                     >
                         {isFirstDay && (
-                            <span className="absolute -left-2 -top-3 w-12 text-right text-xs text-slate-600 dark:text-gray-500 vibrant:text-purple-500 font-medium pr-2 bg-white/0">
+                            <span className="absolute -left-2 -top-3 w-12 text-right text-xs text-slate-600 dark:text-gray-400 vibrant:text-campus-muted font-medium pr-2 bg-white/0">
                                 {timeLabel}
                             </span>
                         )}
@@ -285,8 +284,9 @@ export function DayColumn({ day, events, isFirstDay, startHour, endHour }: DayCo
 
                 {/* Layer 3: "+N more" buttons for crowded clusters */}
                 {crowdedClusters.map((cluster, idx) => {
-                    // Position the button at the bottom of the cluster area
-                    const topRem = (Math.min(cluster.maxEnd, endHour) - startHour) * ROW_HEIGHT_REM - 1.75;
+                    // Keep the button below the visible cards, independent of hidden events.
+                    const visibleEnd = Math.max(...cluster.visibleEvents.map(event => parseTime(event.startTime) + event.duration));
+                    const topRem = (Math.min(visibleEnd, endHour) - startHour) * ROW_HEIGHT_REM + 0.125;
                     return (
                         <button
                             key={idx}
@@ -294,7 +294,7 @@ export function DayColumn({ day, events, isFirstDay, startHour, endHour }: DayCo
                             className="absolute right-1 z-30 px-2 py-0.5 rounded-full text-xs font-semibold cursor-pointer transition-all
                                 bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg
                                 dark:bg-blue-500 dark:hover:bg-blue-400
-                                vibrant:bg-purple-600 vibrant:hover:bg-purple-500"
+                                vibrant:bg-campus-accent vibrant:hover:bg-campus-accent-dark"
                             style={{ top: `${topRem}rem` }}
                         >
                             +{t("{count} more", {count: cluster.hiddenCount})}</button>
@@ -305,6 +305,7 @@ export function DayColumn({ day, events, isFirstDay, startHour, endHour }: DayCo
             {/* Overflow Modal */}
             {modalCluster && (
                 <OverflowModal
+                    day={day}
                     events={modalCluster.events}
                     onClose={() => setModalCluster(null)}
                 />

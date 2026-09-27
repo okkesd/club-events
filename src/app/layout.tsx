@@ -6,6 +6,7 @@ import { Geist, Geist_Mono, Nunito } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/app/components/layout/Navbar";
 import Footer from "@/app/components/layout/Footer";
+import MobileNavigation from "@/app/components/layout/MobileNavigation";
 import { AuthProvider } from "@/app/context/AuthContext";
 import { ThemeProvider } from "@/app/providers/ThemeProvider";
 import ThemeFavicon from "@/app/components/ThemeFavicon";
@@ -54,6 +55,21 @@ export default async function RootLayout({
   const locale = await getLocale();
   return (
     <html lang={locale} suppressHydrationWarning>
+      <head>
+        {/* Migrate before the theme provider paints, once per browser. */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          try {
+            if (!localStorage.getItem('gs-theme-migration-v1')) {
+              var savedTheme = localStorage.getItem('theme');
+              if (!savedTheme || savedTheme === 'light' ||
+                  (savedTheme === 'system' && !window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                localStorage.setItem('theme', 'vibrant');
+              }
+              localStorage.setItem('gs-theme-migration-v1', 'done');
+            }
+          } catch (_) {}
+        ` }} />
+      </head>
       {/* Extensions may inject body attributes before hydration (e.g. cz-shortcut-listen).
           Suppression is shallow; descendant hydration checks remain enabled. */}
       <body suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} ${nunito.variable}`}>
@@ -61,12 +77,12 @@ export default async function RootLayout({
         <AuthProvider>
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
+            defaultTheme="vibrant"
             enableSystem
-            themes={["light", "dark", "vibrant"]}
+            themes={["vibrant", "dark", "light"]}
           >
         {/* 4. This div wrapper creates the full-height layout */}
-        <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-950 vibrant:bg-[#faf5ff] text-gray-900 dark:text-gray-100 vibrant:text-indigo-950 antialiased transition-colors duration-300">
+        <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-950 vibrant:bg-white text-gray-900 dark:text-gray-100 vibrant:text-gray-900 antialiased transition-colors duration-300">
           
           {/* 5. The Navbar is added here, at the top */}
           
@@ -80,6 +96,7 @@ export default async function RootLayout({
             
           </main>
             <Footer />
+            <MobileNavigation />
             <CookieBanner />
         </div>
         </ThemeProvider>

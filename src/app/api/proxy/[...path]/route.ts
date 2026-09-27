@@ -61,7 +61,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   // Now you can safely use .join()
   const pathString = path.join("/");
-  const responseHeaders = pathString === "events/liked"
+  const responseHeaders = pathString === "events/liked" || pathString === "events/highlights"
     ? { "Cache-Control": "private, no-store" }
     : undefined;
   //console.log(params)

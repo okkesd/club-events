@@ -1,3 +1,4 @@
+import type { EventCategory } from './eventCategories';
 /**
  * Generic API Response wrapper
  */
@@ -11,6 +12,7 @@ export interface IApiResponse<T> {
  * --- CLUBS ---
  */
 export interface ClubData {
+  category?: EventCategory | null;
   id: string;
   slug: string;
   email: string;
@@ -32,6 +34,7 @@ export interface ClubData {
 
 // For updating a club profile
 export interface IClubUpdate {
+  category?: EventCategory | null;
   clubName?: string;
   email?: string;
   description?: string;
@@ -44,10 +47,13 @@ export interface IClubUpdate {
  * --- EVENTS ---
  */
 export interface IEvent {
+  category?: EventCategory | null;
+  categoryOverride?: EventCategory | null;
   sourcePostUrl?: string | null;
   id: string;
   clubId: string;
   clubName: string; // Flattened for display
+  organizerInstagram?: string | null;
 
   title: string;
   description: string;
@@ -77,6 +83,8 @@ export interface IEvent {
 
 // For creating/updating an event (everything optional for update)
 export interface IEventUpdate {
+  category?: EventCategory | null;
+  organizerInstagram?: string | null;
   title?: string;
   description?: string;
   date?: string;
@@ -89,6 +97,25 @@ export interface IEventUpdate {
   isRegistrationOpen?: boolean;
   registrationLink?: string;
   capacity?: number;
+}
+
+export interface IEventHighlight {
+  id: string;
+  title: string;
+  date: string;
+  startTime: string;
+  likes: number;
+  coverImage: string | null;
+  location: string;
+}
+
+export interface IEventHighlights {
+  timezone: string;
+  weekStart: string;
+  weekEnd: string;
+  weeklyEventCount: number;
+  popularEvents: IEventHighlight[];
+  nextEvent: IEventHighlight | null;
 }
 
 /**
@@ -302,6 +329,7 @@ export interface IScrapedEventUpdate {
 
 // POST /admin/scraped-events/{id}/approve — all optional overrides
 export interface IScrapedEventApprove {
+  category?: EventCategory | null;
   clubId?: string;
   publishAsAdmin?: boolean;  // publish under the admin account; clubId is ignored when true
   title?: string;

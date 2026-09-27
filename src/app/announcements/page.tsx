@@ -18,10 +18,10 @@ import StayUpdated from "@/app/components/StayUpdated";
 const CATEGORIES: { value: AnnouncementCategory; label: string; color: string }[] = [
   { value: "internship", label: "Internship", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 vibrant:bg-blue-100 vibrant:text-blue-700" },
   { value: "job", label: "Job", color: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 vibrant:bg-green-100 vibrant:text-green-700" },
-  { value: "scholarship", label: "Scholarship", color: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 vibrant:bg-amber-100 vibrant:text-amber-700" },
-  { value: "competition", label: "Competition", color: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 vibrant:bg-red-100 vibrant:text-red-700" },
-  { value: "recruitment", label: "Recruitment", color: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 vibrant:bg-purple-100 vibrant:text-purple-700" },
-  { value: "academic", label: "Academic", color: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 vibrant:bg-indigo-100 vibrant:text-indigo-700" },
+  { value: "scholarship", label: "Scholarship", color: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 vibrant:bg-campus-soft vibrant:text-amber-700" },
+  { value: "competition", label: "Competition", color: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 vibrant:bg-campus-soft vibrant:text-campus-ink" },
+  { value: "recruitment", label: "Recruitment", color: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 vibrant:bg-campus-soft vibrant:text-campus-ink" },
+  { value: "academic", label: "Academic", color: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 vibrant:bg-campus-soft vibrant:text-amber-700" },
   { value: "workshop", label: "Workshop", color: "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300 vibrant:bg-teal-100 vibrant:text-teal-700" },
   { value: "general", label: "General", color: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 vibrant:bg-gray-100 vibrant:text-gray-700" },
 ];
@@ -87,26 +87,26 @@ export default function AnnouncementsPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 vibrant:bg-transparent pb-20 transition-colors duration-300">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 vibrant:border-purple-200 py-12 px-4 mb-8 transition-colors">
+      <div className="bg-white dark:bg-gray-900 vibrant:bg-white/80 vibrant:backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 vibrant:border-campus-border py-12 px-4 mb-8 transition-colors">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-blue-100 dark:bg-blue-900/30 vibrant:bg-purple-100 rounded-xl">
-                <Megaphone className="w-6 h-6 text-blue-600 dark:text-blue-400 vibrant:text-purple-600" />
+              <div className="p-2.5 bg-blue-100 dark:bg-blue-900/30 vibrant:bg-campus-soft rounded-xl">
+                <Megaphone className="w-6 h-6 text-blue-600 dark:text-blue-400 vibrant:text-campus-ink" />
               </div>
-              <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white vibrant:text-purple-900 tracking-tight transition-colors">
+              <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white vibrant:text-gray-900 tracking-tight transition-colors">
                 {t("Announcements")}</h1>
             </div>
             {user && (
               <Link
                 href="/announcements/create"
-                className="hidden md:flex items-center gap-2 bg-blue-600 hover:bg-blue-700 vibrant:bg-purple-600 vibrant:hover:bg-purple-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm hover:shadow-md active:scale-95"
+                className="hidden md:flex items-center gap-2 bg-blue-600 hover:bg-blue-700 vibrant:bg-campus-accent vibrant:hover:bg-campus-accent-dark text-white px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm hover:shadow-md active:scale-95"
               >
                 <Plus className="w-4 h-4" />
                 {t("Post Announcement")}</Link>
             )}
           </div>
-          <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-500 max-w-2xl transition-colors">
+          <p className="text-gray-500 dark:text-gray-400 vibrant:text-campus-muted max-w-2xl transition-colors">
             {t("Internships, scholarships, jobs, competitions and more from campus clubs.")}</p>
         </div>
       </div>
@@ -127,13 +127,13 @@ export default function AnnouncementsPage() {
                 focus:ring-2 focus:ring-blue-200 focus:border-blue-500
                 dark:bg-gray-900 dark:border-gray-800 dark:text-white dark:placeholder-gray-400
                 dark:focus:ring-blue-900/50 dark:focus:border-blue-500
-                vibrant:bg-white/80 vibrant:border-purple-200 vibrant:focus:ring-purple-200 vibrant:focus:border-purple-500"
+                vibrant:bg-white/80 vibrant:border-campus-border vibrant:focus:ring-campus-border vibrant:focus:border-campus-accent"
             />
           </div>
 
           {/* Category chips + controls */}
           <div className="flex flex-wrap items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-400 dark:text-gray-500 vibrant:text-purple-400 shrink-0" />
+            <Filter className="w-4 h-4 text-gray-400 dark:text-gray-500 vibrant:text-campus-muted shrink-0" />
             {CATEGORIES.map((cat) => (
               <button
                 key={cat.value}
@@ -142,15 +142,15 @@ export default function AnnouncementsPage() {
                 )}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   selectedCategories.includes(cat.value)
-                    ? cat.color + " ring-2 ring-offset-1 ring-blue-400 dark:ring-blue-500 vibrant:ring-purple-400"
-                    : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 vibrant:bg-purple-50 vibrant:text-purple-400 hover:bg-gray-200 dark:hover:bg-gray-700 vibrant:hover:bg-purple-100"
+                    ? cat.color + " ring-2 ring-offset-1 ring-blue-400 dark:ring-blue-500 vibrant:ring-campus-gold"
+                    : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 vibrant:bg-campus-surface vibrant:text-campus-muted hover:bg-gray-200 dark:hover:bg-gray-700 vibrant:hover:bg-campus-soft"
                 }`}
               >
                 {t(cat.label)}
               </button>
             ))}
 
-            <div className="h-5 w-px bg-gray-200 dark:bg-gray-700 vibrant:bg-purple-200 mx-1" />
+            <div className="h-5 w-px bg-gray-200 dark:bg-gray-700 vibrant:bg-campus-soft mx-1" />
 
             <button
               aria-pressed={showExpired}
@@ -158,7 +158,7 @@ export default function AnnouncementsPage() {
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 showExpired
                   ? "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 ring-2 ring-offset-1 ring-orange-400"
-                  : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 vibrant:bg-purple-50 vibrant:text-purple-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                  : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 vibrant:bg-campus-surface vibrant:text-campus-muted hover:bg-gray-200 dark:hover:bg-gray-700"
               }`}
             >
               {t("Show Expired")}</button>
@@ -174,7 +174,7 @@ export default function AnnouncementsPage() {
         {user && (
           <Link
             href="/announcements/create"
-            className="md:hidden flex items-center justify-center gap-2 mb-6 bg-blue-600 hover:bg-blue-700 vibrant:bg-purple-600 vibrant:hover:bg-purple-700 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all shadow-sm w-full"
+            className="md:hidden flex items-center justify-center gap-2 mb-6 bg-blue-600 hover:bg-blue-700 vibrant:bg-campus-accent vibrant:hover:bg-campus-accent-dark text-white px-4 py-3 rounded-xl font-bold text-sm transition-all shadow-sm w-full"
           >
             <Plus className="w-4 h-4" />
             {t("Post Announcement")}</Link>
@@ -200,11 +200,11 @@ export default function AnnouncementsPage() {
           </>
         ) : (
           <div className="text-center py-20">
-            <div className="bg-gray-100 dark:bg-gray-800 vibrant:bg-purple-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors">
-              <Megaphone className="w-8 h-8 text-gray-400 dark:text-gray-500 vibrant:text-purple-400" />
+            <div className="bg-gray-100 dark:bg-gray-800 vibrant:bg-campus-soft w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors">
+              <Megaphone className="w-8 h-8 text-gray-400 dark:text-gray-500 vibrant:text-campus-muted" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-purple-900 transition-colors">{t("No announcements found")}</h3>
-            <p className="text-gray-500 dark:text-gray-400 vibrant:text-purple-400 mt-2 transition-colors">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white vibrant:text-gray-900 transition-colors">{t("No announcements found")}</h3>
+            <p className="text-gray-500 dark:text-gray-400 vibrant:text-campus-muted mt-2 transition-colors">
               {hasFilters ? t("Try adjusting your filters.") : t("Check back soon for new posts.")}
             </p>
           </div>
@@ -227,7 +227,7 @@ function AnnouncementCard({ announcement: a }: { announcement: IAnnouncement }) 
       className={`group block bg-white dark:bg-gray-900 vibrant:bg-white/80 rounded-2xl border p-5 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5
         ${a.isPinned
           ? "border-amber-300 dark:border-amber-700 vibrant:border-amber-300 shadow-sm"
-          : "border-gray-200 dark:border-gray-800 vibrant:border-purple-200"
+          : "border-gray-200 dark:border-gray-800 vibrant:border-campus-border"
         }
         ${expired ? "opacity-60" : ""}
       `}
@@ -261,17 +261,17 @@ function AnnouncementCard({ announcement: a }: { announcement: IAnnouncement }) 
       )}
 
       {/* Title */}
-      <h3 className="text-lg font-bold text-gray-900 dark:text-white vibrant:text-purple-900 group-hover:text-blue-600 dark:group-hover:text-blue-400 vibrant:group-hover:text-pink-600 leading-snug mb-1.5 transition-colors">
+      <h3 className="text-lg font-bold text-gray-900 dark:text-white vibrant:text-gray-900 group-hover:text-blue-600 dark:group-hover:text-blue-400 vibrant:group-hover:text-campus-accent leading-snug mb-1.5 transition-colors">
         {a.title}
       </h3>
 
       {/* Club + date */}
-      <p className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-purple-400 mb-2 transition-colors">
+      <p className="text-xs text-gray-500 dark:text-gray-400 vibrant:text-campus-muted mb-2 transition-colors">
         {a.clubName} · {new Date(a.createdAt).toLocaleDateString(locale, { month: "short", day: "numeric" })}
       </p>
 
       {/* Body preview */}
-      <p className="text-sm text-gray-600 dark:text-gray-300 vibrant:text-purple-700 line-clamp-2 leading-relaxed mb-3">
+      <p className="text-sm text-gray-600 dark:text-gray-300 vibrant:text-campus-ink line-clamp-2 leading-relaxed mb-3">
         {a.body}
       </p>
 
@@ -279,7 +279,7 @@ function AnnouncementCard({ announcement: a }: { announcement: IAnnouncement }) 
       <div className="flex items-center justify-between">
         <div className="flex flex-wrap gap-1.5">
           {a.tags.slice(0, 3).map((tag) => (
-            <span key={tag} className="flex items-center gap-0.5 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 vibrant:bg-purple-50 vibrant:text-purple-500">
+            <span key={tag} className="flex items-center gap-0.5 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 vibrant:bg-campus-surface vibrant:text-campus-muted">
               <TagIcon className="w-2.5 h-2.5" /> {tag}
             </span>
           ))}
@@ -287,7 +287,7 @@ function AnnouncementCard({ announcement: a }: { announcement: IAnnouncement }) 
             <span className="text-[10px] text-gray-400 dark:text-gray-500">+{a.tags.length - 3}</span>
           )}
         </div>
-        {a.link && <ExternalLink className="w-4 h-4 text-gray-400 dark:text-gray-500 vibrant:text-purple-400 shrink-0" />}
+        {a.link && <ExternalLink className="w-4 h-4 text-gray-400 dark:text-gray-500 vibrant:text-campus-muted shrink-0" />}
       </div>
     </Link>
   );

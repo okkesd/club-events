@@ -1,0 +1,111 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # --- PHASE 1: BUILD & PUSH ---
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Frontend Image (no push yet)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          load: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:latest
+
+      - name: Scan image for vulnerabilities
+        uses: docker/scout-action@v1
+        with:
+          command: cves
+          image: ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:latest
+          only-severities: critical
+          exit-code: true
+
+      - name: Push image (only if scan passed)
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:latest
+
+      # --- PHASE 2: SECURITY ---
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1 
+
+      - name: Get Runner IP
+        id: ip
+        run: echo "ipv4=$(curl -s https://checkip.amazonaws.com)" >> $GITHUB_OUTPUT
+
+      - name: Whitelist Runner IP
+        run: |
+          aws ec2 authorize-security-group-ingress \
+            --group-id ${{ secrets.AWS_SG_ID }} \
+            --protocol tcp \
+            --port 22 \
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32
+
+      # --- PHASE 3: DEPLOY ---
+      
+      # 1. Copy nginx.conf to the specific 'nginx' folder
+      # ⚠️ TARGET CHANGED: Added "/nginx" to the end to match your server structure
+      - name: Copy Nginx Config
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "nginx.conf"
+          target: "/home/${{ secrets.SSH_USER }}/docker-app/nginx"
+
+      # 2. Restart Frontend & Nginx
+      - name: Save image to tar
+        run: docker save ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:latest -o ${{ github.workspace }}/frontend.tar
+
+      - name: Fix permissions
+        run: chmod 644 ${{ github.workspace }}/frontend.tar
+      - name: Copy image to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "frontend.tar"
+          target: "/tmp"
+
+      - name: Load and run image on EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            docker load < /tmp/frontend.tar
+            cd /home/${{ secrets.SSH_USER }}/docker-app
+            docker compose up -d frontend nginx
+            docker image prune -f
+            rm /tmp/frontend.tar
+
+      # --- PHASE 4: CLEANUP ---
+      - name: Revoke Runner IP
+        if: always()
+        run: |
+          aws ec2 revoke-security-group-ingress \
+            --group-id ${{ secrets.AWS_SG_ID }} \
+            --protocol tcp \
+            --port 22 \
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32

@@ -858,5 +858,8 @@
   "calendarHighlights09": "Aucun événement à venir pour le moment.",
   "calendarHighlights10": "{count} mentions J’aime",
   "highlightsTotal": "Total des événements",
-  "highlightsPopular": "Événements populaires"
+  "highlightsPopular": "Événements populaires",
+  "eventMarkdown00": "Markdown pris en charge : **gras**, *italique*, listes et liens.",
+  "eventMarkdown01": "Aperçu Markdown",
+  "eventMarkdown02": "Masquer l’aperçu"
 }

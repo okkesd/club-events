@@ -9,6 +9,7 @@ import {
 import { uploadImage, resolveImageUrl } from '@/app/lib/api';
 import OrganizerInstagramField from './OrganizerInstagramField';
 import EventCategoryField from './EventCategoryField';
+import EventMarkdown from './EventMarkdown';
 
 interface EventFormProps {
     initialData?: any; // If provided, we are in Edit Mode
@@ -39,6 +40,7 @@ export default function EventForm({ initialData, onSubmit, onCancel, isSubmittin
     });
 
     const [isUploading, setIsUploading] = useState(false);
+    const [showDescriptionPreview, setShowDescriptionPreview] = useState(false);
 
     // Time Calculation Logic (Same as Create Page)
     useEffect(() => {
@@ -128,6 +130,13 @@ export default function EventForm({ initialData, onSubmit, onCancel, isSubmittin
                     onChange={e => setFormData({...formData, description: e.target.value})}
                     className={`w-full p-3 rounded-xl border bg-white dark:bg-gray-800 vibrant:bg-white/70 text-gray-900 dark:text-white vibrant:text-gray-900 transition-colors ${descOverLimit ? "border-red-400 focus:ring-red-300" : "border-gray-200 dark:border-gray-700 vibrant:border-campus-border"}`}
                 />
+                <div className="mt-2 flex items-center justify-between gap-3 text-xs text-gray-500 dark:text-gray-400">
+                    <span>{t("Markdown supported: **bold**, *italic*, lists and links.")}</span>
+                    <button type="button" onClick={() => setShowDescriptionPreview(value => !value)} className="font-medium text-blue-600 dark:text-blue-300 underline">
+                        {showDescriptionPreview ? t("Hide preview") : t("Preview Markdown")}
+                    </button>
+                </div>
+                {showDescriptionPreview && <div className="mt-3 min-h-16 rounded-xl border border-gray-200 dark:border-gray-700 p-3 text-gray-700 dark:text-gray-200"><EventMarkdown text={formData.description} /></div>}
             </div>
 
             {/* Time & Place (Simplified for brevity) */}

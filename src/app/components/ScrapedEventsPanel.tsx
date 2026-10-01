@@ -1,5 +1,6 @@
 "use client";
 import EventCategoryField from './EventCategoryField';
+import OrganizerInstagramField from './OrganizerInstagramField';
 import type { EventCategory } from '@/app/lib/eventCategories';
 import {useUI} from "@/i18n/useUI";
 
@@ -510,6 +511,7 @@ function ReviewModal({
 
     const [form, setForm] = useState<IScrapedEventApprove>({
         clubId: row.clubId || "",
+        organizerInstagram: row.clubUsername || "",
         title: row.title || "",
         description: row.description || "",
         date: extracted.date,
@@ -625,6 +627,7 @@ function ReviewModal({
             } else {
                 const res = await approveScrapedEvent(row.id, {
                     ...form,
+                    organizerInstagram: form.organizerInstagram?.trim().replace(/^@+/, '').trim() || null,
                     clubId,
                     tags,
                     coverImage,
@@ -745,6 +748,7 @@ function ReviewModal({
 
                         {/* Club picker — prominent when unmatched, muted when publishing as admin */}
                         {kind === "event" && <EventCategoryField value={form.category || ""} onChange={value => set("category", (value || null) as EventCategory | null)} />}
+                        {kind === "event" && <OrganizerInstagramField value={form.organizerInstagram || ""} onChange={value => set("organizerInstagram", value)} />}
                         <div className={!row.clubId && !form.publishAsAdmin ? "p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800" : ""}>
                             <label className={labelClass}>
                                 {t("Club")} {!form.publishAsAdmin && <span className="text-red-500">*</span>}

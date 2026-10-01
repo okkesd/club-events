@@ -858,5 +858,8 @@
   "calendarHighlights09": "No upcoming events yet.",
   "calendarHighlights10": "{count} likes",
   "highlightsTotal": "Total events",
-  "highlightsPopular": "Popular events"
+  "highlightsPopular": "Popular events",
+  "eventMarkdown00": "Markdown supported: **bold**, *italic*, lists and links.",
+  "eventMarkdown01": "Preview Markdown",
+  "eventMarkdown02": "Hide preview"
 }

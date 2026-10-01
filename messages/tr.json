@@ -858,5 +858,8 @@
   "calendarHighlights09": "Henüz yaklaşan etkinlik yok.",
   "calendarHighlights10": "{count} beğeni",
   "highlightsTotal": "Toplam etkinlik",
-  "highlightsPopular": "Popüler etkinlikler"
+  "highlightsPopular": "Popüler etkinlikler",
+  "eventMarkdown00": "Markdown kullanabilirsiniz: **kalın**, *italik*, listeler ve bağlantılar.",
+  "eventMarkdown01": "Markdown önizlemesi",
+  "eventMarkdown02": "Önizlemeyi gizle"
 }

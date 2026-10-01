@@ -14,6 +14,7 @@ import { useAuth } from '@/app/context/AuthContext';
 import { parseEventJson } from '@/app/lib/eventJson';
 import OrganizerInstagramField from '@/app/components/OrganizerInstagramField';
 import EventCategoryField from '@/app/components/EventCategoryField';
+import EventMarkdown from '@/app/components/EventMarkdown';
 
 type clubs_type = {
   id: string
@@ -39,6 +40,7 @@ function CreateEventSuspended() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [jsonInput, setJsonInput] = useState('');
   const [jsonStatus, setJsonStatus] = useState<'success' | 'error' | null>(null);
+  const [showDescriptionPreview, setShowDescriptionPreview] = useState(false);
 
   const { user , isLoading } = useAuth()
  
@@ -580,6 +582,13 @@ function CreateEventSuspended() {
                             placeholder={t("Tell students what makes this event awesome...")}
                         />
                         {errors.description && <p className="text-red-500 text-xs mt-1">{t(errors.description)}</p>}
+                        <div className="mt-2 flex items-center justify-between gap-3 text-xs text-gray-500 dark:text-gray-400">
+                            <span>{t("Markdown supported: **bold**, *italic*, lists and links.")}</span>
+                            <button type="button" onClick={() => setShowDescriptionPreview(value => !value)} className="font-medium text-blue-600 dark:text-blue-300 underline">
+                                {showDescriptionPreview ? t("Hide preview") : t("Preview Markdown")}
+                            </button>
+                        </div>
+                        {showDescriptionPreview && <div className="mt-3 min-h-16 rounded-xl border border-gray-200 dark:border-gray-700 p-3 text-gray-700 dark:text-gray-200"><EventMarkdown text={formData.description} /></div>}
                     </div>
 
                     <div>

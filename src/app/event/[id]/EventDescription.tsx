@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Languages, Loader2 } from 'lucide-react';
 import { useUI } from '@/i18n/useUI';
 import { translateEventDescription } from '@/app/lib/api';
+import EventMarkdown from '@/app/components/EventMarkdown';
 
 export default function EventDescription({ eventId, description }: { eventId: string; description: string }) {
   const { language } = useUI();
@@ -59,8 +60,8 @@ function DescriptionContent({ eventId, description }: { eventId: string; descrip
     </div>
     {error && <p role="alert" className="mb-3 text-sm text-red-600 dark:text-red-400">{t("Translation failed. Please try again.")}</p>}
     <div id="event-description" aria-live="polite" aria-busy={loading} lang={showTranslation ? language : undefined}
-      className="prose prose-blue prose-sm md:prose-base dark:prose-invert text-gray-600 dark:text-gray-200 vibrant:text-campus-ink whitespace-pre-line [overflow-wrap:anywhere] leading-relaxed max-w-none transition-colors">
-      {showTranslation ? translation : description}
+      className="text-gray-600 dark:text-gray-200 vibrant:text-campus-ink max-w-none transition-colors">
+      <EventMarkdown text={showTranslation ? translation ?? '' : description} />
     </div>
   </>;
 }

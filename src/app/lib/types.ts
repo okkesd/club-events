@@ -329,6 +329,7 @@ export interface IScrapedEventUpdate {
 
 // POST /admin/scraped-events/{id}/approve — all optional overrides
 export interface IScrapedEventApprove {
+  organizerInstagram?: string | null;
   category?: EventCategory | null;
   clubId?: string;
   publishAsAdmin?: boolean;  // publish under the admin account; clubId is ignored when true

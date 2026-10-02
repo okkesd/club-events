@@ -153,9 +153,11 @@ const getBaseUrl = () => {
     // We are in the Browser -> Relative URL is fine
     return "";
   }
-  // We are on the Server -> Need absolute URL
-  // Use a widely available env var or default to localhost:3000
-  return process.env.NEXTJS_APP_URL || "http://localhost:3000";
+  // SSR calls this container's Next.js proxy, which supplies backend credentials
+  // and response processing. A public origin introduces DNS/TLS dependencies and
+  // can retain an obsolete domain after a migration (legacy NEXTJS_APP_URL).
+  const internalOrigin = process.env.INTERNAL_APP_URL?.trim();
+  return (internalOrigin || `http://127.0.0.1:${process.env.PORT || "3000"}`).replace(/\/+$/, "");
 };
 
 /**

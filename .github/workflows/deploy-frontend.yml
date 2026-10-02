@@ -63,6 +63,20 @@ jobs:
       
       # 1. Copy nginx.conf to the specific 'nginx' folder
       # ⚠️ TARGET CHANGED: Added "/nginx" to the end to match your server structure
+      # Complete the one-time certificate setup in README.md before deploying.
+      - name: Check domain certificate prerequisites
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            set -eu
+            cd /home/${{ secrets.SSH_USER }}/docker-app
+            docker compose exec -T nginx test -r /etc/letsencrypt/live/evenements.com.tr/fullchain.pem
+            docker compose exec -T nginx test -r /etc/letsencrypt/live/evenements.com.tr/privkey.pem
+            docker compose exec -T nginx test -d /var/www/certbot
+
       - name: Copy Nginx Config
         uses: appleboy/scp-action@master
         with:
@@ -94,9 +108,13 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            set -eu
             docker load < /tmp/frontend.tar
             cd /home/${{ secrets.SSH_USER }}/docker-app
-            docker compose up -d frontend nginx
+            docker compose up -d frontend
+            # Recreate to pick up an scp-replaced bind-mounted config file.
+            docker compose up -d --force-recreate nginx
+            docker compose exec -T nginx nginx -t
             docker image prune -f
             rm /tmp/frontend.tar
 

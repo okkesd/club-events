@@ -354,12 +354,12 @@ function BrowseEventCard({ event }: { event: IEvent }) {
           {event.title}
         </h3>
 
-        {/* Club name */}
+        {/* Organizer */}
         {event.organizerInstagram && (
           <p className="mb-1.5 truncate text-[15px] font-medium text-gray-600 dark:text-gray-200 vibrant:text-campus-ink">@{event.organizerInstagram}</p>
         )}
         <p className="text-xs text-gray-500 dark:text-gray-300 vibrant:text-campus-muted mb-3 transition-colors">
-          {event.clubName} · {event.location}
+          {event.location}
         </p>
 
         {/* Tags */}

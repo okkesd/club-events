@@ -165,7 +165,7 @@ const getBaseUrl = () => {
  */
 export const fetchEventsForWeek = async (currentDate: Date): Promise<IEvent[]|null> => {
   const params = new URLSearchParams({
-    date: formatDateToLocalISO(currentDate),
+    week: formatDateToLocalISO(getWeekStartDate(currentDate)),
     page_size: "100",
   });
   const events: IEvent[] = [];

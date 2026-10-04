@@ -1,4 +1,6 @@
 "use client";
+import { useRouter, useSearchParams } from "next/navigation";
+import { calendarDateString, parseCalendarDate } from "@/app/lib/calendarWeek";
 import {useUI} from "@/i18n/useUI";
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
@@ -15,13 +17,16 @@ import { getCalendarStartHour, CALENDAR_END_HOUR, CALENDAR_MAX_END_HOUR } from "
 
 const DESKTOP_VIEW_STORAGE_KEY = "calendar-desktop-view";
 
-export default function EventCalendar() {
+export default function EventCalendar({ week }: { week: string }) {
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const {locale} = useUI();
     // --- State ---
-    const [currentDate, setCurrentDate] = useState(new Date());
+    const currentDate = useMemo(() => parseCalendarDate(week)!, [week]);
+    const [retryCount, setRetryCount] = useState(0);
     const [events, setEvents] = useState<IEvent[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<any>(null);
+    const [error, setError] = useState<string | null>(null);
 
     // Default to list on all screens; desktop restores the user's saved view.
     const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -73,9 +78,11 @@ export default function EventCalendar() {
 
     // --- Effects ---
     useEffect(() => {
+        let active = true;
         setIsLoading(true);
         fetchEventsForWeek(currentDate)
             .then((data) => {
+                if (!active) return;
                 if (data) {
                     setEvents(data);
                     setError(null);
@@ -85,11 +92,13 @@ export default function EventCalendar() {
                 setIsLoading(false);
             })
             .catch((err) => {
+                if (!active) return;
                 console.error("Failed to fetch events:", err);
                 setIsLoading(false);
                 setError("Failed to connect server!");
             });
-    }, [currentDate]);
+        return () => { active = false; };
+    }, [currentDate, retryCount]);
 
     useEffect(() => {
         if (isLoading || error || hasHandledInitialScroll.current) return;
@@ -115,16 +124,22 @@ export default function EventCalendar() {
     }, [isLoading, error, viewMode]);
 
     // --- Event Handlers ---
+    const navigateToWeek = (date: Date) => {
+        const query = new URLSearchParams(searchParams.toString());
+        query.set("week", calendarDateString(date));
+        router.push(`/main?${query}`, { scroll: false });
+    };
+
     const goToPreviousWeek = () => {
         const newDate = new Date(currentDate);
         newDate.setDate(newDate.getDate() - 7);
-        setCurrentDate(newDate);
+        navigateToWeek(newDate);
     };
 
     const goToNextWeek = () => {
         const newDate = new Date(currentDate);
         newDate.setDate(newDate.getDate() + 7);
-        setCurrentDate(newDate);
+        navigateToWeek(newDate);
     };
 
     // --- Helper for Rendering ---
@@ -144,7 +159,7 @@ export default function EventCalendar() {
     };
 
     // --- Render ---
-    if (error) return <ErrorState message={error} retry={() => setCurrentDate(new Date(currentDate))} />;
+    if (error) return <ErrorState message={error} retry={() => setRetryCount(value => value + 1)} />;
 
     return (
         <div ref={calendarRef} className="flex flex-col w-full bg-white dark:bg-gray-950 vibrant:bg-transparent text-slate-800 dark:text-gray-50 vibrant:text-gray-900 transition-colors duration-300">

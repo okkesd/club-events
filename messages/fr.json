@@ -861,5 +861,7 @@
   "highlightsPopular": "Événements populaires",
   "eventMarkdown00": "Markdown pris en charge : **gras**, *italique*, listes et liens.",
   "eventMarkdown01": "Aperçu Markdown",
-  "eventMarkdown02": "Masquer l’aperçu"
+  "eventMarkdown02": "Masquer l’aperçu",
+  "autoApproval00": "Approbations automatiques",
+  "autoApproval01": "Approuvé le {date}"
 }

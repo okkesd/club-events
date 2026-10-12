@@ -26,7 +26,7 @@ import PaginationBar from "@/app/components/PaginationBar";
 // Rows below this are flagged — the extractor wasn't confident about them.
 const LOW_CONFIDENCE = 0.6;
 
-type StatusFilter = ScrapedEventStatus | "all";
+type StatusFilter = ScrapedEventStatus | "all" | "auto-approved";
 type KindFilter = ScrapedEventKind | "all";
 
 const ANNOUNCEMENT_CATEGORIES: AnnouncementCategory[] = [
@@ -223,8 +223,8 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
         <div>
             {/* --- TOOLBAR --- */}
             <div className="p-5 flex flex-wrap items-center gap-3 border-b border-gray-100 dark:border-gray-800">
-                <div className="flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl">
-                    {(["pending", "approved", "rejected", "all"] as StatusFilter[]).map((s) => (
+                <div className="flex flex-wrap gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl">
+                    {(["pending", "auto-approved", "approved", "rejected", "all"] as StatusFilter[]).map((s) => (
                         <button
                             key={s}
                             onClick={() => setStatus(s)}
@@ -234,7 +234,7 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
                                     : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                             }`}
                         >
-                            {t(s)}
+                            {s === "auto-approved" ? t("Automatically approved") : t(s)}
                         </button>
                     ))}
                 </div>
@@ -404,7 +404,17 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
                                         <ExternalLink className="w-3 h-3" />
                                     </a>
                                     {row.status !== "pending" && (
-                                        <span className="capitalize font-bold">{t(row.status)}</span>
+                                        <span className={`capitalize font-bold ${row.autoApproved ? "text-emerald-600 dark:text-emerald-400" : ""}`}>
+                                            {row.autoApproved ? t("Automatically approved") : t(row.status)}
+                                        </span>
+                                    )}
+                                    {row.autoApproved && row.autoApprovedAt && (
+                                        <span>
+                                            {t("Approved at {date}", {date: new Date(
+                                                /(?:Z|[+-]\d{2}:\d{2})$/.test(row.autoApprovedAt)
+                                                    ? row.autoApprovedAt : `${row.autoApprovedAt}Z`
+                                            ).toLocaleString(locale)})}
+                                        </span>
                                     )}
                                 </div>
                             </div>

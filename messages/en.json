@@ -861,5 +861,7 @@
   "highlightsPopular": "Popular events",
   "eventMarkdown00": "Markdown supported: **bold**, *italic*, lists and links.",
   "eventMarkdown01": "Preview Markdown",
-  "eventMarkdown02": "Hide preview"
+  "eventMarkdown02": "Hide preview",
+  "autoApproval00": "Automatically approved",
+  "autoApproval01": "Approved at {date}"
 }

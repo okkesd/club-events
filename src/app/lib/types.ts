@@ -297,6 +297,8 @@ export interface IScrapedEvent {
   status: ScrapedEventStatus;
   rejectionReason?: string | null;
   reviewedAt?: string | null;
+  autoApproved?: boolean;
+  autoApprovedAt?: string | null;
   clubId?: string | null;    // null when the IG handle isn't linked to a club
   clubName?: string | null;
   clubIsRemembered: boolean; // club came from a stored handle->publisher mapping, not a fresh match
@@ -306,7 +308,7 @@ export interface IScrapedEvent {
 }
 
 export interface IScrapedEventFilters {
-  status?: ScrapedEventStatus | 'all';
+  status?: ScrapedEventStatus | 'all' | 'auto-approved';
   kind?: ScrapedEventKind | 'all';
   clubId?: string;
   page?: number;

@@ -1,4 +1,3 @@
-import SinefilCalendar from '@/app/main/components/SinefilCalendar';
 import EventCalendar from '@/app/main/components/EventCalendar';
 import { calendarWeek, currentCalendarWeek } from '@/app/lib/calendarWeek';
 import { redirect } from 'next/navigation';
@@ -18,7 +17,5 @@ export default async function MainCalendarPage({ searchParams }: {
     query.set('week', week);
     redirect(`/main?${query}`);
   }
-  return params.mode === 'sinefil'
-    ? <SinefilCalendar key={`sinefil-${week}`} week={week} />
-    : <EventCalendar key={week} week={week} />;
+  return <EventCalendar key={week} week={week} />;
 }

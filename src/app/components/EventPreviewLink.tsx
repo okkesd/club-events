@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { Clock, MapPin } from 'lucide-react';
 import { IEvent } from '@/app/lib/types';
-import { calculateEndTime } from '@/app/lib/timeUtils';
+import { eventTimeLabel } from '@/app/lib/timeUtils';
 
 export default function EventPreviewLink({ event }: { event: IEvent }) {
     const id = useId();
@@ -14,7 +14,7 @@ export default function EventPreviewLink({ event }: { event: IEvent }) {
     const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [open, setOpen] = useState(false);
     const [position, setPosition] = useState<{ left: number; top: number } | null>(null);
-    const endTime = calculateEndTime(event.startTime, event.duration);
+    const timeLabel = eventTimeLabel(event);
 
     const clearTimer = () => {
         if (timer.current) clearTimeout(timer.current);
@@ -68,8 +68,8 @@ export default function EventPreviewLink({ event }: { event: IEvent }) {
         <>
             <Link
                 ref={linkRef}
-                href={`/event/${event.id}`}
-                aria-label={`${event.title}${event.organizerName ? `, ${event.organizerName}` : event.organizerInstagram ? `, @${event.organizerInstagram}` : ''}, ${event.startTime} - ${endTime}`}
+                href={event.detailHref || `/event/${event.id}`}
+                aria-label={`${event.title}${event.organizerName ? `, ${event.organizerName}` : event.organizerInstagram ? `, @${event.organizerInstagram}` : ''}, ${timeLabel}`}
                 aria-describedby={open ? id : undefined}
                 onPointerEnter={event => {
                     if (event.pointerType === 'mouse') scheduleOpen();
@@ -99,7 +99,7 @@ export default function EventPreviewLink({ event }: { event: IEvent }) {
                     )}
                     <div className="mt-3 flex items-center gap-2 text-xs tabular-nums text-blue-600 dark:text-blue-200 vibrant:text-campus-ink">
                         <Clock className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                        {event.startTime} – {endTime}
+                        {timeLabel}
                     </div>
                     {event.location && <div className="mt-2 flex items-start gap-2 text-xs text-gray-500 dark:text-gray-300 vibrant:text-campus-ink">
                         <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />

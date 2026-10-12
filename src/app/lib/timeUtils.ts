@@ -1,4 +1,12 @@
 // Fallback start for weeks without events.
+import type { IEvent } from './types';
+
+export function eventTimeLabel(event: IEvent): string {
+  return event.durationKnown === false ? event.startTime
+    : event.cinemaFilmId && event.endTime ? `${event.startTime} - ${event.endTime}`
+    : `${event.startTime} - ${calculateEndTime(event.startTime, event.duration)}`;
+}
+
 export const CALENDAR_START_HOUR = 8;
 
 export function getCalendarStartHour(events: { startTime: string }[]): number {

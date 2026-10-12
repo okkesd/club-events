@@ -47,6 +47,11 @@ export interface IClubUpdate {
  * --- EVENTS ---
  */
 export interface IEvent {
+  // Cinema sessions share film pages; grouped hours apply only to the list view.
+  cinemaFilmId?: string;
+  detailHref?: string;
+  durationKnown?: boolean;
+  screeningGroups?: { venue: string; times: string[] }[];
   organizerName?: string | null;
   category?: EventCategory | null;
   categoryOverride?: EventCategory | null;

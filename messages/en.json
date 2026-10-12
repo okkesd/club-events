@@ -872,5 +872,8 @@
   "sinefil04": "Tickets",
   "sinefil05": "Could not load screenings.",
   "sinefil06": "Majestik, Atlas 1948 and Pera Film",
-  "sinefil07": "School events"
+  "sinefil07": "School events",
+  "sinefilDetail01": "About film",
+  "sinefilDetail02": "Screenings",
+  "sinefilDetail03": "No screenings available."
 }

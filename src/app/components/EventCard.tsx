@@ -5,7 +5,7 @@ import EventPreviewLink from './EventPreviewLink';
 import { Clock, Heart } from "lucide-react";
 import { toggleEventLike } from '@/app/lib/api';
 import { useUI } from '@/i18n/useUI';
-import { CALENDAR_START_HOUR, calculateEndTime } from '@/app/lib/timeUtils';
+import { CALENDAR_START_HOUR, eventTimeLabel } from '@/app/lib/timeUtils';
 
 const ROW_HEIGHT_REM = 4.5; // Matches the parent container's row height
 
@@ -76,7 +76,7 @@ export function EventCard({
         padding: '2px',
     };
 
-    const eventEndTime = calculateEndTime(event.startTime, event.duration);
+    const timeLabel = eventTimeLabel(event);
 
     return (
         <div
@@ -104,9 +104,9 @@ export function EventCard({
                 {!isCompact && <div className={`pointer-events-none flex min-w-0 shrink-0 items-center text-[10px] leading-3 text-blue-700 dark:text-blue-200 vibrant:text-campus-ink gap-1 tabular-nums ${visibleDuration > 1 ? '' : 'relative lg:pr-6'}`}>
                     <Clock size={11} className="shrink-0" />
                     <span className="truncate">
-                        {event.startTime} - {eventEndTime}
+                        {timeLabel}
                     </span>
-                    <button
+                    {!event.cinemaFilmId && <button
                         type="button"
                         onClick={handleLike}
                         disabled={isLiking}
@@ -118,7 +118,7 @@ export function EventCard({
                         }`}
                     >
                         <Heart className={`${visibleDuration > 1 ? 'h-5 w-5' : 'h-4 w-4'} ${hasLiked ? 'fill-current' : ''}`} aria-hidden="true" />
-                    </button>
+                    </button>}
                 </div>}
                 {likeError && <span role="alert" className="sr-only">{t("Failed to like")}</span>}
     

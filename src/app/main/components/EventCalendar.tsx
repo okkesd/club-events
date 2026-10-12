@@ -5,6 +5,7 @@ import {useUI} from "@/i18n/useUI";
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { IEvent } from "@/app/lib/types";
+import { fetchCinemaWeek } from "@/app/lib/cinema";
 import { fetchEventsForWeek } from "@/app/lib/api";
 import { formatWeekHeader, getWeekDays } from "@/app/lib/dateUtils";
 import { CalendarHeader } from "./CalendarHeader";
@@ -17,7 +18,7 @@ import { getCalendarStartHour, CALENDAR_END_HOUR, CALENDAR_MAX_END_HOUR } from "
 
 const DESKTOP_VIEW_STORAGE_KEY = "calendar-desktop-view";
 
-export default function EventCalendar({ week }: { week: string }) {
+export default function EventCalendar({ week, cinema = false }: { week: string; cinema?: boolean }) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const {locale} = useUI();
@@ -72,7 +73,7 @@ export default function EventCalendar({ week }: { week: string }) {
         const start = hours + minutes / 60;
         const end = start + event.duration;
         return start >= calendarStartHour && Number.isFinite(end)
-            ? Math.min(CALENDAR_MAX_END_HOUR, Math.max(endHour, Math.ceil(end)))
+            ? Math.min(cinema ? 24 : CALENDAR_MAX_END_HOUR, Math.max(endHour, Math.ceil(end)))
             : endHour;
     }, CALENDAR_END_HOUR);
 
@@ -80,7 +81,7 @@ export default function EventCalendar({ week }: { week: string }) {
     useEffect(() => {
         let active = true;
         setIsLoading(true);
-        fetchEventsForWeek(currentDate)
+        (cinema ? fetchCinemaWeek(week) : fetchEventsForWeek(currentDate))
             .then((data) => {
                 if (!active) return;
                 if (data) {
@@ -98,7 +99,7 @@ export default function EventCalendar({ week }: { week: string }) {
                 setError("Failed to connect server!");
             });
         return () => { active = false; };
-    }, [currentDate, retryCount]);
+    }, [currentDate, retryCount, cinema, week]);
 
     useEffect(() => {
         if (isLoading || error || hasHandledInitialScroll.current) return;
@@ -200,6 +201,7 @@ export default function EventCalendar({ week }: { week: string }) {
                     <CalendarListView
                         weekDays={weekDays}
                         getEventsForDay={getEventsForDay}
+                        cinema={cinema}
                     />
                 )}
             </div>

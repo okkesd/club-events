@@ -5,7 +5,7 @@ import {useUI} from "@/i18n/useUI";
 import { useState } from "react";
 import { IEvent } from "@/app/lib/types";
 import { EventCard } from "@/app/components/EventCard";
-import { getCalendarHourSlots, calculateEndTime } from '@/app/lib/timeUtils';
+import { getCalendarHourSlots, eventTimeLabel } from '@/app/lib/timeUtils';
 import Link from 'next/link';
 import { Clock, X } from "lucide-react";
 
@@ -169,7 +169,7 @@ function OverflowModal({ day, events, onClose }: { day: Date; events: IEvent[]; 
                     {events.map(event => (
                         <Link
                             key={event.id}
-                            href={`/event/${event.id}`}
+                            href={event.detailHref || `/event/${event.id}`}
                             className="gs-event-stripe gs-event-stripe-modal block rounded-xl border-l-4 p-3 transition-colors
                                 bg-blue-50 border-blue-500 hover:bg-blue-100
                                 dark:bg-blue-900/20 dark:border-blue-500 dark:hover:bg-blue-900/40
@@ -178,12 +178,12 @@ function OverflowModal({ day, events, onClose }: { day: Date; events: IEvent[]; 
                             <div className="font-semibold text-blue-900 dark:text-blue-50 vibrant:text-gray-900 truncate">
                                 {event.title}
                             </div>
-                            {event.organizerInstagram && (
-                                <p className="mt-1 truncate text-[15px] font-medium text-blue-700 dark:text-blue-100 vibrant:text-campus-ink">@{event.organizerInstagram}</p>
+                            {(event.organizerName || event.organizerInstagram) && (
+                                <p className="mt-1 truncate text-[15px] font-medium text-blue-700 dark:text-blue-100 vibrant:text-campus-ink">{event.organizerName || `@${event.organizerInstagram}`}</p>
                             )}
                             <div className="flex items-center text-sm text-blue-700 dark:text-blue-200 vibrant:text-campus-ink gap-1 mt-1">
                                 <Clock size={14} />
-                                <span>{event.startTime} - {calculateEndTime(event.startTime, event.duration)}</span>
+                                <span>{eventTimeLabel(event)}</span>
                             </div>
                         </Link>
                     ))}

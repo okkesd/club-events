@@ -7,7 +7,7 @@ export default function SinefilToggle({ onNavigate }: { onNavigate: () => void }
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const active = pathname === '/main' && searchParams.get('mode') === 'sinefil';
+  const active = pathname.startsWith('/film/') || (pathname === '/main' && searchParams.get('mode') === 'sinefil');
   return <button type="button" aria-pressed={active} aria-label="Sinefil’s Eye" title="Sinefil’s Eye" onClick={() => {
     const query = new URLSearchParams(pathname === '/main' ? searchParams.toString() : '');
     if (active) query.delete('mode');

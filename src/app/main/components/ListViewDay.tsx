@@ -60,7 +60,7 @@ export function ListViewDay({ day, events }: ListViewDayProps) {
                     {events.map((event) => (
                         <div key={event.id} className="group relative">
                         <Link
-                            href={`/event/${event.id}`}
+                            href={event.detailHref || `/event/${event.id}`}
                             className="group block bg-white dark:bg-gray-900 vibrant:bg-white/80 border border-gray-200 dark:border-gray-800 vibrant:border-campus-border rounded-xl p-4 hover:border-blue-400 dark:hover:border-blue-500 vibrant:hover:border-campus-gold hover:shadow-md vibrant:hover:shadow-stone-300/50 transition-all"
                         >
                             <div className="flex flex-col md:flex-row items-start gap-2 md:gap-3">
@@ -72,6 +72,14 @@ export function ListViewDay({ day, events }: ListViewDayProps) {
                                     {event.organizerInstagram && (
                                         <p className="mt-1 truncate text-[15px] font-medium text-gray-600 dark:text-gray-200 vibrant:text-campus-ink">@{event.organizerInstagram}</p>
                                     )}
+                                    {event.screeningGroups ? (
+                                        <div className="mt-2 space-y-2">
+                                            {event.screeningGroups.map(group => <div key={group.venue}>
+                                                <p className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-300 vibrant:text-campus-muted"><MapPin className="h-3 w-3 shrink-0" aria-hidden="true" />{group.venue}</p>
+                                                <p className="mt-1 text-sm font-semibold tabular-nums text-blue-600 dark:text-blue-300 vibrant:text-campus-ink">{group.times.join(' · ')}</p>
+                                            </div>)}
+                                        </div>
+                                    ) : <>
                                     <p className="mt-1 text-sm font-semibold text-blue-600 dark:text-blue-300 vibrant:text-campus-ink">
                                         {event.startTime} - {calculateEndTime(event.startTime, event.duration)}
                                     </p>
@@ -84,10 +92,12 @@ export function ListViewDay({ day, events }: ListViewDayProps) {
                                             <span className="truncate max-w-[150px]">{event.location}</span>
                                         </span>
                                     </div>
+                                    </>}
+
                                 </div>
                             </div>
                         </Link>
-                        <ListEventLikeButton eventId={event.id} initialHasLiked={event.hasLiked ?? false} />
+                        {!event.cinemaFilmId && <ListEventLikeButton eventId={event.id} initialHasLiked={event.hasLiked ?? false} />}
                         </div>
                     ))}
                 </div>

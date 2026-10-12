@@ -865,12 +865,5 @@
   "autoApproval00": "Otomatik Onaylananlar",
   "autoApproval01": "Onay zamanı: {date}",
   "gsuImport00": "GSÜ etkinliklerini getir",
-  "gsuImport01": "Kaynağa git",
-  "sinefil01": "Film gösterimleri",
-  "sinefil02": "Bu hafta gösterim bulunmuyor.",
-  "sinefil03": "Gösterim bilgileri",
-  "sinefil04": "Biletler",
-  "sinefil05": "Gösterimler yüklenemedi.",
-  "sinefil06": "Majestik, Atlas 1948 ve Pera Film",
-  "sinefil07": "Okul etkinlikleri"
+  "gsuImport01": "Kaynağa git"
 }

@@ -865,12 +865,5 @@
   "autoApproval00": "Approbations automatiques",
   "autoApproval01": "Approuvé le {date}",
   "gsuImport00": "Importer les événements de GSÜ",
-  "gsuImport01": "Voir la source",
-  "sinefil01": "Séances de cinéma",
-  "sinefil02": "Aucune séance cette semaine.",
-  "sinefil03": "Détails de la séance",
-  "sinefil04": "Billets",
-  "sinefil05": "Impossible de charger les séances.",
-  "sinefil06": "Majestik, Atlas 1948 et Pera Film",
-  "sinefil07": "Événements universitaires"
+  "gsuImport01": "Voir la source"
 }

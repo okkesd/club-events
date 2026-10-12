@@ -861,5 +861,9 @@
   "highlightsPopular": "Popüler etkinlikler",
   "eventMarkdown00": "Markdown kullanabilirsiniz: **kalın**, *italik*, listeler ve bağlantılar.",
   "eventMarkdown01": "Markdown önizlemesi",
-  "eventMarkdown02": "Önizlemeyi gizle"
+  "eventMarkdown02": "Önizlemeyi gizle",
+  "autoApproval00": "Otomatik Onaylananlar",
+  "autoApproval01": "Onay zamanı: {date}",
+  "gsuImport00": "GSÜ etkinliklerini getir",
+  "gsuImport01": "Kaynağa git"
 }

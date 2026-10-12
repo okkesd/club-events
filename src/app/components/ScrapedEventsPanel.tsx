@@ -26,7 +26,7 @@ import PaginationBar from "@/app/components/PaginationBar";
 // Rows below this are flagged — the extractor wasn't confident about them.
 const LOW_CONFIDENCE = 0.6;
 
-type StatusFilter = ScrapedEventStatus | "all";
+type StatusFilter = ScrapedEventStatus | "all" | "auto-approved";
 type KindFilter = ScrapedEventKind | "all";
 
 const ANNOUNCEMENT_CATEGORIES: AnnouncementCategory[] = [
@@ -223,8 +223,8 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
         <div>
             {/* --- TOOLBAR --- */}
             <div className="p-5 flex flex-wrap items-center gap-3 border-b border-gray-100 dark:border-gray-800">
-                <div className="flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl">
-                    {(["pending", "approved", "rejected", "all"] as StatusFilter[]).map((s) => (
+                <div className="flex flex-wrap gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl">
+                    {(["pending", "auto-approved", "approved", "rejected", "all"] as StatusFilter[]).map((s) => (
                         <button
                             key={s}
                             onClick={() => setStatus(s)}
@@ -234,7 +234,7 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
                                     : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                             }`}
                         >
-                            {t(s)}
+                            {s === "auto-approved" ? t("Automatically approved") : t(s)}
                         </button>
                     ))}
                 </div>
@@ -277,7 +277,7 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
                     {t("Instagram handles")}</button>
 
                 <button
-                    onClick={handleImport}
+                    onClick={() => handleImport()}
                     disabled={isImporting}
                     className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors
                                bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200
@@ -397,14 +397,26 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
                                         href={row.postUrl}
                                         target="_blank"
                                         rel="noreferrer"
-                                        title={t("Open @{name}'s post on Instagram", {name: row.clubUsername})}
+                                        title={row.source === "gsu_website" ? t("View source") : t("Open @{name}'s post on Instagram", {name: row.clubUsername})}
                                         className="inline-flex items-center gap-1 font-semibold text-blue-600 dark:text-blue-400 hover:underline"
                                     >
-                                        <Instagram className="w-3 h-3" />@{row.clubUsername}
+                                        {row.source === "gsu_website"
+                                            ? <><Building2 className="w-3 h-3" />Galatasaray Üniversitesi</>
+                                            : <><Instagram className="w-3 h-3" />@{row.clubUsername}</>}
                                         <ExternalLink className="w-3 h-3" />
                                     </a>
                                     {row.status !== "pending" && (
-                                        <span className="capitalize font-bold">{t(row.status)}</span>
+                                        <span className={`capitalize font-bold ${row.autoApproved ? "text-emerald-600 dark:text-emerald-400" : ""}`}>
+                                            {row.autoApproved ? t("Automatically approved") : t(row.status)}
+                                        </span>
+                                    )}
+                                    {row.autoApproved && row.autoApprovedAt && (
+                                        <span>
+                                            {t("Approved at {date}", {date: new Date(
+                                                /(?:Z|[+-]\d{2}:\d{2})$/.test(row.autoApprovedAt)
+                                                    ? row.autoApprovedAt : `${row.autoApprovedAt}Z`
+                                            ).toLocaleString(locale)})}
+                                        </span>
                                     )}
                                 </div>
                             </div>
@@ -415,9 +427,9 @@ export default function ScrapedEventsPanel({ onPendingCountChange }: { onPending
                                     target="_blank"
                                     rel="noreferrer"
                                     className="p-2 text-gray-400 hover:text-pink-600 hover:bg-pink-50 dark:hover:text-pink-400 dark:hover:bg-pink-900/30 rounded-lg transition-colors"
-                                    title={t("Open the source Instagram post")}
+                                    title={row.source === "gsu_website" ? t("View source") : t("Open the source Instagram post")}
                                 >
-                                    <Instagram className="w-4 h-4" />
+                                    {row.source === "gsu_website" ? <ExternalLink className="w-4 h-4" /> : <Instagram className="w-4 h-4" />}
                                 </a>
 
                                 {(row.createdEventId || row.createdAnnouncementId) && (
@@ -511,13 +523,14 @@ function ReviewModal({
 
     const [form, setForm] = useState<IScrapedEventApprove>({
         clubId: row.clubId || "",
-        organizerInstagram: row.clubUsername || "",
+        organizerInstagram: row.source === "gsu_website" ? "" : row.clubUsername || "",
         title: row.title || "",
         description: row.description || "",
         date: extracted.date,
-        startTime: extracted.time || "18:00",
-        endTime: addHours(extracted.time || "18:00", 2),
-        duration: 2,
+        startTime: extracted.time || "10:00",
+        endTime: splitDateTime(row.endDate).time || addHours(extracted.time || "10:00", 2),
+        duration: row.date && row.endDate
+            ? (new Date(row.endDate).getTime() - new Date(row.date).getTime()) / 3600000 : 2,
         locationType: "on-campus",
         location: row.location || "",
         coverImage: row.postImageUrl || "",
@@ -586,7 +599,7 @@ function ReviewModal({
                         expiresAt: ann.expiresAt || undefined,
                     }
                     : {
-                        date: form.date ? `${form.date}T${form.startTime || "00:00"}:00` : undefined,
+                        date: form.date ? `${form.date}T${form.startTime || "10:00"}:00` : undefined,
                         location: form.location || undefined,
                     }),
             });
@@ -676,7 +689,9 @@ function ReviewModal({
                                 rel="noreferrer"
                                 className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline"
                             >
-                                <Instagram className="w-3.5 h-3.5" />@{row.clubUsername}
+                                {row.source === "gsu_website"
+                                    ? <><Building2 className="w-3.5 h-3.5" />Galatasaray Üniversitesi</>
+                                    : <><Instagram className="w-3.5 h-3.5" />@{row.clubUsername}</>}
                                 <ExternalLink className="w-3 h-3" />
                             </a>
                         </div>
@@ -685,7 +700,7 @@ function ReviewModal({
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
                                 src={resolveImageUrl(row.postImageUrl)}
-                                alt={t("Instagram post")}
+                                alt={row.source === "gsu_website" ? row.title || "" : t("Instagram post")}
                                 className="w-full rounded-xl border border-gray-200 dark:border-gray-800 mb-3"
                             />
                         )}
@@ -748,7 +763,7 @@ function ReviewModal({
 
                         {/* Club picker — prominent when unmatched, muted when publishing as admin */}
                         {kind === "event" && <EventCategoryField value={form.category || ""} onChange={value => set("category", (value || null) as EventCategory | null)} />}
-                        {kind === "event" && <OrganizerInstagramField value={form.organizerInstagram || ""} onChange={value => set("organizerInstagram", value)} />}
+                        {kind === "event" && row.source !== "gsu_website" && <OrganizerInstagramField value={form.organizerInstagram || ""} onChange={value => set("organizerInstagram", value)} />}
                         <div className={!row.clubId && !form.publishAsAdmin ? "p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800" : ""}>
                             <label className={labelClass}>
                                 {t("Club")} {!form.publishAsAdmin && <span className="text-red-500">*</span>}

@@ -212,7 +212,9 @@ async function handleMutation(
       }
       // Approving a scraped candidate publishes a real Event or Announcement
       // -> bust whichever cache the approve endpoint just wrote to.
-      else if (pathString.startsWith("admin/scraped-events") && pathString.endsWith("/approve")) {
+      else if (pathString.startsWith("admin/scraped-events") && (
+        pathString.endsWith("/approve") || pathString.endsWith("/import-gsu")
+      )) {
         revalidateTag("events", {expire: 0});
         console.log("Cache cleared for tag: events");
       }

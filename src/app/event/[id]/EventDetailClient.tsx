@@ -176,7 +176,12 @@ export default function EventDetailClient({ event }: { event: IEvent }) {
                 <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white vibrant:text-gray-900 mb-4 leading-tight transition-colors">
                     {currentEvent.title}
                 </h1>
-                {currentEvent.organizerInstagram && (
+                {currentEvent.organizerName ? (
+                    <div className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-300 font-medium">
+                        <Users className="w-4 h-4" />
+                        <span>{t("Hosted by")} {currentEvent.organizerName}</span>
+                    </div>
+                ) : currentEvent.organizerInstagram && (
                 <a
                     href={`https://www.instagram.com/${encodeURIComponent(currentEvent.organizerInstagram)}/`}
                     target="_blank"

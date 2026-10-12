@@ -93,13 +93,13 @@ export function EventCard({
             `}>
                 <EventPreviewLink event={event} />
                 {/* Title */}
-                <div className={`shrink-0 font-semibold text-blue-950 dark:text-blue-50 vibrant:text-gray-900 leading-4 break-words ${isCompact || (event.organizerInstagram && heightRem < 6) ? 'line-clamp-1' : 'line-clamp-2'}`}>
+                <div className={`shrink-0 font-semibold text-blue-950 dark:text-blue-50 vibrant:text-gray-900 leading-4 break-words ${isCompact || ((event.organizerName || event.organizerInstagram) && heightRem < 6) ? 'line-clamp-1' : 'line-clamp-2'}`}>
                     {event.title}
                 </div>
                 
                 {/* Time */}
-                {!isCompact && event.organizerInstagram && (
-                    <p className="shrink-0 truncate text-[11px] font-medium leading-3 text-blue-700 dark:text-blue-100 vibrant:text-campus-ink">@{event.organizerInstagram}</p>
+                {!isCompact && (event.organizerName || event.organizerInstagram) && (
+                    <p className="shrink-0 truncate text-[11px] font-medium leading-3 text-blue-700 dark:text-blue-100 vibrant:text-campus-ink">{event.organizerName || `@${event.organizerInstagram}`}</p>
                 )}
                 {!isCompact && <div className={`pointer-events-none flex min-w-0 shrink-0 items-center text-[10px] leading-3 text-blue-700 dark:text-blue-200 vibrant:text-campus-ink gap-1 tabular-nums ${visibleDuration > 1 ? '' : 'relative lg:pr-6'}`}>
                     <Clock size={11} className="shrink-0" />

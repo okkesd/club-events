@@ -69,7 +69,7 @@ export default function EventPreviewLink({ event }: { event: IEvent }) {
             <Link
                 ref={linkRef}
                 href={`/event/${event.id}`}
-                aria-label={`${event.title}${event.organizerInstagram ? `, @${event.organizerInstagram}` : ''}, ${event.startTime} - ${endTime}`}
+                aria-label={`${event.title}${event.organizerName ? `, ${event.organizerName}` : event.organizerInstagram ? `, @${event.organizerInstagram}` : ''}, ${event.startTime} - ${endTime}`}
                 aria-describedby={open ? id : undefined}
                 onPointerEnter={event => {
                     if (event.pointerType === 'mouse') scheduleOpen();
@@ -93,7 +93,7 @@ export default function EventPreviewLink({ event }: { event: IEvent }) {
                     style={{ left: position?.left ?? 0, top: position?.top ?? 0, visibility: position ? 'visible' : 'hidden' }}
                 >
                     <p className="break-words text-sm font-semibold leading-5 text-gray-900 dark:text-gray-50 vibrant:text-gray-950">{event.title}</p>
-                    {event.organizerInstagram && <p className="mt-1.5 break-words text-xs font-medium text-gray-600 dark:text-gray-200 vibrant:text-campus-ink">@{event.organizerInstagram}</p>}
+                    {(event.organizerName || event.organizerInstagram) && <p className="mt-1.5 break-words text-xs font-medium text-gray-600 dark:text-gray-200 vibrant:text-campus-ink">{event.organizerName || `@${event.organizerInstagram}`}</p>}
                     {event.description && (
                         <p className="mt-3 line-clamp-3 break-words text-xs leading-5 text-gray-600 dark:text-gray-300 vibrant:text-campus-ink">{event.description}</p>
                     )}

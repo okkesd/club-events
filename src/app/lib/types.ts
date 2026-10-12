@@ -47,6 +47,7 @@ export interface IClubUpdate {
  * --- EVENTS ---
  */
 export interface IEvent {
+  organizerName?: string | null;
   category?: EventCategory | null;
   categoryOverride?: EventCategory | null;
   sourcePostUrl?: string | null;
@@ -286,6 +287,7 @@ export interface IScrapedEvent {
 
   // Event-only — null on announcement candidates
   date?: string | null;      // ISO datetime
+  endDate?: string | null;
   location?: string | null;
 
   // Announcement-only — null on event candidates

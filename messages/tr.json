@@ -863,5 +863,7 @@
   "eventMarkdown01": "Markdown önizlemesi",
   "eventMarkdown02": "Önizlemeyi gizle",
   "autoApproval00": "Otomatik Onaylananlar",
-  "autoApproval01": "Onay zamanı: {date}"
+  "autoApproval01": "Onay zamanı: {date}",
+  "gsuImport00": "GSÜ etkinliklerini getir",
+  "gsuImport01": "Kaynağa git"
 }

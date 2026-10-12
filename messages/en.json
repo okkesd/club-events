@@ -863,5 +863,7 @@
   "eventMarkdown01": "Preview Markdown",
   "eventMarkdown02": "Hide preview",
   "autoApproval00": "Automatically approved",
-  "autoApproval01": "Approved at {date}"
+  "autoApproval01": "Approved at {date}",
+  "gsuImport00": "Import GSÜ events",
+  "gsuImport01": "View source"
 }

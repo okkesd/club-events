@@ -11,7 +11,7 @@ import { CalendarHeader } from "./CalendarHeader";
 import { DayColumn } from "./DayColumn";
 import { CalendarListView } from "./CalendarListView";
 import { ErrorState } from "./ErrorState";
-import { Loader2 } from "lucide-react";
+import { CalendarDays, Loader2 } from "lucide-react";
 import { useMediaQuery } from "@/app/lib/hooks/useMediaQuery";
 import { getCalendarStartHour, CALENDAR_END_HOUR, CALENDAR_MAX_END_HOUR } from "@/app/lib/timeUtils";
 
@@ -20,7 +20,7 @@ const DESKTOP_VIEW_STORAGE_KEY = "calendar-desktop-view";
 export default function EventCalendar({ week }: { week: string }) {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const {locale} = useUI();
+    const {locale, t} = useUI();
     // --- State ---
     const currentDate = useMemo(() => parseCalendarDate(week)!, [week]);
     const [retryCount, setRetryCount] = useState(0);
@@ -34,6 +34,7 @@ export default function EventCalendar({ week }: { week: string }) {
     const hasUserToggled = useRef(false);
     const calendarRef = useRef<HTMLDivElement>(null);
     const hasHandledInitialScroll = useRef(false);
+    const [isTodayVisible, setIsTodayVisible] = useState(true);
 
     useEffect(() => {
         if (!hasUserToggled.current) {
@@ -56,6 +57,7 @@ export default function EventCalendar({ week }: { week: string }) {
         hasUserToggled.current = true;
         const nextView = viewMode === "grid" ? "list" : "grid";
         setViewMode(nextView);
+        if (nextView === "list") setIsTodayVisible(true);
         if (isDesktop) {
             try {
                 window.localStorage.setItem(DESKTOP_VIEW_STORAGE_KEY, nextView);
@@ -107,7 +109,7 @@ export default function EventCalendar({ week }: { week: string }) {
             hasHandledInitialScroll.current = true;
             if (viewMode !== "list") return;
 
-            const today = calendarRef.current?.querySelector<HTMLElement>('[data-today="true"]');
+            const today = calendarRef.current?.querySelector<HTMLElement>('[data-today-heading="true"]');
             if (!today) return;
 
             const top = today.getBoundingClientRect().top;
@@ -122,6 +124,24 @@ export default function EventCalendar({ week }: { week: string }) {
 
         return () => cancelAnimationFrame(frame);
     }, [isLoading, error, viewMode]);
+
+    useEffect(() => {
+        if (isLoading || error || viewMode !== "list") return;
+
+        const today = calendarRef.current?.querySelector<HTMLElement>('[data-today-heading="true"]');
+        if (!today) {
+            const frame = requestAnimationFrame(() => setIsTodayVisible(false));
+            return () => cancelAnimationFrame(frame);
+        }
+
+        const observer = new IntersectionObserver(
+            ([entry]) => setIsTodayVisible(entry.isIntersecting),
+            { threshold: 0.1 },
+        );
+        observer.observe(today);
+
+        return () => observer.disconnect();
+    }, [isLoading, error, viewMode, week]);
 
     // --- Event Handlers ---
     const navigateToWeek = (date: Date) => {
@@ -140,6 +160,19 @@ export default function EventCalendar({ week }: { week: string }) {
         const newDate = new Date(currentDate);
         newDate.setDate(newDate.getDate() + 7);
         navigateToWeek(newDate);
+    };
+
+    const goToToday = () => {
+        const today = calendarRef.current?.querySelector<HTMLElement>('[data-today-section="true"]');
+        if (!today) {
+            navigateToWeek(new Date());
+            return;
+        }
+
+        today.scrollIntoView({
+            block: "start",
+            behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+        });
     };
 
     // --- Helper for Rendering ---
@@ -203,6 +236,17 @@ export default function EventCalendar({ week }: { week: string }) {
                     />
                 )}
             </div>
+
+            {viewMode === "list" && !isLoading && !isTodayVisible && (
+                <button
+                    type="button"
+                    onClick={goToToday}
+                    className="fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] lg:bottom-5 z-30 inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-400 dark:focus-visible:ring-offset-gray-950 vibrant:bg-campus-accent vibrant:text-campus-ink vibrant:hover:bg-campus-gold"
+                >
+                    <CalendarDays className="h-4 w-4" aria-hidden="true" />
+                    {t("Today")}
+                </button>
+            )}
         </div>
     );
 }

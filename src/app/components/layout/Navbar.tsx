@@ -2,7 +2,7 @@
 import {useUI} from "@/i18n/useUI";
 
 
-import React, { useEffect, useState, useRef, Suspense } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LogIn, CalendarDays, User, Users, Plus, Moon, Sun, LogOut, Palette, Megaphone, Menu, X, LayoutGrid, Heart } from 'lucide-react';
@@ -10,7 +10,6 @@ import { useAuth } from "@/app/context/AuthContext";
 import { resolveImageUrl } from "@/app/lib/api";
 import { useTheme } from "next-themes";
 import LanguageSelector from "./LanguageSelector";
-import SinefilToggle from "./SinefilToggle";
 
 const THEME_ORDER = ["vibrant", "dark", "light"] as const;
 
@@ -104,9 +103,6 @@ export default function Navbar() {
 
           {/* Right side actions */}
           <div className="flex shrink-0 items-center gap-1 sm:gap-3">
-            {!isLoginPage && !isSignupPage && <Suspense fallback={null}>
-              <SinefilToggle onNavigate={() => setMobileMenuOpen(false)} />
-            </Suspense>}
             <Link href="/my-likes" title={t("My Likes")} aria-label={t("My Likes")} aria-current={pathname === "/my-likes" ? "page" : undefined}
               className={`hidden lg:inline-flex items-center justify-center rounded-lg p-2 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 ${pathname === "/my-likes" ? "bg-rose-50 text-rose-600 dark:bg-rose-950 dark:text-rose-300 vibrant:bg-campus-soft vibrant:text-campus-ink" : "text-gray-500 hover:bg-rose-50 hover:text-rose-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-rose-400 vibrant:text-campus-ink vibrant:hover:bg-campus-surface"}`}>
               <Heart className="h-5 w-5" aria-hidden="true" />

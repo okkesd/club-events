@@ -865,12 +865,5 @@
   "Automatically approved": "autoApproval00",
   "Approved at {date}": "autoApproval01",
   "Import GSÜ events": "gsuImport00",
-  "View source": "gsuImport01",
-  "Cinema screenings": "sinefil01",
-  "No screenings this week.": "sinefil02",
-  "Screening details": "sinefil03",
-  "Tickets": "sinefil04",
-  "Could not load screenings.": "sinefil05",
-  "Majestik, Atlas 1948 and Pera Film": "sinefil06",
-  "School events": "sinefil07"
+  "View source": "gsuImport01"
 }

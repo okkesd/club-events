@@ -32,9 +32,12 @@ export function ListViewDay({ day, events }: ListViewDayProps) {
     const relativeDay = isToday ? t("Today") : isTomorrow ? t("Tomorrow") : null;
 
     return (
-        <div data-today={isToday || undefined}>
+        <div data-today-section={isToday || undefined} className="scroll-mt-[65px]">
             {/* Day Header */}
-            <div className="sticky top-[65px] z-20 flex items-center gap-3 mb-3 py-3 bg-white dark:bg-gray-950 vibrant:bg-white border-b border-gray-100 dark:border-gray-800 vibrant:border-campus-border">
+            <div
+                data-today-heading={isToday || undefined}
+                className="sticky top-[65px] z-20 flex items-center gap-3 mb-3 py-3 bg-white dark:bg-gray-950 vibrant:bg-white border-b border-gray-100 dark:border-gray-800 vibrant:border-campus-border"
+            >
                 <div
                     className={`
                         flex items-center justify-center w-10 h-10 rounded-full text-sm font-bold shrink-0 transition-colors
